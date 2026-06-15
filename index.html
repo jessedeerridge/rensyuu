@@ -324,8 +324,12 @@
     position: relative;
   }
 
-  .masu-table col.masu-side-col {
-    width: 50%;
+  .masu-table col.masu-side-col:first-child {
+    width: 40%;
+  }
+
+  .masu-table col.masu-side-col:last-child {
+    width: 60%;
   }
 
   .masu-swap-btn {
@@ -1044,6 +1048,15 @@
     text-overflow: clip;
   }
 
+  #tableArea table:not(.masu-table) tr > th:first-child:nth-last-child(2),
+  #tableArea table:not(.masu-table) tr > td:first-child:nth-last-child(2) {
+    width: 40%;
+  }
+
+  #tableArea table:not(.masu-table) tr > th:first-child:nth-last-child(2) ~ th,
+  #tableArea table:not(.masu-table) tr > td:first-child:nth-last-child(2) ~ td {
+    width: 60%;
+  }
   #tableArea .word-cell-inner {
     min-width: 0;
     overflow: hidden;
