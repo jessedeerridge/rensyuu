@@ -324,8 +324,12 @@
     position: relative;
   }
 
-  .masu-table col.masu-side-col {
-    width: 50%;
+  .masu-table col.masu-left-col {
+    width: 45%;
+  }
+
+  .masu-table col.masu-right-col {
+    width: 55%;
   }
 
   .masu-swap-btn {
@@ -525,7 +529,7 @@
 
   td {
     height: 53px;
-    padding: 10px;
+    padding: 8px 7px;
     background: white;
     text-align: center;
     font-weight: bold;
@@ -659,7 +663,7 @@
     position: fixed;
     top: 185px;
     right: 0;
-    width: 45vw;
+    width: 55vw;
     height: 424px;
     z-index: 10;
     pointer-events: none;
@@ -702,14 +706,14 @@
     --table-font-size: 15px;
   }
 
-  #tableArea table.listen-table th:first-child,
-  #tableArea table.listen-table td:first-child {
-    width: 58%;
+  #tableArea table th:first-child,
+  #tableArea table td:first-child {
+    width: 45%;
   }
 
-  #tableArea table.listen-table th:last-child,
-  #tableArea table.listen-table td:last-child {
-    width: 42%;
+  #tableArea table th:last-child,
+  #tableArea table td:last-child {
+    width: 55%;
   }
 
 
@@ -1016,7 +1020,7 @@
 
 
 
-  /* ===== 表内文字：2行禁止＋同じ表内の文字サイズ統一 ===== */
+  /* ===== 表内文字：必要なら改行して、小さくしすぎず・切らずに表示 ===== */
   #tableArea table {
     --table-font-size: 18px;
     font-size: var(--table-font-size) !important;
@@ -1029,8 +1033,10 @@
   #tableArea .answer-text,
   #tableArea ruby {
     font-size: inherit !important;
-    white-space: nowrap !important;
-    line-height: 1.15;
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+    word-break: normal;
+    line-height: 1.18;
   }
 
   #tableArea rt {
@@ -1040,38 +1046,52 @@
 
   #tableArea th,
   #tableArea td {
-    overflow: hidden;
+    overflow: visible;
     text-overflow: clip;
   }
 
   #tableArea .word-cell-inner {
     min-width: 0;
-    overflow: hidden;
+    overflow: visible;
   }
 
   #tableArea .word-text {
     min-width: 0;
-    overflow: hidden;
+    overflow: visible;
     text-overflow: clip;
     padding-right: 0;
   }
 
   #tableArea .answer-text {
-    max-width: calc(100% - 4px);
+    max-width: 100%;
     vertical-align: middle;
-    overflow: hidden;
+    overflow: visible;
     text-overflow: clip;
-    -webkit-clip-path: inset(0 0 0 0);
-    clip-path: inset(0 0 0 0);
+    display: inline-block;
+    width: 100%;
+    text-align: left;
+    white-space: nowrap !important;
+    transform-origin: left center;
+    -webkit-clip-path: none;
+    clip-path: none;
   }
 
   #tableArea td:first-child:not(.text-adjusted-cell) .word-text {
-    padding-right: 2em;
-    text-align: right;
+    padding-right: 0;
+    text-align: left;
+  }
+
+  #tableArea td:first-child .word-text {
+    white-space: normal !important;
+  }
+
+  #tableArea td:last-child {
+    padding-left: 1em;
+    text-align: left;
   }
 
   #tableArea td:last-child.answer-cell-short:not(.text-adjusted-cell) {
-    padding-left: 2em;
+    padding-left: 1em;
     text-align: left;
   }
 
@@ -1085,14 +1105,43 @@
   #tableArea table.fitting-table .answer-text {
     padding-left: 0;
     padding-right: 0;
-    text-align: center;
+    text-align: inherit;
     transform: none;
+  }
+
+  #tableArea td:first-child .word-text,
+  #tableArea table.fitting-table td:first-child .word-text,
+  #tableArea td:first-child.text-adjusted-cell .word-text {
+    text-align: left;
+  }
+
+  #tableArea table.conjugation-table td:first-child .word-text,
+  #tableArea table.conjugation-table.fitting-table td:first-child .word-text,
+  #tableArea table.conjugation-table td:first-child.text-adjusted-cell .word-text {
+    padding-left: 0;
+    padding-right: 1em;
+    text-align: right;
+  }
+
+  #tableArea td:last-child .answer-text,
+  #tableArea table.fitting-table td:last-child .answer-text,
+  #tableArea td:last-child.text-adjusted-cell .answer-text {
+    text-align: left;
+    white-space: nowrap !important;
+  }
+
+  #tableArea table.listen-table td:last-child .answer-text,
+  #tableArea table.listen-table.fitting-table td:last-child .answer-text,
+  #tableArea table.listen-table td:last-child.text-adjusted-cell .answer-text {
+    white-space: nowrap !important;
+    transform: none !important;
+    line-height: 1.18;
   }
 
   #tableArea .answer-text ruby,
   #tableArea .word-text ruby {
     max-width: 100%;
-    overflow: hidden;
+    overflow: visible;
     text-overflow: clip;
   }
 
@@ -2852,8 +2901,8 @@ function makeMasuTable() {
       <button class="masu-swap-btn" type="button" onclick="toggleMasuSwap()" aria-label="辞書形とマス形を入れかえる">⇔</button>
       <table class="masu-table">
         <colgroup>
-          <col class="masu-side-col">
-          <col class="masu-side-col">
+          <col class="masu-left-col">
+          <col class="masu-right-col">
         </colgroup>
         <tr>
           ${makeMasuHeaderCell(leftTitle)}
@@ -4571,14 +4620,72 @@ function updateTableAlignmentClasses(table) {
   });
 }
 
+function applyTableModeClasses(table) {
+  const isConjugationTable = currentSection === "conjugation" || !nonConjugationQuestionTypes.has(currentTableType);
+  table.classList.toggle("conjugation-table", isConjugationTable);
+  table.classList.toggle("non-conjugation-table", !isConjugationTable);
+}
+
+function resetTableTextTransforms(table) {
+  table.querySelectorAll(".answer-text").forEach(el => {
+    el.style.removeProperty("transform");
+  });
+}
+
+function squeezeRightColumnToOneLine(table) {
+  const minRightFont = 8;
+
+  table.querySelectorAll("td:last-child .answer-text").forEach(el => {
+    el.style.removeProperty("transform");
+
+    let fontSize = parseFloat(getComputedStyle(el).fontSize);
+    if (!Number.isFinite(fontSize)) return;
+
+    while (fontSize > minRightFont && el.scrollWidth > el.clientWidth + 0.5) {
+      fontSize -= 1;
+      el.style.setProperty("font-size", `${fontSize}px`, "important");
+    }
+
+    if (el.scrollWidth > el.clientWidth + 0.5 && el.clientWidth > 0 && el.scrollWidth > 0) {
+      const fittedSize = Math.max(1, (fontSize * el.clientWidth) / el.scrollWidth - 0.5);
+      el.style.setProperty("font-size", `${fittedSize}px`, "important");
+    }
+  });
+}
+
+function leftTextUsesMoreThanTwoLines(el) {
+  const lineHeight = parseFloat(getComputedStyle(el).lineHeight);
+  if (!Number.isFinite(lineHeight) || lineHeight <= 0) return false;
+  return el.scrollHeight > lineHeight * 2 + 1;
+}
+
+function unifyLeftColumnFontSize(table) {
+  const leftTexts = Array.from(table.querySelectorAll("td:first-child .word-text"))
+    .filter(el => el.offsetParent !== null);
+  if (!leftTexts.length) return;
+
+  const smallestSize = leftTexts.reduce((smallest, el) => {
+    const size = parseFloat(getComputedStyle(el).fontSize);
+    return Number.isFinite(size) ? Math.min(smallest, size) : smallest;
+  }, Infinity);
+
+  if (!Number.isFinite(smallestSize)) return;
+  leftTexts.forEach(el => {
+    el.style.setProperty("font-size", `${smallestSize}px`, "important");
+  });
+}
+
 function fitTableTextOneLine() {
   const table = document.querySelector("#tableArea table");
   if (!table) return;
 
   const maxFont = 18;
   const minTableFont = 15;
-  const minCellFont = 10;
+  const minCellFont = 15;
+  const minLeftFont = 14;
+  const minRightFont = 8;
   const wrap = document.querySelector(".table-wrap");
+  applyTableModeClasses(table);
 
   const shrinkTargets = () => Array.from(table.querySelectorAll(
     "th, .word-text, .answer-text, .group-row td"
@@ -4592,6 +4699,7 @@ function fitTableTextOneLine() {
     shrinkTargets().forEach(el => {
       el.style.removeProperty("font-size");
     });
+    resetTableTextTransforms(table);
     updateTableAlignmentClasses(table);
   };
 
@@ -4604,7 +4712,6 @@ function fitTableTextOneLine() {
     if (rect.width <= 0 || rect.height <= 0) return false;
 
     if (el.scrollWidth > el.clientWidth + 0.5) return true;
-    if (el.scrollHeight > el.clientHeight + 1.5 && !el.matches("ruby")) return true;
 
     const cell = el.closest("td, th");
     if (cell && el !== cell) {
@@ -4635,12 +4742,17 @@ function fitTableTextOneLine() {
   let hasCellShrink = false;
   shrinkTargets().forEach(el => {
     let cellSize = size;
-    while (cellSize > minCellFont && elementOverflows(el)) {
+    const needsShrink = () => elementOverflows(el) || (el.matches(".word-text") && leftTextUsesMoreThanTwoLines(el));
+    const minFont = el.matches(".word-text") ? minLeftFont : (el.matches(".answer-text") ? minRightFont : minCellFont);
+    while (cellSize > minFont && needsShrink()) {
       cellSize -= 1;
       el.style.setProperty("font-size", `${cellSize}px`, "important");
       hasCellShrink = true;
     }
   });
+
+  unifyLeftColumnFontSize(table);
+  squeezeRightColumnToOneLine(table);
 
   table.dataset.fittedFontSize = String(size);
   table.classList.remove("fitting-table");
@@ -4981,25 +5093,39 @@ function updateSheetHiddenText() {
       x: snap(point.x - rect.left),
       y: snap(point.y - rect.top)
     }));
-    const pointsValue = maskPoints.map(point => `${point.x}px ${point.y}px`).join(", ");
-    const polygonValue = `polygon(${pointsValue})`;
-    const backgroundColor = getAnswerMaskBackground(text);
+    const pointsValue = maskPoints.map(point => `${point.x},${point.y}`).join(" ");
+    const svg = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
+        <defs>
+          <mask id="answer-mask" maskUnits="userSpaceOnUse">
+            <rect x="0" y="0" width="${width}" height="${height}" fill="white"/>
+            <polygon points="${pointsValue}" fill="black"/>
+          </mask>
+        </defs>
+        <rect x="0" y="0" width="${width}" height="${height}" fill="white" mask="url(#answer-mask)"/>
+      </svg>
+    `;
+    const maskUrl = `url("data:image/svg+xml,${escapeSvgForDataUrl(svg)}")`;
 
-    const key = `${width},${height},${pointsValue},${backgroundColor}`;
+    const key = `${width},${height},${pointsValue}`;
     if (text.dataset.maskKey === key) return;
 
     text.dataset.maskKey = key;
     text.dataset.clipKey = "";
 
-    const cover = getAnswerMaskCover(text);
-    cover.style.background = backgroundColor;
-    cover.style.webkitClipPath = polygonValue;
-    cover.style.clipPath = polygonValue;
+    const cover = text.querySelector(":scope > .answer-mask-cover");
+    if (cover) cover.remove();
 
     text.style.webkitClipPath = "";
     text.style.clipPath = "";
-    text.style.webkitMaskImage = "";
-    text.style.maskImage = "";
+    text.style.webkitMaskImage = maskUrl;
+    text.style.maskImage = maskUrl;
+    text.style.webkitMaskSize = `${width}px ${height}px`;
+    text.style.maskSize = `${width}px ${height}px`;
+    text.style.webkitMaskRepeat = "no-repeat";
+    text.style.maskRepeat = "no-repeat";
+    text.style.webkitMaskPosition = "0 0";
+    text.style.maskPosition = "0 0";
   });
 }
 function preventMobileZoom() {
