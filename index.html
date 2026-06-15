@@ -1132,9 +1132,9 @@
   #tableArea table.listen-table td:last-child .answer-text,
   #tableArea table.listen-table.fitting-table td:last-child .answer-text,
   #tableArea table.listen-table td:last-child.text-adjusted-cell .answer-text {
-    white-space: normal !important;
+    white-space: nowrap !important;
     transform: none !important;
-    line-height: 1.25;
+    line-height: 1.18;
   }
 
   #tableArea .answer-text ruby,
@@ -4632,16 +4632,23 @@ function resetTableTextTransforms(table) {
 }
 
 function squeezeRightColumnToOneLine(table) {
-  if (table.classList.contains("listen-table")) return;
+  const minRightFont = 8;
 
   table.querySelectorAll("td:last-child .answer-text").forEach(el => {
     el.style.removeProperty("transform");
-    const availableWidth = el.clientWidth;
-    const neededWidth = el.scrollWidth;
-    if (availableWidth <= 0 || neededWidth <= availableWidth + 0.5) return;
 
-    const scale = Math.min(1, availableWidth / neededWidth);
-    el.style.setProperty("transform", `scaleX(${scale})`);
+    let fontSize = parseFloat(getComputedStyle(el).fontSize);
+    if (!Number.isFinite(fontSize)) return;
+
+    while (fontSize > minRightFont && el.scrollWidth > el.clientWidth + 0.5) {
+      fontSize -= 1;
+      el.style.setProperty("font-size", `${fontSize}px`, "important");
+    }
+
+    if (el.scrollWidth > el.clientWidth + 0.5 && el.clientWidth > 0 && el.scrollWidth > 0) {
+      const fittedSize = Math.max(1, (fontSize * el.clientWidth) / el.scrollWidth - 0.5);
+      el.style.setProperty("font-size", `${fittedSize}px`, "important");
+    }
   });
 }
 
@@ -4675,6 +4682,7 @@ function fitTableTextOneLine() {
   const minTableFont = 15;
   const minCellFont = 15;
   const minLeftFont = 10;
+  const minRightFont = 8;
   const wrap = document.querySelector(".table-wrap");
   applyTableModeClasses(table);
 
@@ -4734,7 +4742,7 @@ function fitTableTextOneLine() {
   shrinkTargets().forEach(el => {
     let cellSize = size;
     const needsShrink = () => elementOverflows(el) || (el.matches(".word-text") && leftTextUsesMoreThanTwoLines(el));
-    const minFont = el.matches(".word-text") ? minLeftFont : minCellFont;
+    const minFont = el.matches(".word-text") ? minLeftFont : (el.matches(".answer-text") ? minRightFont : minCellFont);
     while (cellSize > minFont && needsShrink()) {
       cellSize -= 1;
       el.style.setProperty("font-size", `${cellSize}px`, "important");
