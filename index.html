@@ -324,8 +324,12 @@
     position: relative;
   }
 
-  .masu-table col.masu-side-col {
-    width: 50%;
+  .masu-table col.masu-left-col {
+    width: 45%;
+  }
+
+  .masu-table col.masu-right-col {
+    width: 55%;
   }
 
   .masu-swap-btn {
@@ -525,7 +529,7 @@
 
   td {
     height: 53px;
-    padding: 10px;
+    padding: 8px 7px;
     background: white;
     text-align: center;
     font-weight: bold;
@@ -702,14 +706,14 @@
     --table-font-size: 15px;
   }
 
-  #tableArea table.listen-table th:first-child,
-  #tableArea table.listen-table td:first-child {
-    width: 58%;
+  #tableArea table th:first-child,
+  #tableArea table td:first-child {
+    width: 45%;
   }
 
-  #tableArea table.listen-table th:last-child,
-  #tableArea table.listen-table td:last-child {
-    width: 42%;
+  #tableArea table th:last-child,
+  #tableArea table td:last-child {
+    width: 55%;
   }
 
 
@@ -1016,7 +1020,7 @@
 
 
 
-  /* ===== 表内文字：2行禁止＋同じ表内の文字サイズ統一 ===== */
+  /* ===== 表内文字：必要なら改行して、小さくしすぎず・切らずに表示 ===== */
   #tableArea table {
     --table-font-size: 18px;
     font-size: var(--table-font-size) !important;
@@ -1029,8 +1033,10 @@
   #tableArea .answer-text,
   #tableArea ruby {
     font-size: inherit !important;
-    white-space: nowrap !important;
-    line-height: 1.15;
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+    word-break: normal;
+    line-height: 1.18;
   }
 
   #tableArea rt {
@@ -1040,38 +1046,45 @@
 
   #tableArea th,
   #tableArea td {
-    overflow: hidden;
+    overflow: visible;
     text-overflow: clip;
   }
 
   #tableArea .word-cell-inner {
     min-width: 0;
-    overflow: hidden;
+    overflow: visible;
   }
 
   #tableArea .word-text {
     min-width: 0;
-    overflow: hidden;
+    overflow: visible;
     text-overflow: clip;
     padding-right: 0;
   }
 
   #tableArea .answer-text {
-    max-width: calc(100% - 4px);
+    max-width: 100%;
     vertical-align: middle;
-    overflow: hidden;
+    overflow: visible;
     text-overflow: clip;
+    display: inline-block;
+    width: 100%;
+    text-align: left;
     -webkit-clip-path: inset(0 0 0 0);
     clip-path: inset(0 0 0 0);
   }
 
   #tableArea td:first-child:not(.text-adjusted-cell) .word-text {
-    padding-right: 2em;
+    padding-right: 0.8em;
     text-align: right;
   }
 
+  #tableArea td:last-child {
+    text-align: left;
+  }
+
   #tableArea td:last-child.answer-cell-short:not(.text-adjusted-cell) {
-    padding-left: 2em;
+    padding-left: 0.7em;
     text-align: left;
   }
 
@@ -1085,14 +1098,20 @@
   #tableArea table.fitting-table .answer-text {
     padding-left: 0;
     padding-right: 0;
-    text-align: center;
+    text-align: inherit;
     transform: none;
+  }
+
+  #tableArea td:last-child .answer-text,
+  #tableArea table.fitting-table td:last-child .answer-text,
+  #tableArea td:last-child.text-adjusted-cell .answer-text {
+    text-align: left;
   }
 
   #tableArea .answer-text ruby,
   #tableArea .word-text ruby {
     max-width: 100%;
-    overflow: hidden;
+    overflow: visible;
     text-overflow: clip;
   }
 
@@ -2852,8 +2871,8 @@ function makeMasuTable() {
       <button class="masu-swap-btn" type="button" onclick="toggleMasuSwap()" aria-label="辞書形とマス形を入れかえる">⇔</button>
       <table class="masu-table">
         <colgroup>
-          <col class="masu-side-col">
-          <col class="masu-side-col">
+          <col class="masu-left-col">
+          <col class="masu-right-col">
         </colgroup>
         <tr>
           ${makeMasuHeaderCell(leftTitle)}
@@ -4577,7 +4596,7 @@ function fitTableTextOneLine() {
 
   const maxFont = 18;
   const minTableFont = 15;
-  const minCellFont = 10;
+  const minCellFont = 15;
   const wrap = document.querySelector(".table-wrap");
 
   const shrinkTargets = () => Array.from(table.querySelectorAll(
@@ -4604,7 +4623,6 @@ function fitTableTextOneLine() {
     if (rect.width <= 0 || rect.height <= 0) return false;
 
     if (el.scrollWidth > el.clientWidth + 0.5) return true;
-    if (el.scrollHeight > el.clientHeight + 1.5 && !el.matches("ruby")) return true;
 
     const cell = el.closest("td, th");
     if (cell && el !== cell) {
