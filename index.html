@@ -449,6 +449,11 @@
     box-shadow: 0 1px 0 #e15d9d;
   }
 
+  .back-arrow-icon {
+    display: inline-block;
+    transform: scaleX(-1);
+  }
+
   .random-order-btn {
     width: 48px;
     height: 48px;
@@ -1249,7 +1254,7 @@
 
 <div id="tableScreen">
   <div class="top-bar">
-    <button class="back-btn" onclick="backMenu()">← 戻る</button>
+    <button class="back-btn" onclick="backMenu()" aria-label="戻る"><span class="back-arrow-icon" aria-hidden="true">➜</span></button>
     <div class="table-title" id="tableTitle">Vます</div>
     <button class="random-order-btn" id="randomOrderBtn" type="button" onclick="toggleRandomOrder()" aria-label="表をランダムに並べ替える">随机</button>
   </div>
@@ -3209,14 +3214,14 @@ const adjectiveNaru30 = [
 ];
 
 function makeAdjectiveNaruTable() {
-  makeFlat30Table("形-なる", "形-なる（变得）", adjectiveNaru30, "形容詞・辞書形");
+  makeFlat30Table("形-なる", "形-なる（变得）", adjectiveNaru30, "辞書形");
 }
 
 function makeAdjectiveTable(rightTitle, answerIndex) {
   let html = `
     <table>
       <tr>
-        <th>形容詞・辞書形</th>
+        <th>辞書形</th>
         <th>${rightTitle}</th>
       </tr>
 
@@ -3299,7 +3304,7 @@ function makeAdjectiveSouTable() {
   let html = `
     <table>
       <tr>
-        <th>形容詞・辞書形</th>
+        <th>辞書形</th>
         <th>形-そうです</th>
       </tr>
 
@@ -3365,7 +3370,7 @@ function makeTokiTable() {
   let html = `
     <table>
       <tr>
-        <th>形容詞・辞書形</th>
+        <th>辞書形</th>
         <th>とき</th>
       </tr>
 
