@@ -1086,11 +1086,12 @@
   }
 
   #tableArea td:last-child {
+    padding-left: 1em;
     text-align: left;
   }
 
   #tableArea td:last-child.answer-cell-short:not(.text-adjusted-cell) {
-    padding-left: 0.7em;
+    padding-left: 1em;
     text-align: left;
   }
 
@@ -1117,6 +1118,7 @@
   #tableArea table.conjugation-table td:first-child .word-text,
   #tableArea table.conjugation-table.fitting-table td:first-child .word-text,
   #tableArea table.conjugation-table td:first-child.text-adjusted-cell .word-text {
+    padding-right: 1em;
     text-align: right;
   }
 
@@ -5036,6 +5038,11 @@ function updateSheetHiddenText() {
   const snap = value => Math.round(value * 2) / 2;
 
   texts.forEach(text => {
+    if (text.closest("table.listen-table")) {
+      if (text.dataset.maskKey || text.dataset.clipKey || text.querySelector(":scope > .answer-mask-cover")) clearTextMask(text);
+      return;
+    }
+
     const rect = text.getBoundingClientRect();
     if (rect.width <= 0 || rect.height <= 0) {
       if (text.dataset.maskKey || text.dataset.clipKey) clearTextMask(text);
