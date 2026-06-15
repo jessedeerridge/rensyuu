@@ -142,19 +142,7 @@
 
   .menu-title-row .page-title {
     flex: 1;
-    margin: 12px 72px 18px;
-  }
-
-  .menu-back-btn {
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 2;
-  }
-
-  .menu-back-btn:active {
-    transform: translateY(calc(-50% + 2px));
+    margin: 12px 0 18px;
   }
 
   .title-emoji {
@@ -459,6 +447,22 @@
   .back-btn:active {
     transform: translateY(2px);
     box-shadow: 0 1px 0 #e15d9d;
+  }
+
+  .menu-back-btn {
+    position: fixed;
+    left: 12px;
+    top: 10px;
+    z-index: 80;
+  }
+
+  .back-btn.menu-back-btn:active {
+    transform: translateY(2px);
+  }
+
+  .back-arrow-icon {
+    display: inline-block;
+    transform: scaleX(-1);
   }
 
   .random-order-btn {
@@ -1087,11 +1091,13 @@
 
   #tableArea td:last-child {
     padding-left: 1em;
+    padding-right: 0;
     text-align: left;
   }
 
   #tableArea td:last-child.answer-cell-short:not(.text-adjusted-cell) {
     padding-left: 1em;
+    padding-right: 0;
     text-align: left;
   }
 
@@ -1195,7 +1201,7 @@
 <div id="menuScreen" class="screen">
   <div id="questionMemoLayer" aria-hidden="true"></div>
   <div class="menu-title-row">
-    <button class="back-btn menu-back-btn" type="button" onclick="openHome()">← 戻る</button>
+    <button class="back-btn menu-back-btn" type="button" onclick="openHome()" aria-label="戻る"><span class="back-arrow-icon" aria-hidden="true">➜</span></button>
     <div class="page-title"><span class="title-emoji left">🐢</span> 活用れんしゅう <span class="title-emoji right">🐢</span></div>
   </div>
 
@@ -1260,7 +1266,7 @@
 
 <div id="tableScreen">
   <div class="top-bar">
-    <button class="back-btn" onclick="backMenu()">← 戻る</button>
+    <button class="back-btn" onclick="backMenu()" aria-label="戻る"><span class="back-arrow-icon" aria-hidden="true">➜</span></button>
     <div class="table-title" id="tableTitle">Vます</div>
     <button class="random-order-btn" id="randomOrderBtn" type="button" onclick="toggleRandomOrder()" aria-label="表をランダムに並べ替える">随机</button>
   </div>
@@ -1298,31 +1304,31 @@ const listenPracticeData = [
   ["想问电影的感想", "どうでしたか。"],
   ["想了解哥哥/弟弟的性格", "お兄さんはどんな人ですか。"],
   ["想了解电影的大致内容", "どんな映画ですか。"],
-  ["想邀请对方去唱卡拉OK", "カラオケに行きませんか"],
-  ["想邀请对方一起烧烤", "バーベキューをしませんか"],
+  ["想邀请对方去唱卡拉OK", "カラオケに行きませんか。"],
+  ["想邀请对方一起烧烤", "バーベキューをしませんか。"],
   ["想问对方正在做什么", "なにをしていますか。"],
   ["想问对方的工作", "なにをしていますか。"],
   ["想问对方哪里不舒服", "どうしたんですか。"],
   ["想知道对方为什么困扰", "どうしたんですか。"],
   ["想知道对方为什么看起来很开心", "どうしたんですか。"],
-  ["想主动帮忙", "手伝いましょうか"],
-  ["想帮对方拿行李", "持ちましょうか"],
+  ["想主动帮忙", "手伝いましょうか。"],
+  ["想帮对方拿行李", "持ちましょうか。"],
   ["想知道是谁带来的", "だれが持ってきましたか。"],
   ["想知道房间里有谁", "だれがいますか。"],
   ["想问果汁还有没有剩", "まだジュースがありますか。"],
   ["想问咖喱还有没有剩", "まだカレーがありますか。"],
-  ["想知道对方住在哪里", "どこに住んでいますか"],
-  ["想知道对方和谁一起住", "だれと住んでいますか"],
+  ["想知道对方住在哪里", "どこに住んでいますか。"],
+  ["想知道对方和谁一起住", "だれと住んでいますか。"],
   ["想问对方收到了什么礼物", "なにをもらいましたか。"],
   ["想借自行车", "自転車を借りることができますか。"],
   ["想买票", "チケットを買うことができますか。"],
-  ["想问作业做得怎么样了", "もう宿題をしましたか"],
-  ["想问对方吃饭了没有", "もうご飯を食べましたか"],
-  ["打电话时想确认对方能不能听见", "聞こえますか"],
-  ["想确认对方能不能看清黑板上的字", "見えますか"],
-  ["想去厕所", "トイレに行ってもいいですか"],
-  ["想休息一下", "ちょっと休んでもいいですか"],
-  ["想坐在旁边", "ここに座ってもいいですか"],
+  ["想问作业做得怎么样了", "もう宿題をしましたか。"],
+  ["想问对方吃饭了没有", "もうご飯を食べましたか。"],
+  ["打电话时想确认对方能不能听见", "聞こえますか。"],
+  ["想确认对方能不能看清黑板上的字", "見えますか。"],
+  ["想去厕所", "トイレに行ってもいいですか。"],
+  ["想休息一下", "ちょっと休んでもいいですか。"],
+  ["想坐在旁边", "ここに座ってもいいですか。"],
   ["想问有没有好的店", "どこかいいお店を知っていますか。"],
   ["想了解对方有没有什么健康习惯", "何か体にいいことをしていますか。"],
   ["想了解对方有没有出国经历", "海外に行ったことがありますか。"],
@@ -1332,12 +1338,12 @@ const listenPracticeData = [
   ["想把时间改到8点", "8時でもいいですか。"],
   ["想把地点改到宿舍前面", "寮の前でもいいですか。"],
   ["想请对方帮忙检查日语", "チェックしてもらえませんか。"],
-  ["想请对方再说一遍", "もう一度言ってもらえませんか"],
-  ["想请对方帮忙拍照", "写真をとってもらえませんか"],
-  ["想请对方帮忙", "手伝ってもらえませんか"],
+  ["想请对方再说一遍", "もう一度言ってもらえませんか。"],
+  ["想请对方帮忙拍照", "写真をとってもらえませんか。"],
+  ["想请对方帮忙", "手伝ってもらえませんか。"],
   ["不明白意思的时候", "どういう意味ですか。"],
   ["想知道怎么去", "どうやって行ったらいいですか。"],
-  ["想知道怎么买票", "どうやって買ったらいいですか"],
+  ["想知道怎么买票", "どうやって買ったらいいですか。"],
   ["想问对方推荐的店", "よく行くお店はどこですか。"],
   ["想问对方推荐的歌", "よく聞く歌はなんですか。"],
   ["想问哪里有卖便宜肉的店", "安い肉を売っているお店はどこにありますか。"]
@@ -3220,14 +3226,14 @@ const adjectiveNaru30 = [
 ];
 
 function makeAdjectiveNaruTable() {
-  makeFlat30Table("形-なる", "形-なる（变得）", adjectiveNaru30, "形容詞・辞書形");
+  makeFlat30Table("形-なる", "形-なる（变得）", adjectiveNaru30, "辞書形");
 }
 
 function makeAdjectiveTable(rightTitle, answerIndex) {
   let html = `
     <table>
       <tr>
-        <th>形容詞・辞書形</th>
+        <th>辞書形</th>
         <th>${rightTitle}</th>
       </tr>
 
@@ -3310,7 +3316,7 @@ function makeAdjectiveSouTable() {
   let html = `
     <table>
       <tr>
-        <th>形容詞・辞書形</th>
+        <th>辞書形</th>
         <th>形-そうです</th>
       </tr>
 
@@ -3376,7 +3382,7 @@ function makeTokiTable() {
   let html = `
     <table>
       <tr>
-        <th>形容詞・辞書形</th>
+        <th>辞書形</th>
         <th>とき</th>
       </tr>
 
