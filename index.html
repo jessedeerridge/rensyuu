@@ -1077,8 +1077,8 @@
   }
 
   #tableArea td:first-child:not(.text-adjusted-cell) .word-text {
-    padding-right: 0.8em;
-    text-align: right;
+    padding-right: 0;
+    text-align: left;
   }
 
   #tableArea td:first-child .word-text {
@@ -1106,6 +1106,12 @@
     padding-right: 0;
     text-align: inherit;
     transform: none;
+  }
+
+  #tableArea td:first-child .word-text,
+  #tableArea table.fitting-table td:first-child .word-text,
+  #tableArea td:first-child.text-adjusted-cell .word-text {
+    text-align: left;
   }
 
   #tableArea td:last-child .answer-text,
@@ -4610,7 +4616,7 @@ function squeezeRightColumnToOneLine(table) {
     const neededWidth = el.scrollWidth;
     if (availableWidth <= 0 || neededWidth <= availableWidth + 0.5) return;
 
-    const scale = Math.max(0.72, Math.min(1, availableWidth / neededWidth));
+    const scale = Math.min(1, availableWidth / neededWidth);
     el.style.setProperty("transform", `scaleX(${scale})`);
   });
 }
@@ -4619,6 +4625,22 @@ function leftTextUsesMoreThanTwoLines(el) {
   const lineHeight = parseFloat(getComputedStyle(el).lineHeight);
   if (!Number.isFinite(lineHeight) || lineHeight <= 0) return false;
   return el.scrollHeight > lineHeight * 2 + 1;
+}
+
+function unifyLeftColumnFontSize(table) {
+  const leftTexts = Array.from(table.querySelectorAll("td:first-child .word-text"))
+    .filter(el => el.offsetParent !== null);
+  if (!leftTexts.length) return;
+
+  const smallestSize = leftTexts.reduce((smallest, el) => {
+    const size = parseFloat(getComputedStyle(el).fontSize);
+    return Number.isFinite(size) ? Math.min(smallest, size) : smallest;
+  }, Infinity);
+
+  if (!Number.isFinite(smallestSize)) return;
+  leftTexts.forEach(el => {
+    el.style.setProperty("font-size", `${smallestSize}px`, "important");
+  });
 }
 
 function fitTableTextOneLine() {
@@ -4695,6 +4717,7 @@ function fitTableTextOneLine() {
     }
   });
 
+  unifyLeftColumnFontSize(table);
   squeezeRightColumnToOneLine(table);
 
   table.dataset.fittedFontSize = String(size);
