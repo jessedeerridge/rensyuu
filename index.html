@@ -1129,6 +1129,14 @@
     white-space: nowrap !important;
   }
 
+  #tableArea table.listen-table td:last-child .answer-text,
+  #tableArea table.listen-table.fitting-table td:last-child .answer-text,
+  #tableArea table.listen-table td:last-child.text-adjusted-cell .answer-text {
+    white-space: normal !important;
+    transform: none !important;
+    line-height: 1.25;
+  }
+
   #tableArea .answer-text ruby,
   #tableArea .word-text ruby {
     max-width: 100%;
@@ -4624,6 +4632,8 @@ function resetTableTextTransforms(table) {
 }
 
 function squeezeRightColumnToOneLine(table) {
+  if (table.classList.contains("listen-table")) return;
+
   table.querySelectorAll("td:last-child .answer-text").forEach(el => {
     el.style.removeProperty("transform");
     const availableWidth = el.clientWidth;
