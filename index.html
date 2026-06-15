@@ -4639,7 +4639,8 @@ function resetTableTextTransforms(table) {
 }
 
 function squeezeRightColumnToOneLine(table) {
-  const minRightFont = 8;
+  const minRightFont = 13;
+  const minRightScale = 0.68;
 
   table.querySelectorAll("td:last-child .answer-text").forEach(el => {
     el.style.removeProperty("transform");
@@ -4653,8 +4654,9 @@ function squeezeRightColumnToOneLine(table) {
     }
 
     if (el.scrollWidth > el.clientWidth + 0.5 && el.clientWidth > 0 && el.scrollWidth > 0) {
-      const fittedSize = Math.max(1, (fontSize * el.clientWidth) / el.scrollWidth - 0.5);
-      el.style.setProperty("font-size", `${fittedSize}px`, "important");
+      const fittedScale = Math.min(1, el.clientWidth / el.scrollWidth - 0.01);
+      const scale = Math.max(minRightScale, fittedScale);
+      el.style.setProperty("transform", `scaleX(${scale})`, "important");
     }
   });
 }
@@ -4689,7 +4691,7 @@ function fitTableTextOneLine() {
   const minTableFont = 15;
   const minCellFont = 15;
   const minLeftFont = 14;
-  const minRightFont = 8;
+  const minRightFont = 13;
   const wrap = document.querySelector(".table-wrap");
   applyTableModeClasses(table);
 
