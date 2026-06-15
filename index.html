@@ -1070,6 +1070,8 @@
     display: inline-block;
     width: 100%;
     text-align: left;
+    white-space: nowrap !important;
+    transform-origin: left center;
     -webkit-clip-path: inset(0 0 0 0);
     clip-path: inset(0 0 0 0);
   }
@@ -1077,6 +1079,10 @@
   #tableArea td:first-child:not(.text-adjusted-cell) .word-text {
     padding-right: 0.8em;
     text-align: right;
+  }
+
+  #tableArea td:first-child .word-text {
+    white-space: normal !important;
   }
 
   #tableArea td:last-child {
@@ -1106,6 +1112,7 @@
   #tableArea table.fitting-table td:last-child .answer-text,
   #tableArea td:last-child.text-adjusted-cell .answer-text {
     text-align: left;
+    white-space: nowrap !important;
   }
 
   #tableArea .answer-text ruby,
@@ -4590,6 +4597,30 @@ function updateTableAlignmentClasses(table) {
   });
 }
 
+function resetTableTextTransforms(table) {
+  table.querySelectorAll(".answer-text").forEach(el => {
+    el.style.removeProperty("transform");
+  });
+}
+
+function squeezeRightColumnToOneLine(table) {
+  table.querySelectorAll("td:last-child .answer-text").forEach(el => {
+    el.style.removeProperty("transform");
+    const availableWidth = el.clientWidth;
+    const neededWidth = el.scrollWidth;
+    if (availableWidth <= 0 || neededWidth <= availableWidth + 0.5) return;
+
+    const scale = Math.max(0.72, Math.min(1, availableWidth / neededWidth));
+    el.style.setProperty("transform", `scaleX(${scale})`);
+  });
+}
+
+function leftTextUsesMoreThanTwoLines(el) {
+  const lineHeight = parseFloat(getComputedStyle(el).lineHeight);
+  if (!Number.isFinite(lineHeight) || lineHeight <= 0) return false;
+  return el.scrollHeight > lineHeight * 2 + 1;
+}
+
 function fitTableTextOneLine() {
   const table = document.querySelector("#tableArea table");
   if (!table) return;
@@ -4597,6 +4628,7 @@ function fitTableTextOneLine() {
   const maxFont = 18;
   const minTableFont = 15;
   const minCellFont = 15;
+  const minLeftFont = 10;
   const wrap = document.querySelector(".table-wrap");
 
   const shrinkTargets = () => Array.from(table.querySelectorAll(
@@ -4611,6 +4643,7 @@ function fitTableTextOneLine() {
     shrinkTargets().forEach(el => {
       el.style.removeProperty("font-size");
     });
+    resetTableTextTransforms(table);
     updateTableAlignmentClasses(table);
   };
 
@@ -4653,12 +4686,16 @@ function fitTableTextOneLine() {
   let hasCellShrink = false;
   shrinkTargets().forEach(el => {
     let cellSize = size;
-    while (cellSize > minCellFont && elementOverflows(el)) {
+    const needsShrink = () => elementOverflows(el) || (el.matches(".word-text") && leftTextUsesMoreThanTwoLines(el));
+    const minFont = el.matches(".word-text") ? minLeftFont : minCellFont;
+    while (cellSize > minFont && needsShrink()) {
       cellSize -= 1;
       el.style.setProperty("font-size", `${cellSize}px`, "important");
       hasCellShrink = true;
     }
   });
+
+  squeezeRightColumnToOneLine(table);
 
   table.dataset.fittedFontSize = String(size);
   table.classList.remove("fitting-table");
