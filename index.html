@@ -144,23 +144,19 @@
     background: rgba(255, 247, 251, 0.96);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
+    display: flex;
     align-items: center;
+    justify-content: flex-start;
     gap: 10px;
     padding: 10px 12px;
-    border-bottom: 2px solid #ffd1e6;
-  }
-
-  .menu-title-row::after {
-    content: "";
-    width: 75px;
   }
 
   .menu-title-row .page-title {
     min-width: 0;
     margin: 0;
-    font-size: clamp(18px, 5.2vw, 24px);
+    text-align: left;
+    font-size: 28px;
+    font-weight: 900;
     line-height: 1.2;
     white-space: nowrap;
   }
@@ -168,7 +164,7 @@
   .menu-back-btn {
     position: relative;
     z-index: 2;
-    justify-self: start;
+    flex: 0 0 auto;
   }
 
   .title-emoji {
