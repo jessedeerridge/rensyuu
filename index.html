@@ -1079,6 +1079,15 @@
     clip-path: inset(0 0 0 0);
   }
 
+  #tableArea table:not(.fitting-table) td:last-child:not(.text-adjusted-cell) {
+    padding-left: 1em;
+    text-align: left;
+  }
+
+  #tableArea table:not(.fitting-table) td:last-child:not(.text-adjusted-cell) .answer-text {
+    text-align: left;
+  }
+
   #tableArea .text-adjusted-cell .word-text,
   #tableArea .text-adjusted-cell .answer-text,
   #tableArea table.fitting-table .word-text,
