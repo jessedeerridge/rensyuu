@@ -437,10 +437,11 @@
     background: rgba(255, 247, 251, 0.96);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
-    display: flex;
+    display: grid;
+    grid-template-columns: 74px minmax(0, 1fr) 48px;
     align-items: center;
-    gap: 10px;
-    padding: 10px 12px;
+    gap: 8px;
+    padding: 10px 10px;
     border-bottom: 2px solid #ffd1e6;
   }
 
@@ -451,9 +452,14 @@
     color: white;
     font-size: 15px;
     font-weight: bold;
-    padding: 9px 14px;
+    width: 74px;
+    padding: 9px 0;
     box-shadow: 0 3px 0 #e15d9d;
     cursor: pointer;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
   }
 
   .back-btn:active {
@@ -489,8 +495,11 @@
   }
 
   .table-title {
-    flex: 1;
+    min-width: 0;
     text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     font-size: 21px;
     font-weight: bold;
     color: #ff6fae;
@@ -1099,6 +1108,10 @@
     text-align: left;
   }
 
+  #tableArea table.speak-table td:last-child {
+    padding-right: 0;
+  }
+
   #tableArea .text-adjusted-cell .word-text,
   #tableArea .text-adjusted-cell .answer-text,
   #tableArea table.fitting-table .word-text,
@@ -1260,7 +1273,7 @@
 
 <div id="tableScreen">
   <div class="top-bar">
-    <button class="back-btn" onclick="backMenu()">← 戻る</button>
+    <button class="back-btn" type="button" onclick="backMenu()">← 戻る</button>
     <div class="table-title" id="tableTitle">Vます</div>
     <button class="random-order-btn" id="randomOrderBtn" type="button" onclick="toggleRandomOrder()" aria-label="表をランダムに並べ替える">随机</button>
   </div>
@@ -1386,6 +1399,12 @@ function openConnectPage() {
 
 function escapeHtml(value) {
   return String(value).replace(/[&<>'"]/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[char]));
+}
+
+function ensureJapanesePeriod(value) {
+  const text = String(value).trim();
+  if (!text) return text;
+  return /[。！？.!?]$/.test(text) ? text : `${text}。`;
 }
 
 let currentMenuPage = 0;
@@ -2653,7 +2672,7 @@ function makeListenTable() {
   const rows = listenPracticeData.map(([prompt, answer]) => `
     <tr>
       <td>${makeWordCell(escapeHtml(prompt))}</td>
-      <td><span class="answer-text">${escapeHtml(answer)}</span></td>
+      <td><span class="answer-text">${escapeHtml(ensureJapanesePeriod(answer))}</span></td>
     </tr>
   `).join("");
   document.getElementById("tableArea").innerHTML = `
@@ -4624,6 +4643,7 @@ function applyTableModeClasses(table) {
   const isConjugationTable = currentSection === "conjugation" || !nonConjugationQuestionTypes.has(currentTableType);
   table.classList.toggle("conjugation-table", isConjugationTable);
   table.classList.toggle("non-conjugation-table", !isConjugationTable);
+  table.classList.toggle("speak-table", currentSection === "speak" || currentTableType === "話す");
 }
 
 function resetTableTextTransforms(table) {
