@@ -450,15 +450,14 @@
   }
 
   .menu-back-btn {
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 2;
+    position: fixed;
+    left: 12px;
+    top: 10px;
+    z-index: 80;
   }
 
   .back-btn.menu-back-btn:active {
-    transform: translateY(calc(-50% + 2px));
+    transform: translateY(2px);
   }
 
   .back-arrow-icon {
