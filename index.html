@@ -1070,6 +1070,18 @@
     padding-right: 0;
   }
 
+  #tableArea table.speak-table td:first-child {
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+  }
+
+  #tableArea table.speak-table td:first-child .word-text {
+    white-space: normal !important;
+    line-height: 1.15;
+    overflow: visible;
+    text-overflow: clip;
+  }
+
   #tableArea .answer-text {
     max-width: 100%;
     vertical-align: middle;
@@ -2802,6 +2814,34 @@ function makeQuestionButton() {
       </svg>
     </button>
   `;
+}
+
+function splitTextEvenly(text) {
+  const chars = Array.from(String(text));
+  if (chars.length <= 8) return escapeHtml(chars.join(""));
+
+  const splitIndex = Math.ceil(chars.length / 2);
+  return `${escapeHtml(chars.slice(0, splitIndex).join(""))}<br>${escapeHtml(chars.slice(splitIndex).join(""))}`;
+}
+
+function makeSpeakWordCell(word) {
+  return `
+    <div class="word-cell-inner">
+      ${makeQuestionButton()}
+      <span class="word-text speak-left-text">${splitTextEvenly(word)}</span>
+    </div>
+  `;
+}
+
+function formatSpeakTableLeftCells(table) {
+  if (!table || !table.classList.contains("speak-table")) return;
+
+  table.querySelectorAll("td:first-child .word-text").forEach(text => {
+    if (text.dataset.speakFormatted === "true") return;
+    text.innerHTML = splitTextEvenly(text.textContent || "");
+    text.classList.add("speak-left-text");
+    text.dataset.speakFormatted = "true";
+  });
 }
 
 function makeWordCell(word) {
@@ -4584,12 +4624,15 @@ function fitTableTextOneLine() {
   const table = document.querySelector("#tableArea table");
   if (!table) return;
 
+  formatSpeakTableLeftCells(table);
+
   const maxFont = 18;
   const minCellFont = 6;
 
   const shrinkTargets = () => Array.from(table.querySelectorAll(
     "th, .word-text, .answer-text, .group-row td"
-  )).filter(el => el.offsetParent !== null);
+  )).filter(el => el.offsetParent !== null)
+    .filter(el => !el.matches(".speak-table td:first-child .word-text"));
 
   const resetFont = () => {
     table.classList.remove("tight-table");
