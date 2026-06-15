@@ -1072,8 +1072,8 @@
     text-align: left;
     white-space: nowrap !important;
     transform-origin: left center;
-    -webkit-clip-path: inset(0 0 0 0);
-    clip-path: inset(0 0 0 0);
+    -webkit-clip-path: none;
+    clip-path: none;
   }
 
   #tableArea td:first-child:not(.text-adjusted-cell) .word-text {
@@ -1112,6 +1112,12 @@
   #tableArea table.fitting-table td:first-child .word-text,
   #tableArea td:first-child.text-adjusted-cell .word-text {
     text-align: left;
+  }
+
+  #tableArea table.conjugation-table td:first-child .word-text,
+  #tableArea table.conjugation-table.fitting-table td:first-child .word-text,
+  #tableArea table.conjugation-table td:first-child.text-adjusted-cell .word-text {
+    text-align: right;
   }
 
   #tableArea td:last-child .answer-text,
@@ -4603,6 +4609,12 @@ function updateTableAlignmentClasses(table) {
   });
 }
 
+function applyTableModeClasses(table) {
+  const isConjugationTable = currentSection === "conjugation" || !nonConjugationQuestionTypes.has(currentTableType);
+  table.classList.toggle("conjugation-table", isConjugationTable);
+  table.classList.toggle("non-conjugation-table", !isConjugationTable);
+}
+
 function resetTableTextTransforms(table) {
   table.querySelectorAll(".answer-text").forEach(el => {
     el.style.removeProperty("transform");
@@ -4652,6 +4664,7 @@ function fitTableTextOneLine() {
   const minCellFont = 15;
   const minLeftFont = 10;
   const wrap = document.querySelector(".table-wrap");
+  applyTableModeClasses(table);
 
   const shrinkTargets = () => Array.from(table.querySelectorAll(
     "th, .word-text, .answer-text, .group-row td"
