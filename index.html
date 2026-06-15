@@ -1060,6 +1060,7 @@
   #tableArea .word-cell-inner {
     min-width: 0;
     overflow: hidden;
+    gap: 0;
   }
 
   #tableArea .word-text {
@@ -4575,9 +4576,7 @@ function fitTableTextOneLine() {
   if (!table) return;
 
   const maxFont = 18;
-  const minTableFont = 10;
-  const minCellFont = 8;
-  const wrap = document.querySelector(".table-wrap");
+  const minCellFont = 6;
 
   const shrinkTargets = () => Array.from(table.querySelectorAll(
     "th, .word-text, .answer-text, .group-row td"
@@ -4614,26 +4613,11 @@ function fitTableTextOneLine() {
     return false;
   };
 
-  const isOverflowing = () => {
-    const tableRect = table.getBoundingClientRect();
-    const wrapRect = wrap ? wrap.getBoundingClientRect() : tableRect;
-
-    if (tableRect.width > wrapRect.width + 0.5) return true;
-
-    return targets().some(elementOverflows);
-  };
-
   resetFont();
-
-  let size = maxFont;
-  while (size > minTableFont && isOverflowing()) {
-    size -= 1;
-    table.style.setProperty("--table-font-size", `${size}px`);
-  }
 
   let hasCellShrink = false;
   shrinkTargets().forEach(el => {
-    let cellSize = size;
+    let cellSize = maxFont;
     while (cellSize > minCellFont && elementOverflows(el)) {
       cellSize -= 1;
       el.style.setProperty("font-size", `${cellSize}px`, "important");
@@ -4641,9 +4625,9 @@ function fitTableTextOneLine() {
     }
   });
 
-  table.dataset.fittedFontSize = String(size);
+  table.dataset.fittedFontSize = String(maxFont);
   table.classList.remove("fitting-table");
-  table.classList.toggle("tight-table", size < maxFont || hasCellShrink);
+  table.classList.toggle("tight-table", hasCellShrink);
   updateTableAlignmentClasses(table);
 }
 function adjustScrollExtraHeight() {
