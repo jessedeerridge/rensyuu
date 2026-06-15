@@ -143,11 +143,12 @@
   .menu-title-row .page-title {
     flex: 1;
     margin: 12px 72px 18px;
+    white-space: nowrap;
   }
 
   .menu-back-btn {
     position: absolute;
-    left: 0;
+    left: 12px;
     top: 50%;
     transform: translateY(-50%);
     z-index: 2;
@@ -454,6 +455,10 @@
     padding: 9px 14px;
     box-shadow: 0 3px 0 #e15d9d;
     cursor: pointer;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
   }
 
   .back-btn:active {
@@ -1132,10 +1137,17 @@
 
   #tableArea table.listen-table td:last-child .answer-text,
   #tableArea table.listen-table.fitting-table td:last-child .answer-text,
-  #tableArea table.listen-table td:last-child.text-adjusted-cell .answer-text {
+  #tableArea table.listen-table td:last-child.text-adjusted-cell .answer-text,
+  #tableArea table.speak-table td:last-child .answer-text,
+  #tableArea table.speak-table.fitting-table td:last-child .answer-text,
+  #tableArea table.speak-table td:last-child.text-adjusted-cell .answer-text {
     white-space: nowrap !important;
     transform: none !important;
     line-height: 1.18;
+  }
+
+  #tableArea table.speak-table td:last-child {
+    padding-right: 0;
   }
 
   #tableArea .answer-text ruby,
@@ -1260,7 +1272,7 @@
 
 <div id="tableScreen">
   <div class="top-bar">
-    <button class="back-btn" onclick="backMenu()">← 戻る</button>
+    <button class="back-btn" type="button" onclick="backMenu()">← 戻る</button>
     <div class="table-title" id="tableTitle">Vます</div>
     <button class="random-order-btn" id="randomOrderBtn" type="button" onclick="toggleRandomOrder()" aria-label="表をランダムに並べ替える">随机</button>
   </div>
@@ -1376,7 +1388,7 @@ function openListenPage() {
 
 function openSpeakPage() {
   currentSection = "speak";
-  showPlaceholderTable("話す", "話すページはまだ準備中です。", "home");
+  showTable("話す");
 }
 
 function openConnectPage() {
@@ -2649,16 +2661,38 @@ function toggleRandomOrder() {
 }
 
 
+function ensureJapanesePeriod(text) {
+  const value = String(text || "").trim();
+  if (!value) return value;
+  return /[。！？!?」』）)]$/.test(value) ? value : `${value}。`;
+}
+
 function makeListenTable() {
   const rows = listenPracticeData.map(([prompt, answer]) => `
     <tr>
       <td>${makeWordCell(escapeHtml(prompt))}</td>
-      <td><span class="answer-text">${escapeHtml(answer)}</span></td>
+      <td><span class="answer-text">${escapeHtml(ensureJapanesePeriod(answer))}</span></td>
     </tr>
   `).join("");
   document.getElementById("tableArea").innerHTML = `
     <table class="listen-table">
       <tr><th>场面</th><th>日本語</th></tr>
+      ${rows}
+    </table>
+    <div class="scroll-extra-y"></div>
+  `;
+}
+
+function makeSpeakTable() {
+  const rows = listenPracticeData.map(([prompt, answer]) => `
+    <tr>
+      <td>${makeWordCell(escapeHtml(prompt))}</td>
+      <td><span class="answer-text">${escapeHtml(ensureJapanesePeriod(answer))}</span></td>
+    </tr>
+  `).join("");
+  document.getElementById("tableArea").innerHTML = `
+    <table class="speak-table">
+      <tr><th>场面</th><th>話す</th></tr>
       ${rows}
     </table>
     <div class="scroll-extra-y"></div>
@@ -2698,6 +2732,8 @@ function showTable(type, focusKey = "") {
 
   if (type === "聞く") {
     makeListenTable();
+  } else if (type === "話す") {
+    makeSpeakTable();
   } else if (type === "Vます") {
     masuSwapped = false;
     makeMasuTable();
