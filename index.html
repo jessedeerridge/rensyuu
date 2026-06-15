@@ -710,6 +710,14 @@
     --table-font-size: 15px;
   }
 
+  #tableArea table.listen-table col.listen-left-col {
+    width: 38%;
+  }
+
+  #tableArea table.listen-table col.listen-right-col {
+    width: 62%;
+  }
+
   #tableArea table th:first-child,
   #tableArea table td:first-child {
     width: 45%;
@@ -1136,9 +1144,17 @@
     white-space: nowrap !important;
   }
 
+  #tableArea table.listen-table td:last-child {
+    padding-left: 1em;
+    padding-right: 0 !important;
+  }
+
   #tableArea table.listen-table td:last-child .answer-text,
   #tableArea table.listen-table.fitting-table td:last-child .answer-text,
   #tableArea table.listen-table td:last-child.text-adjusted-cell .answer-text {
+    display: block;
+    width: 100%;
+    max-width: none;
     white-space: nowrap !important;
     transform: none !important;
     line-height: 1.18;
@@ -2664,6 +2680,10 @@ function makeListenTable() {
   `).join("");
   document.getElementById("tableArea").innerHTML = `
     <table class="listen-table">
+      <colgroup>
+        <col class="listen-left-col">
+        <col class="listen-right-col">
+      </colgroup>
       <tr><th>场面</th><th>日本語</th></tr>
       ${rows}
     </table>
