@@ -325,11 +325,11 @@
   }
 
   .masu-table col.masu-side-col:first-child {
-    width: 40%;
+    width: 45%;
   }
 
   .masu-table col.masu-side-col:last-child {
-    width: 60%;
+    width: 55%;
   }
 
   .masu-swap-btn {
@@ -499,7 +499,7 @@
 
   .table-wrap {
     position: relative;
-    padding: 18px 12px 0 12px;
+    padding: 18px 0 0;
     overflow-x: hidden;
     overflow-y: visible;
   }
@@ -513,7 +513,7 @@
   }
 
   th {
-    padding: 10px;
+    padding: 10px 0;
     background: #ffb3d5;
     color: white;
     font-size: 16px;
@@ -529,7 +529,7 @@
 
   td {
     height: 53px;
-    padding: 10px;
+    padding: 10px 0;
     background: white;
     text-align: center;
     font-weight: bold;
@@ -1050,12 +1050,12 @@
 
   #tableArea table:not(.masu-table) tr > th:first-child:nth-last-child(2),
   #tableArea table:not(.masu-table) tr > td:first-child:nth-last-child(2) {
-    width: 40%;
+    width: 45%;
   }
 
   #tableArea table:not(.masu-table) tr > th:first-child:nth-last-child(2) ~ th,
   #tableArea table:not(.masu-table) tr > td:first-child:nth-last-child(2) ~ td {
-    width: 60%;
+    width: 55%;
   }
   #tableArea .word-cell-inner {
     min-width: 0;
@@ -1070,26 +1070,12 @@
   }
 
   #tableArea .answer-text {
-    max-width: calc(100% - 4px);
+    max-width: 100%;
     vertical-align: middle;
     overflow: hidden;
     text-overflow: clip;
     -webkit-clip-path: inset(0 0 0 0);
     clip-path: inset(0 0 0 0);
-  }
-
-  #tableArea td:first-child:not(.text-adjusted-cell) .word-text {
-    padding-right: 2em;
-    text-align: right;
-  }
-
-  #tableArea td:last-child.answer-cell-short:not(.text-adjusted-cell) {
-    padding-left: 2em;
-    text-align: left;
-  }
-
-  #tableArea td:last-child.answer-cell-short:not(.text-adjusted-cell) .answer-text {
-    text-align: left;
   }
 
   #tableArea .text-adjusted-cell .word-text,
@@ -4589,8 +4575,8 @@ function fitTableTextOneLine() {
   if (!table) return;
 
   const maxFont = 18;
-  const minTableFont = 15;
-  const minCellFont = 10;
+  const minTableFont = 10;
+  const minCellFont = 8;
   const wrap = document.querySelector(".table-wrap");
 
   const shrinkTargets = () => Array.from(table.querySelectorAll(
