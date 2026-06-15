@@ -324,8 +324,12 @@
     position: relative;
   }
 
-  .masu-table col.masu-side-col {
-    width: 50%;
+  .masu-table col.masu-side-col:first-child {
+    width: 45%;
+  }
+
+  .masu-table col.masu-side-col:last-child {
+    width: 55%;
   }
 
   .masu-swap-btn {
@@ -495,7 +499,7 @@
 
   .table-wrap {
     position: relative;
-    padding: 18px 12px 0 12px;
+    padding: 18px 0 0;
     overflow-x: hidden;
     overflow-y: visible;
   }
@@ -509,7 +513,7 @@
   }
 
   th {
-    padding: 10px;
+    padding: 10px 0;
     background: #ffb3d5;
     color: white;
     font-size: 16px;
@@ -525,7 +529,7 @@
 
   td {
     height: 53px;
-    padding: 10px;
+    padding: 10px 0;
     background: white;
     text-align: center;
     font-weight: bold;
@@ -1044,9 +1048,19 @@
     text-overflow: clip;
   }
 
+  #tableArea table:not(.masu-table) tr > th:first-child:nth-last-child(2),
+  #tableArea table:not(.masu-table) tr > td:first-child:nth-last-child(2) {
+    width: 45%;
+  }
+
+  #tableArea table:not(.masu-table) tr > th:first-child:nth-last-child(2) ~ th,
+  #tableArea table:not(.masu-table) tr > td:first-child:nth-last-child(2) ~ td {
+    width: 55%;
+  }
   #tableArea .word-cell-inner {
     min-width: 0;
     overflow: hidden;
+    gap: 0;
   }
 
   #tableArea .word-text {
@@ -1056,8 +1070,20 @@
     padding-right: 0;
   }
 
+  #tableArea table.speak-table td:first-child {
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+  }
+
+  #tableArea table.speak-table td:first-child .word-text {
+    white-space: normal !important;
+    line-height: 1.15;
+    overflow: visible;
+    text-overflow: clip;
+  }
+
   #tableArea .answer-text {
-    max-width: calc(100% - 4px);
+    max-width: 100%;
     vertical-align: middle;
     overflow: hidden;
     text-overflow: clip;
@@ -1065,17 +1091,12 @@
     clip-path: inset(0 0 0 0);
   }
 
-  #tableArea td:first-child:not(.text-adjusted-cell) .word-text {
-    padding-right: 2em;
-    text-align: right;
-  }
-
-  #tableArea td:last-child.answer-cell-short:not(.text-adjusted-cell) {
-    padding-left: 2em;
+  #tableArea table:not(.fitting-table) td:last-child:not(.text-adjusted-cell) {
+    padding-left: 1em;
     text-align: left;
   }
 
-  #tableArea td:last-child.answer-cell-short:not(.text-adjusted-cell) .answer-text {
+  #tableArea table:not(.fitting-table) td:last-child:not(.text-adjusted-cell) .answer-text {
     text-align: left;
   }
 
@@ -2793,6 +2814,34 @@ function makeQuestionButton() {
       </svg>
     </button>
   `;
+}
+
+function splitTextEvenly(text) {
+  const chars = Array.from(String(text));
+  if (chars.length <= 8) return escapeHtml(chars.join(""));
+
+  const splitIndex = Math.ceil(chars.length / 2);
+  return `${escapeHtml(chars.slice(0, splitIndex).join(""))}<br>${escapeHtml(chars.slice(splitIndex).join(""))}`;
+}
+
+function makeSpeakWordCell(word) {
+  return `
+    <div class="word-cell-inner">
+      ${makeQuestionButton()}
+      <span class="word-text speak-left-text">${splitTextEvenly(word)}</span>
+    </div>
+  `;
+}
+
+function formatSpeakTableLeftCells(table) {
+  if (!table || !table.classList.contains("speak-table")) return;
+
+  table.querySelectorAll("td:first-child .word-text").forEach(text => {
+    if (text.dataset.speakFormatted === "true") return;
+    text.innerHTML = splitTextEvenly(text.textContent || "");
+    text.classList.add("speak-left-text");
+    text.dataset.speakFormatted = "true";
+  });
 }
 
 function makeWordCell(word) {
@@ -4575,14 +4624,15 @@ function fitTableTextOneLine() {
   const table = document.querySelector("#tableArea table");
   if (!table) return;
 
+  formatSpeakTableLeftCells(table);
+
   const maxFont = 18;
-  const minTableFont = 15;
-  const minCellFont = 10;
-  const wrap = document.querySelector(".table-wrap");
+  const minCellFont = 6;
 
   const shrinkTargets = () => Array.from(table.querySelectorAll(
     "th, .word-text, .answer-text, .group-row td"
-  )).filter(el => el.offsetParent !== null);
+  )).filter(el => el.offsetParent !== null)
+    .filter(el => !el.matches(".speak-table td:first-child .word-text"));
 
   const resetFont = () => {
     table.classList.remove("tight-table");
@@ -4615,26 +4665,11 @@ function fitTableTextOneLine() {
     return false;
   };
 
-  const isOverflowing = () => {
-    const tableRect = table.getBoundingClientRect();
-    const wrapRect = wrap ? wrap.getBoundingClientRect() : tableRect;
-
-    if (tableRect.width > wrapRect.width + 0.5) return true;
-
-    return targets().some(elementOverflows);
-  };
-
   resetFont();
-
-  let size = maxFont;
-  while (size > minTableFont && isOverflowing()) {
-    size -= 1;
-    table.style.setProperty("--table-font-size", `${size}px`);
-  }
 
   let hasCellShrink = false;
   shrinkTargets().forEach(el => {
-    let cellSize = size;
+    let cellSize = maxFont;
     while (cellSize > minCellFont && elementOverflows(el)) {
       cellSize -= 1;
       el.style.setProperty("font-size", `${cellSize}px`, "important");
@@ -4642,9 +4677,9 @@ function fitTableTextOneLine() {
     }
   });
 
-  table.dataset.fittedFontSize = String(size);
+  table.dataset.fittedFontSize = String(maxFont);
   table.classList.remove("fitting-table");
-  table.classList.toggle("tight-table", size < maxFont || hasCellShrink);
+  table.classList.toggle("tight-table", hasCellShrink);
   updateTableAlignmentClasses(table);
 }
 function adjustScrollExtraHeight() {
