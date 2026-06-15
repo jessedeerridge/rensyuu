@@ -449,6 +449,18 @@
     box-shadow: 0 1px 0 #e15d9d;
   }
 
+  .menu-back-btn {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+  }
+
+  .back-btn.menu-back-btn:active {
+    transform: translateY(calc(-50% + 2px));
+  }
+
   .back-arrow-icon {
     display: inline-block;
     transform: scaleX(-1);
@@ -1190,6 +1202,7 @@
 <div id="menuScreen" class="screen">
   <div id="questionMemoLayer" aria-hidden="true"></div>
   <div class="menu-title-row">
+    <button class="back-btn menu-back-btn" type="button" onclick="openHome()" aria-label="戻る"><span class="back-arrow-icon" aria-hidden="true">➜</span></button>
     <div class="page-title"><span class="title-emoji left">🐢</span> 活用れんしゅう <span class="title-emoji right">🐢</span></div>
   </div>
 
