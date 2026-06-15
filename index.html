@@ -133,28 +133,30 @@
   }
 
   .menu-title-row {
-    position: relative;
-    min-height: 50px;
+    min-height: 58px;
     display: flex;
     align-items: center;
-    justify-content: center;
+    gap: 10px;
+    padding: 10px 12px;
   }
 
   .menu-title-row .page-title {
     flex: 1;
-    margin: 12px 72px 18px;
+    min-width: 0;
+    margin: 0;
+    white-space: nowrap;
+    line-height: 1.1;
+    font-size: clamp(18px, 6vw, 24px);
+  }
+
+  .menu-title-row::after {
+    content: "";
+    width: 74px;
+    flex: 0 0 74px;
   }
 
   .menu-back-btn {
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 2;
-  }
-
-  .menu-back-btn:active {
-    transform: translateY(calc(-50% + 2px));
+    flex: 0 0 auto;
   }
 
   .title-emoji {
@@ -445,6 +447,7 @@
   }
 
   .back-btn {
+    flex: 0 0 auto;
     border: none;
     border-radius: 999px;
     background: #ff8ac2;
@@ -454,6 +457,10 @@
     padding: 9px 14px;
     box-shadow: 0 3px 0 #e15d9d;
     cursor: pointer;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
   }
 
   .back-btn:active {
@@ -702,8 +709,13 @@
     box-shadow: 0 5px 14px rgba(0,0,0,0.06);
   }
 
-  #tableArea table.listen-table {
+  #tableArea table.listen-table,
+  #tableArea table.speak-table {
     --table-font-size: 15px;
+  }
+
+  #tableArea table.speak-table td:last-child {
+    padding-right: 0;
   }
 
   #tableArea table th:first-child,
@@ -1132,7 +1144,10 @@
 
   #tableArea table.listen-table td:last-child .answer-text,
   #tableArea table.listen-table.fitting-table td:last-child .answer-text,
-  #tableArea table.listen-table td:last-child.text-adjusted-cell .answer-text {
+  #tableArea table.listen-table td:last-child.text-adjusted-cell .answer-text,
+  #tableArea table.speak-table td:last-child .answer-text,
+  #tableArea table.speak-table.fitting-table td:last-child .answer-text,
+  #tableArea table.speak-table td:last-child.text-adjusted-cell .answer-text {
     white-space: nowrap !important;
     transform: none !important;
     line-height: 1.18;
@@ -1260,7 +1275,7 @@
 
 <div id="tableScreen">
   <div class="top-bar">
-    <button class="back-btn" onclick="backMenu()">← 戻る</button>
+    <button class="back-btn" type="button" onclick="backMenu()">← 戻る</button>
     <div class="table-title" id="tableTitle">Vます</div>
     <button class="random-order-btn" id="randomOrderBtn" type="button" onclick="toggleRandomOrder()" aria-label="表をランダムに並べ替える">随机</button>
   </div>
@@ -1376,7 +1391,7 @@ function openListenPage() {
 
 function openSpeakPage() {
   currentSection = "speak";
-  showPlaceholderTable("話す", "話すページはまだ準備中です。", "home");
+  showTable("話す");
 }
 
 function openConnectPage() {
@@ -2649,6 +2664,10 @@ function toggleRandomOrder() {
 }
 
 
+function withJapanesePeriod(text) {
+  return /[。！？!?]$/.test(String(text).trim()) ? text : `${text}。`;
+}
+
 function makeListenTable() {
   const rows = listenPracticeData.map(([prompt, answer]) => `
     <tr>
@@ -2658,6 +2677,22 @@ function makeListenTable() {
   `).join("");
   document.getElementById("tableArea").innerHTML = `
     <table class="listen-table">
+      <tr><th>场面</th><th>日本語</th></tr>
+      ${rows}
+    </table>
+    <div class="scroll-extra-y"></div>
+  `;
+}
+
+function makeSpeakTable() {
+  const rows = listenPracticeData.map(([prompt, answer]) => `
+    <tr>
+      <td>${makeWordCell(escapeHtml(prompt))}</td>
+      <td><span class="answer-text">${escapeHtml(withJapanesePeriod(answer))}</span></td>
+    </tr>
+  `).join("");
+  document.getElementById("tableArea").innerHTML = `
+    <table class="speak-table">
       <tr><th>场面</th><th>日本語</th></tr>
       ${rows}
     </table>
@@ -2682,7 +2717,7 @@ function showPlaceholderTable(title, message, returnSection = "home") {
 
 function showTable(type, focusKey = "") {
   document.body.classList.remove("home-mode", "menu-mode", "sheet-high", "table-start-lowered");
-  if (type === "Vて" || type === "Vた" || type === "聞く") {
+  if (type === "Vて" || type === "Vた" || type === "聞く" || type === "話す") {
     document.body.classList.add("table-start-lowered");
   }
   document.getElementById("homeScreen").style.display = "none";
@@ -2698,6 +2733,8 @@ function showTable(type, focusKey = "") {
 
   if (type === "聞く") {
     makeListenTable();
+  } else if (type === "話す") {
+    makeSpeakTable();
   } else if (type === "Vます") {
     masuSwapped = false;
     makeMasuTable();
