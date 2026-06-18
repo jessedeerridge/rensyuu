@@ -864,6 +864,22 @@
     height: 20px;
   }
 
+  #tableArea table.tara-table .tara-usage-row td {
+    height: 34px;
+    padding: 4px 10px;
+    text-align: left;
+  }
+
+  #tableArea .tara-usage-tag {
+    display: inline-block;
+    padding: 3px 12px;
+    border-radius: 999px;
+    background: #fff;
+    color: #ff5ca8;
+    font-size: 14px;
+    line-height: 1.2;
+  }
+
   #tableArea .tara-hint-line {
     display: block;
     width: 100%;
@@ -3793,9 +3809,18 @@ function makeTaraPartialColorTable(title, rightTitle, rows) {
       </tr>
   `;
 
-  rows.forEach(row => {
+  rows.forEach((row, index) => {
+    if (index === 0 || index === 9) {
+      const usageLabel = index === 0 ? "〜后" : "如果";
+      html += `
+        <tr class="group-row tara-usage-row">
+          <td colspan="2"><span class="tara-usage-tag">${usageLabel}</span></td>
+        </tr>
+      `;
+    }
+
     html += `
-      <tr>
+      <tr class="${index < 9 ? "tara-after-row" : "tara-if-row"}">
         <td>${makeWordCell(makeTaraHint(row[0]))}</td>
         <td><span class="answer-text">${compactJapanese(row[1])}</span></td>
       </tr>
