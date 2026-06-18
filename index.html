@@ -864,22 +864,6 @@
     height: 20px;
   }
 
-  #tableArea table.tara-table .tara-usage-row td {
-    height: 34px;
-    padding: 4px 10px;
-    text-align: left;
-  }
-
-  #tableArea .tara-usage-tag {
-    display: inline-block;
-    padding: 3px 12px;
-    border-radius: 999px;
-    background: #fff;
-    color: #ff5ca8;
-    font-size: 14px;
-    line-height: 1.2;
-  }
-
   #tableArea .tara-hint-line {
     display: block;
     width: 100%;
@@ -3294,7 +3278,16 @@ const adjectiveNaru30 = [
 ];
 
 function makeAdjectiveNaruTable() {
-  makeFlat30Table("形-なる", "形-なる（变得）", adjectiveNaru30, "辞書形");
+  makeCategorizedFlatTable(
+    "形-なる",
+    "形-なる（变得）",
+    adjectiveNaru30,
+    [
+      { index: 0, label: "い形容詞" },
+      { index: 20, label: "な形容詞" }
+    ],
+    "辞書形"
+  );
 }
 
 function makeAdjectiveTable(rightTitle, answerIndex) {
@@ -3813,8 +3806,8 @@ function makeTaraPartialColorTable(title, rightTitle, rows) {
     if (index === 0 || index === 9) {
       const usageLabel = index === 0 ? "〜后" : "如果";
       html += `
-        <tr class="group-row tara-usage-row">
-          <td colspan="2"><span class="tara-usage-tag">${usageLabel}</span></td>
+        <tr class="group-row">
+          <td colspan="2">${usageLabel}</td>
         </tr>
       `;
     }
@@ -3872,6 +3865,47 @@ function makeFlatTaggedTable(title, rightTitle, rows, leftTitle = "辞書形") {
     const rowClass = row[2] ? ` class="${row[2]}"` : "";
     html += `
       <tr${rowClass}>
+        <td>${makeWordCell(row[0])}</td>
+        <td><span class="answer-text">${row[1]}</span></td>
+      </tr>
+    `;
+  });
+
+  html += `
+    </table>
+    <div class="scroll-extra-y"></div>
+  `;
+
+  document.getElementById("tableArea").innerHTML = html;
+
+  requestAnimationFrame(() => {
+    fitTableTextOneLine();
+    adjustScrollExtraHeight();
+    updateSheetHiddenText();
+  });
+}
+
+function makeCategorizedFlatTable(title, rightTitle, rows, categories, leftTitle = "辞書形") {
+  let html = `
+    <table>
+      <tr>
+        <th>${leftTitle}</th>
+        <th>${rightTitle}</th>
+      </tr>
+  `;
+
+  rows.forEach((row, index) => {
+    const category = categories.find(item => item.index === index);
+    if (category) {
+      html += `
+        <tr class="group-row">
+          <td colspan="2">${category.label}</td>
+        </tr>
+      `;
+    }
+
+    html += `
+      <tr>
         <td>${makeWordCell(row[0])}</td>
         <td><span class="answer-text">${row[1]}</span></td>
       </tr>
@@ -4279,12 +4313,36 @@ const vPotential30 = [
   ["<ruby>来<rt>く</rt></ruby>る", "<ruby>来<rt>こ</rt></ruby>られます"]
 ];
 
-function makeTaiTable() { makeFlat30Table("Vたいです", "Vたいです（想）", vTai30, "辞書形"); }
+function makeTaiTable() {
+  makeCategorizedFlatTable(
+    "Vたいです",
+    "Vたいです（想）",
+    vTai30,
+    [
+      { index: 0, label: "五段動詞" },
+      { index: 20, label: "一段動詞" },
+      { index: 27, label: "不規則動詞" }
+    ],
+    "辞書形"
+  );
+}
 function makeMasenkaTable() { makeFlat30Table("Vませんか", "Vませんか", vMasenka30, "ヒント"); }
 function makeMashouTable() { makeFlat30Table("Vましょう", "Vましょう", vMashou30, "ヒント"); }
 function makeTemoiiTable() { makeFlat30Table("Vてもいいですか", "Vてもいいですか（可以吗？）", vTemoii30, "ヒント"); }
 function makeTekudasaiTable() { makeFlat30Table("Vてください", "Vてください（请）", vTekudasai30, "ヒント"); }
-function makeNaideKudasaiTable() { makeFlat30Table("Vないでください", "Vないでください（请不要）", vNaideKudasai30, "ヒント"); }
+function makeNaideKudasaiTable() {
+  makeCategorizedFlatTable(
+    "Vないでください",
+    "Vないでください（请不要）",
+    vNaideKudasai30,
+    [
+      { index: 0, label: "五段動詞" },
+      { index: 20, label: "一段動詞" },
+      { index: 26, label: "不規則動詞" }
+    ],
+    "ヒント"
+  );
+}
 function makeTeimasuTable() { makeFlat30Table("Vています", "Vています（正在）", vTeimasu30, "ヒント"); }
 function makeTariTable() { makeFlat30Table("Vたり", "Vたり（又…又…）", vTari30, "ヒント"); }
 function makeTaraTable() { makeTaraPartialColorTable("Vたら", "Vたら（如果）", vTara30); }
