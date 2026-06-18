@@ -834,6 +834,30 @@
   #tableArea .phrase-color.te-iku { background: #eee6ff !important; }
   #tableArea .phrase-color.te-ichidan { background: #fffbe3 !important; }
 
+  /* ===== Vたら：ヒントは「・」の後で最大2行に分ける ===== */
+  #tableArea table.tara-table td:first-child .word-text {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding-right: 0;
+    white-space: nowrap !important;
+    line-height: 1.35;
+  }
+
+  #tableArea .tara-hint-line {
+    display: block;
+    width: 100%;
+    white-space: nowrap;
+  }
+
+  #tableArea .tara-hint-line:first-child {
+    text-align: left;
+  }
+
+  #tableArea .tara-hint-line:last-child {
+    text-align: right;
+  }
+
 
 
   /* ===== ？保存メモ：トップ画面に小さく表示 ===== */
@@ -3727,8 +3751,22 @@ function makeFlat30Table(title, rightTitle, rows, leftTitle = "辞書形") {
 
 
 function makeTaraPartialColorTable(title, rightTitle, rows) {
+  const compactJapanese = html => String(html || "").replace(/[\s　]+/g, "");
+  const makeTaraHint = hint => {
+    const compactHint = compactJapanese(hint);
+    const separatorIndex = compactHint.indexOf("・");
+    if (separatorIndex < 0) return compactHint;
+
+    const firstLine = compactHint.slice(0, separatorIndex + 1);
+    const secondLine = compactHint.slice(separatorIndex + 1);
+    return `
+      <span class="tara-hint-line">${firstLine}</span>
+      <span class="tara-hint-line">${secondLine}</span>
+    `;
+  };
+
   let html = `
-    <table>
+    <table class="tara-table">
       <tr>
         <th>ヒント</th>
         <th>${rightTitle}</th>
@@ -3738,8 +3776,8 @@ function makeTaraPartialColorTable(title, rightTitle, rows) {
   rows.forEach(row => {
     html += `
       <tr>
-        <td>${makeWordCell(row[0])}</td>
-        <td><span class="answer-text">${row[1]}</span></td>
+        <td>${makeWordCell(makeTaraHint(row[0]))}</td>
+        <td><span class="answer-text">${compactJapanese(row[1])}</span></td>
       </tr>
     `;
   });
@@ -4042,31 +4080,31 @@ const vTari30 = [
 ];
 
 const vTara30 = [
-  ["<ruby>授業<rt>じゅぎょう</rt></ruby>が <ruby>終<rt>お</rt></ruby>わる・<ruby>食堂<rt>しょくどう</rt></ruby>に <ruby>行<rt>い</rt></ruby>く", "<ruby>授業<rt>じゅぎょう</rt></ruby>が <ruby>終<rt>お</rt></ruby>わったら、<ruby>食堂<rt>しょくどう</rt></ruby>に <ruby>行<rt>い</rt></ruby>きます。", "te-utsuru"],
-  ["7<ruby>時<rt>じ</rt></ruby>に なる・ご<ruby>飯<rt>はん</rt></ruby>を <ruby>食<rt>た</rt></ruby>べる", "7<ruby>時<rt>じ</rt></ruby>に なったら、ご<ruby>飯<rt>はん</rt></ruby>を <ruby>食<rt>た</rt></ruby>べます。", "te-utsuru"],
-  ["<ruby>卒業<rt>そつぎょう</rt></ruby>する・<ruby>日本<rt>にほん</rt></ruby>で はたらく", "<ruby>卒業<rt>そつぎょう</rt></ruby>したら、<ruby>日本<rt>にほん</rt></ruby>で はたらきます。", ""],
-  ["<ruby>家<rt>いえ</rt></ruby>に <ruby>帰<rt>かえ</rt></ruby>る・<ruby>電話<rt>でんわ</rt></ruby>してください", "<ruby>家<rt>いえ</rt></ruby>に <ruby>帰<rt>かえ</rt></ruby>ったら、<ruby>電話<rt>でんわ</rt></ruby>してください。", "te-utsuru"],
-  ["<ruby>駅<rt>えき</rt></ruby>に <ruby>着<rt>つ</rt></ruby>く・<ruby>教<rt>おし</rt></ruby>えてください", "<ruby>駅<rt>えき</rt></ruby>に <ruby>着<rt>つ</rt></ruby>いたら、<ruby>教<rt>おし</rt></ruby>えてください。", "te-ku"],
-  ["<ruby>料理<rt>りょうり</rt></ruby>が できる・ここに <ruby>置<rt>お</rt></ruby>いてください", "<ruby>料理<rt>りょうり</rt></ruby>が できたら、ここに <ruby>置<rt>お</rt></ruby>いてください。", "te-ichidan"],
-  ["<ruby>予定<rt>よてい</rt></ruby>が <ruby>決<rt>き</rt></ruby>まる・<ruby>教<rt>おし</rt></ruby>えてください", "<ruby>予定<rt>よてい</rt></ruby>が <ruby>決<rt>き</rt></ruby>まったら、<ruby>教<rt>おし</rt></ruby>えてください。", "te-utsuru"],
-  ["<ruby>疲<rt>つか</rt></ruby>れる・<ruby>少<rt>すこ</rt></ruby>し <ruby>休<rt>やす</rt></ruby>む", "<ruby>疲<rt>つか</rt></ruby>れたら、<ruby>少<rt>すこ</rt></ruby>し <ruby>休<rt>やす</rt></ruby>みましょう。", "te-ichidan"],
-  ["<ruby>雨<rt>あめ</rt></ruby>が やむ・<ruby>買<rt>か</rt></ruby>い<ruby>物<rt>もの</rt></ruby>に <ruby>行<rt>い</rt></ruby>く", "<ruby>雨<rt>あめ</rt></ruby>が やんだら、<ruby>買<rt>か</rt></ruby>い<ruby>物<rt>もの</rt></ruby>に <ruby>行<rt>い</rt></ruby>きましょう。", "te-mubunu"],
-  ["お<ruby>金<rt>かね</rt></ruby>が ある・<ruby>海外<rt>かいがい</rt></ruby>に <ruby>行<rt>い</rt></ruby>きたい", "お<ruby>金<rt>かね</rt></ruby>が あったら、<ruby>海外<rt>かいがい</rt></ruby>に <ruby>行<rt>い</rt></ruby>きたいです。", "te-utsuru"],
-  ["<ruby>雨<rt>あめ</rt></ruby>が <ruby>降<rt>ふ</rt></ruby>る・<ruby>試合<rt>しあい</rt></ruby>は <ruby>中止<rt>ちゅうし</rt></ruby>", "<ruby>雨<rt>あめ</rt></ruby>が <ruby>降<rt>ふ</rt></ruby>ったら、<ruby>試合<rt>しあい</rt></ruby>は <ruby>中止<rt>ちゅうし</rt></ruby>です。", "te-utsuru"],
-  ["パスポートを なくす・<ruby>旅行<rt>りょこう</rt></ruby>に <ruby>行<rt>い</rt></ruby>けない", "パスポートを なくしたら、<ruby>旅行<rt>りょこう</rt></ruby>に <ruby>行<rt>い</rt></ruby>けません。", "te-su"],
-  ["<ruby>雪<rt>ゆき</rt></ruby>が <ruby>降<rt>ふ</rt></ruby>る・<ruby>写真<rt>しゃしん</rt></ruby>を <ruby>撮<rt>と</rt></ruby>りたい", "<ruby>雪<rt>ゆき</rt></ruby>が <ruby>降<rt>ふ</rt></ruby>ったら、<ruby>写真<rt>しゃしん</rt></ruby>を <ruby>撮<rt>と</rt></ruby>りたいです。", "te-utsuru"],
-  ["<ruby>日本<rt>にほん</rt></ruby>に <ruby>行<rt>い</rt></ruby>く・ラーメンを <ruby>食<rt>た</rt></ruby>べたい", "<ruby>日本<rt>にほん</rt></ruby>に <ruby>行<rt>い</rt></ruby>ったら、ラーメンを <ruby>食<rt>た</rt></ruby>べたいです。", "te-iku"],
-  ["<ruby>困<rt>こま</rt></ruby>る・<ruby>私<rt>わたし</rt></ruby>に <ruby>連絡<rt>れんらく</rt></ruby>してください", "<ruby>困<rt>こま</rt></ruby>ったら、<ruby>私<rt>わたし</rt></ruby>に <ruby>連絡<rt>れんらく</rt></ruby>してください。", "te-utsuru"],
-  ["チケットを <ruby>忘<rt>わす</rt></ruby>れる・<ruby>入<rt>はい</rt></ruby>れない", "チケットを <ruby>忘<rt>わす</rt></ruby>れたら、<ruby>入<rt>はい</rt></ruby>れません。", "te-ichidan"],
-  ["<ruby>先生<rt>せんせい</rt></ruby>が <ruby>来<rt>く</rt></ruby>る・うれしい", "<ruby>先生<rt>せんせい</rt></ruby>が <ruby>来<rt>き</rt></ruby>たら、うれしいです。", ""],
+  ["<ruby>授業<rt>じゅぎょう</rt></ruby>が<ruby>終<rt>お</rt></ruby>わる・<ruby>食堂<rt>しょくどう</rt></ruby>に<ruby>行<rt>い</rt></ruby>く", "<ruby>授業<rt>じゅぎょう</rt></ruby>が<ruby>終<rt>お</rt></ruby>わったら、<ruby>食堂<rt>しょくどう</rt></ruby>に<ruby>行<rt>い</rt></ruby>きます。", "te-utsuru"],
+  ["7<ruby>時<rt>じ</rt></ruby>になる・ご<ruby>飯<rt>はん</rt></ruby>を<ruby>食<rt>た</rt></ruby>べる", "7<ruby>時<rt>じ</rt></ruby>になったら、ご<ruby>飯<rt>はん</rt></ruby>を<ruby>食<rt>た</rt></ruby>べます。", "te-utsuru"],
+  ["<ruby>卒業<rt>そつぎょう</rt></ruby>する・<ruby>日本<rt>にほん</rt></ruby>ではたらく", "<ruby>卒業<rt>そつぎょう</rt></ruby>したら、<ruby>日本<rt>にほん</rt></ruby>ではたらきます。", ""],
+  ["<ruby>家<rt>いえ</rt></ruby>に<ruby>帰<rt>かえ</rt></ruby>る・<ruby>電話<rt>でんわ</rt></ruby>してください", "<ruby>家<rt>いえ</rt></ruby>に<ruby>帰<rt>かえ</rt></ruby>ったら、<ruby>電話<rt>でんわ</rt></ruby>してください。", "te-utsuru"],
+  ["<ruby>駅<rt>えき</rt></ruby>に<ruby>着<rt>つ</rt></ruby>く・<ruby>教<rt>おし</rt></ruby>えてください", "<ruby>駅<rt>えき</rt></ruby>に<ruby>着<rt>つ</rt></ruby>いたら、<ruby>教<rt>おし</rt></ruby>えてください。", "te-ku"],
+  ["<ruby>料理<rt>りょうり</rt></ruby>ができる・ここに<ruby>置<rt>お</rt></ruby>いてください", "<ruby>料理<rt>りょうり</rt></ruby>ができたら、ここに<ruby>置<rt>お</rt></ruby>いてください。", "te-ichidan"],
+  ["<ruby>予定<rt>よてい</rt></ruby>が<ruby>決<rt>き</rt></ruby>まる・<ruby>教<rt>おし</rt></ruby>えてください", "<ruby>予定<rt>よてい</rt></ruby>が<ruby>決<rt>き</rt></ruby>まったら、<ruby>教<rt>おし</rt></ruby>えてください。", "te-utsuru"],
+  ["<ruby>疲<rt>つか</rt></ruby>れる・<ruby>少<rt>すこ</rt></ruby>し<ruby>休<rt>やす</rt></ruby>む", "<ruby>疲<rt>つか</rt></ruby>れたら、<ruby>少<rt>すこ</rt></ruby>し<ruby>休<rt>やす</rt></ruby>みましょう。", "te-ichidan"],
+  ["<ruby>雨<rt>あめ</rt></ruby>がやむ・<ruby>買<rt>か</rt></ruby>い<ruby>物<rt>もの</rt></ruby>に<ruby>行<rt>い</rt></ruby>く", "<ruby>雨<rt>あめ</rt></ruby>がやんだら、<ruby>買<rt>か</rt></ruby>い<ruby>物<rt>もの</rt></ruby>に<ruby>行<rt>い</rt></ruby>きましょう。", "te-mubunu"],
+  ["お<ruby>金<rt>かね</rt></ruby>がある・<ruby>海外<rt>かいがい</rt></ruby>に<ruby>行<rt>い</rt></ruby>きたい", "お<ruby>金<rt>かね</rt></ruby>があったら、<ruby>海外<rt>かいがい</rt></ruby>に<ruby>行<rt>い</rt></ruby>きたいです。", "te-utsuru"],
+  ["<ruby>雨<rt>あめ</rt></ruby>が<ruby>降<rt>ふ</rt></ruby>る・<ruby>試合<rt>しあい</rt></ruby>は<ruby>中止<rt>ちゅうし</rt></ruby>", "<ruby>雨<rt>あめ</rt></ruby>が<ruby>降<rt>ふ</rt></ruby>ったら、<ruby>試合<rt>しあい</rt></ruby>は<ruby>中止<rt>ちゅうし</rt></ruby>です。", "te-utsuru"],
+  ["パスポートをなくす・<ruby>旅行<rt>りょこう</rt></ruby>に<ruby>行<rt>い</rt></ruby>けない", "パスポートをなくしたら、<ruby>旅行<rt>りょこう</rt></ruby>に<ruby>行<rt>い</rt></ruby>けません。", "te-su"],
+  ["<ruby>雪<rt>ゆき</rt></ruby>が<ruby>降<rt>ふ</rt></ruby>る・<ruby>写真<rt>しゃしん</rt></ruby>を<ruby>撮<rt>と</rt></ruby>りたい", "<ruby>雪<rt>ゆき</rt></ruby>が<ruby>降<rt>ふ</rt></ruby>ったら、<ruby>写真<rt>しゃしん</rt></ruby>を<ruby>撮<rt>と</rt></ruby>りたいです。", "te-utsuru"],
+  ["<ruby>日本<rt>にほん</rt></ruby>に<ruby>行<rt>い</rt></ruby>く・ラーメンを<ruby>食<rt>た</rt></ruby>べたい", "<ruby>日本<rt>にほん</rt></ruby>に<ruby>行<rt>い</rt></ruby>ったら、ラーメンを<ruby>食<rt>た</rt></ruby>べたいです。", "te-iku"],
+  ["<ruby>困<rt>こま</rt></ruby>る・<ruby>私<rt>わたし</rt></ruby>に<ruby>連絡<rt>れんらく</rt></ruby>してください", "<ruby>困<rt>こま</rt></ruby>ったら、<ruby>私<rt>わたし</rt></ruby>に<ruby>連絡<rt>れんらく</rt></ruby>してください。", "te-utsuru"],
+  ["チケットを<ruby>忘<rt>わす</rt></ruby>れる・<ruby>入<rt>はい</rt></ruby>れない", "チケットを<ruby>忘<rt>わす</rt></ruby>れたら、<ruby>入<rt>はい</rt></ruby>れません。", "te-ichidan"],
+  ["<ruby>先生<rt>せんせい</rt></ruby>が<ruby>来<rt>く</rt></ruby>る・うれしい", "<ruby>先生<rt>せんせい</rt></ruby>が<ruby>来<rt>き</rt></ruby>たら、うれしいです。", ""],
   ["<ruby>合格<rt>ごうかく</rt></ruby>できる・うれしい", "<ruby>合格<rt>ごうかく</rt></ruby>できたら、うれしいです。", "te-ichidan"],
   ["<ruby>安<rt>やす</rt></ruby>い・<ruby>買<rt>か</rt></ruby>う", "<ruby>安<rt>やす</rt></ruby>かったら、<ruby>買<rt>か</rt></ruby>います。", ""],
   ["<ruby>高<rt>たか</rt></ruby>い・<ruby>買<rt>か</rt></ruby>わない", "<ruby>高<rt>たか</rt></ruby>かったら、<ruby>買<rt>か</rt></ruby>いません。", ""],
-  ["<ruby>天気<rt>てんき</rt></ruby>が いい・お<ruby>花見<rt>はなみ</rt></ruby>を する", "<ruby>天気<rt>てんき</rt></ruby>が よかったら、お<ruby>花見<rt>はなみ</rt></ruby>を しませんか。", ""],
-  ["<ruby>元気<rt>げんき</rt></ruby>だ・<ruby>明日<rt>あした</rt></ruby> <ruby>行<rt>い</rt></ruby>く", "<ruby>元気<rt>げんき</rt></ruby>だったら、<ruby>明日<rt>あした</rt></ruby> <ruby>行<rt>い</rt></ruby>きます。", ""],
+  ["<ruby>天気<rt>てんき</rt></ruby>がいい・お<ruby>花見<rt>はなみ</rt></ruby>をする", "<ruby>天気<rt>てんき</rt></ruby>がよかったら、お<ruby>花見<rt>はなみ</rt></ruby>をしませんか。", ""],
+  ["<ruby>元気<rt>げんき</rt></ruby>だ・<ruby>明日<rt>あした</rt></ruby><ruby>行<rt>い</rt></ruby>く", "<ruby>元気<rt>げんき</rt></ruby>だったら、<ruby>明日<rt>あした</rt></ruby><ruby>行<rt>い</rt></ruby>きます。", ""],
   ["<ruby>暇<rt>ひま</rt></ruby>だ・<ruby>手伝<rt>てつだ</rt></ruby>ってください", "<ruby>暇<rt>ひま</rt></ruby>だったら、<ruby>手伝<rt>てつだ</rt></ruby>ってください。", ""],
   ["<ruby>忙<rt>いそが</rt></ruby>しくない・<ruby>出<rt>で</rt></ruby>かける", "<ruby>忙<rt>いそが</rt></ruby>しくなかったら、<ruby>出<rt>で</rt></ruby>かけませんか。", ""],
-  ["お<ruby>腹<rt>なか</rt></ruby>が いっぱいじゃない・<ruby>食<rt>た</rt></ruby>べる", "お<ruby>腹<rt>なか</rt></ruby>が いっぱいじゃなかったら、<ruby>食<rt>た</rt></ruby>べてください。", ""]
+  ["お<ruby>腹<rt>なか</rt></ruby>がいっぱいじゃない・<ruby>食<rt>た</rt></ruby>べる", "お<ruby>腹<rt>なか</rt></ruby>がいっぱいじゃなかったら、<ruby>食<rt>た</rt></ruby>べてください。", ""]
 ];
 
 
