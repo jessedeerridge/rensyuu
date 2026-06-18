@@ -844,6 +844,26 @@
     line-height: 1.35;
   }
 
+  #tableArea table.tara-table td:first-child {
+    padding-left: 2px;
+    padding-right: 2px;
+  }
+
+  #tableArea table.tara-table .word-cell-inner {
+    gap: 2px;
+  }
+
+  #tableArea table.tara-table .question-box {
+    width: 24px;
+    height: 24px;
+    flex-basis: 24px;
+  }
+
+  #tableArea table.tara-table .question-svg {
+    width: 20px;
+    height: 20px;
+  }
+
   #tableArea .tara-hint-line {
     display: block;
     width: 100%;
@@ -4101,8 +4121,8 @@ const vTara30 = [
   ["<ruby>安<rt>やす</rt></ruby>い・<ruby>買<rt>か</rt></ruby>います。", "<ruby>安<rt>やす</rt></ruby>かったら、<ruby>買<rt>か</rt></ruby>います。", ""],
   ["<ruby>高<rt>たか</rt></ruby>い・<ruby>買<rt>か</rt></ruby>いません。", "<ruby>高<rt>たか</rt></ruby>かったら、<ruby>買<rt>か</rt></ruby>いません。", ""],
   ["<ruby>天気<rt>てんき</rt></ruby>がいい・お<ruby>花見<rt>はなみ</rt></ruby>をしませんか。", "<ruby>天気<rt>てんき</rt></ruby>がよかったら、お<ruby>花見<rt>はなみ</rt></ruby>をしませんか。", ""],
-  ["<ruby>元気<rt>げんき</rt></ruby>だ・<ruby>明日<rt>あした</rt></ruby><ruby>行<rt>い</rt></ruby>きます。", "<ruby>元気<rt>げんき</rt></ruby>だったら、<ruby>明日<rt>あした</rt></ruby><ruby>行<rt>い</rt></ruby>きます。", ""],
-  ["<ruby>暇<rt>ひま</rt></ruby>だ・<ruby>手伝<rt>てつだ</rt></ruby>ってください。", "<ruby>暇<rt>ひま</rt></ruby>だったら、<ruby>手伝<rt>てつだ</rt></ruby>ってください。", ""],
+  ["<ruby>元気<rt>げんき</rt></ruby>・<ruby>明日<rt>あした</rt></ruby><ruby>行<rt>い</rt></ruby>きます。", "<ruby>元気<rt>げんき</rt></ruby>だったら、<ruby>明日<rt>あした</rt></ruby><ruby>行<rt>い</rt></ruby>きます。", ""],
+  ["<ruby>暇<rt>ひま</rt></ruby>・<ruby>手伝<rt>てつだ</rt></ruby>ってください。", "<ruby>暇<rt>ひま</rt></ruby>だったら、<ruby>手伝<rt>てつだ</rt></ruby>ってください。", ""],
   ["<ruby>忙<rt>いそが</rt></ruby>しくない・<ruby>出<rt>で</rt></ruby>かけませんか。", "<ruby>忙<rt>いそが</rt></ruby>しくなかったら、<ruby>出<rt>で</rt></ruby>かけませんか。", ""],
   ["お<ruby>腹<rt>なか</rt></ruby>がいっぱいじゃない・<ruby>食<rt>た</rt></ruby>べてください。", "お<ruby>腹<rt>なか</rt></ruby>がいっぱいじゃなかったら、<ruby>食<rt>た</rt></ruby>べてください。", ""]
 ];
@@ -4728,18 +4748,28 @@ function unifyLeftColumnFontSize(table) {
 function fitTaraHintLines(table) {
   if (!table.classList.contains("tara-table")) return;
 
-  table.querySelectorAll(".tara-hint-line").forEach(line => {
-    let fontSize = parseFloat(getComputedStyle(line).fontSize);
+  table.querySelectorAll("td:first-child .word-text").forEach(wordText => {
+    const lines = Array.from(wordText.querySelectorAll(".tara-hint-line"));
+    if (!lines.length) return;
+
+    let fontSize = parseFloat(getComputedStyle(wordText).fontSize);
     if (!Number.isFinite(fontSize)) return;
 
-    while (fontSize > 8 && line.scrollWidth > line.clientWidth + 0.5) {
+    const hasOverflow = () => lines.some(line => line.scrollWidth > line.clientWidth + 0.5);
+
+    while (fontSize > 8 && hasOverflow()) {
       fontSize -= 1;
-      line.style.setProperty("font-size", `${fontSize}px`, "important");
+      wordText.style.setProperty("font-size", `${fontSize}px`, "important");
     }
 
-    if (line.scrollWidth > line.clientWidth + 0.5 && line.clientWidth > 0) {
-      const fittedSize = Math.max(1, (fontSize * line.clientWidth) / line.scrollWidth - 0.5);
-      line.style.setProperty("font-size", `${fittedSize}px`, "important");
+    if (hasOverflow()) {
+      const widthRatios = lines
+        .filter(line => line.clientWidth > 0 && line.scrollWidth > 0)
+        .map(line => line.clientWidth / line.scrollWidth);
+      if (widthRatios.length) {
+        const fittedSize = Math.max(1, fontSize * Math.min(...widthRatios) - 0.5);
+        wordText.style.setProperty("font-size", `${fittedSize}px`, "important");
+      }
     }
   });
 }
@@ -4767,9 +4797,6 @@ function fitTableTextOneLine() {
     table.dataset.fittedFontSize = String(maxFont);
     shrinkTargets().forEach(el => {
       el.style.removeProperty("font-size");
-    });
-    table.querySelectorAll(".tara-hint-line").forEach(line => {
-      line.style.removeProperty("font-size");
     });
     resetTableTextTransforms(table);
     updateTableAlignmentClasses(table);
