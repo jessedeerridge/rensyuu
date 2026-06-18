@@ -844,6 +844,26 @@
     line-height: 1.35;
   }
 
+  #tableArea table.tara-table td:first-child {
+    padding-left: 2px;
+    padding-right: 2px;
+  }
+
+  #tableArea table.tara-table .word-cell-inner {
+    gap: 2px;
+  }
+
+  #tableArea table.tara-table .question-box {
+    width: 24px;
+    height: 24px;
+    flex-basis: 24px;
+  }
+
+  #tableArea table.tara-table .question-svg {
+    width: 20px;
+    height: 20px;
+  }
+
   #tableArea .tara-hint-line {
     display: block;
     width: 100%;
@@ -3258,7 +3278,16 @@ const adjectiveNaru30 = [
 ];
 
 function makeAdjectiveNaruTable() {
-  makeFlat30Table("形-なる", "形-なる（变得）", adjectiveNaru30, "辞書形");
+  makeCategorizedFlatTable(
+    "形-なる",
+    "形-なる（变得）",
+    adjectiveNaru30,
+    [
+      { index: 0, label: "い形容詞" },
+      { index: 20, label: "な形容詞" }
+    ],
+    "辞書形"
+  );
 }
 
 function makeAdjectiveTable(rightTitle, answerIndex) {
@@ -3773,9 +3802,18 @@ function makeTaraPartialColorTable(title, rightTitle, rows) {
       </tr>
   `;
 
-  rows.forEach(row => {
+  rows.forEach((row, index) => {
+    if (index === 0 || index === 9) {
+      const usageLabel = index === 0 ? "〜后" : "如果";
+      html += `
+        <tr class="group-row">
+          <td colspan="2">${usageLabel}</td>
+        </tr>
+      `;
+    }
+
     html += `
-      <tr>
+      <tr class="${index < 9 ? "tara-after-row" : "tara-if-row"}">
         <td>${makeWordCell(makeTaraHint(row[0]))}</td>
         <td><span class="answer-text">${compactJapanese(row[1])}</span></td>
       </tr>
@@ -3827,6 +3865,47 @@ function makeFlatTaggedTable(title, rightTitle, rows, leftTitle = "辞書形") {
     const rowClass = row[2] ? ` class="${row[2]}"` : "";
     html += `
       <tr${rowClass}>
+        <td>${makeWordCell(row[0])}</td>
+        <td><span class="answer-text">${row[1]}</span></td>
+      </tr>
+    `;
+  });
+
+  html += `
+    </table>
+    <div class="scroll-extra-y"></div>
+  `;
+
+  document.getElementById("tableArea").innerHTML = html;
+
+  requestAnimationFrame(() => {
+    fitTableTextOneLine();
+    adjustScrollExtraHeight();
+    updateSheetHiddenText();
+  });
+}
+
+function makeCategorizedFlatTable(title, rightTitle, rows, categories, leftTitle = "辞書形") {
+  let html = `
+    <table>
+      <tr>
+        <th>${leftTitle}</th>
+        <th>${rightTitle}</th>
+      </tr>
+  `;
+
+  rows.forEach((row, index) => {
+    const category = categories.find(item => item.index === index);
+    if (category) {
+      html += `
+        <tr class="group-row">
+          <td colspan="2">${category.label}</td>
+        </tr>
+      `;
+    }
+
+    html += `
+      <tr>
         <td>${makeWordCell(row[0])}</td>
         <td><span class="answer-text">${row[1]}</span></td>
       </tr>
@@ -4101,8 +4180,8 @@ const vTara30 = [
   ["<ruby>安<rt>やす</rt></ruby>い・<ruby>買<rt>か</rt></ruby>います。", "<ruby>安<rt>やす</rt></ruby>かったら、<ruby>買<rt>か</rt></ruby>います。", ""],
   ["<ruby>高<rt>たか</rt></ruby>い・<ruby>買<rt>か</rt></ruby>いません。", "<ruby>高<rt>たか</rt></ruby>かったら、<ruby>買<rt>か</rt></ruby>いません。", ""],
   ["<ruby>天気<rt>てんき</rt></ruby>がいい・お<ruby>花見<rt>はなみ</rt></ruby>をしませんか。", "<ruby>天気<rt>てんき</rt></ruby>がよかったら、お<ruby>花見<rt>はなみ</rt></ruby>をしませんか。", ""],
-  ["<ruby>元気<rt>げんき</rt></ruby>だ・<ruby>明日<rt>あした</rt></ruby><ruby>行<rt>い</rt></ruby>きます。", "<ruby>元気<rt>げんき</rt></ruby>だったら、<ruby>明日<rt>あした</rt></ruby><ruby>行<rt>い</rt></ruby>きます。", ""],
-  ["<ruby>暇<rt>ひま</rt></ruby>だ・<ruby>手伝<rt>てつだ</rt></ruby>ってください。", "<ruby>暇<rt>ひま</rt></ruby>だったら、<ruby>手伝<rt>てつだ</rt></ruby>ってください。", ""],
+  ["<ruby>元気<rt>げんき</rt></ruby>・<ruby>明日<rt>あした</rt></ruby><ruby>行<rt>い</rt></ruby>きます。", "<ruby>元気<rt>げんき</rt></ruby>だったら、<ruby>明日<rt>あした</rt></ruby><ruby>行<rt>い</rt></ruby>きます。", ""],
+  ["<ruby>暇<rt>ひま</rt></ruby>・<ruby>手伝<rt>てつだ</rt></ruby>ってください。", "<ruby>暇<rt>ひま</rt></ruby>だったら、<ruby>手伝<rt>てつだ</rt></ruby>ってください。", ""],
   ["<ruby>忙<rt>いそが</rt></ruby>しくない・<ruby>出<rt>で</rt></ruby>かけませんか。", "<ruby>忙<rt>いそが</rt></ruby>しくなかったら、<ruby>出<rt>で</rt></ruby>かけませんか。", ""],
   ["お<ruby>腹<rt>なか</rt></ruby>がいっぱいじゃない・<ruby>食<rt>た</rt></ruby>べてください。", "お<ruby>腹<rt>なか</rt></ruby>がいっぱいじゃなかったら、<ruby>食<rt>た</rt></ruby>べてください。", ""]
 ];
@@ -4234,15 +4313,39 @@ const vPotential30 = [
   ["<ruby>来<rt>く</rt></ruby>る", "<ruby>来<rt>こ</rt></ruby>られます"]
 ];
 
-function makeTaiTable() { makeFlat30Table("Vたいです", "Vたいです（想）", vTai30, "辞書形"); }
+function makeTaiTable() {
+  makeCategorizedFlatTable(
+    "Vたいです",
+    "Vたいです（想）",
+    vTai30,
+    [
+      { index: 0, label: "五段動詞" },
+      { index: 20, label: "一段動詞" },
+      { index: 27, label: "不規則動詞" }
+    ],
+    "辞書形"
+  );
+}
 function makeMasenkaTable() { makeFlat30Table("Vませんか", "Vませんか", vMasenka30, "ヒント"); }
 function makeMashouTable() { makeFlat30Table("Vましょう", "Vましょう", vMashou30, "ヒント"); }
 function makeTemoiiTable() { makeFlat30Table("Vてもいいですか", "Vてもいいですか（可以吗？）", vTemoii30, "ヒント"); }
 function makeTekudasaiTable() { makeFlat30Table("Vてください", "Vてください（请）", vTekudasai30, "ヒント"); }
-function makeNaideKudasaiTable() { makeFlat30Table("Vないでください", "Vないでください（请不要）", vNaideKudasai30, "ヒント"); }
+function makeNaideKudasaiTable() {
+  makeCategorizedFlatTable(
+    "Vないでください",
+    "Vないでください（请不要）",
+    vNaideKudasai30,
+    [
+      { index: 0, label: "五段動詞" },
+      { index: 20, label: "一段動詞" },
+      { index: 26, label: "不規則動詞" }
+    ],
+    "ヒント"
+  );
+}
 function makeTeimasuTable() { makeFlat30Table("Vています", "Vています（正在）", vTeimasu30, "ヒント"); }
 function makeTariTable() { makeFlat30Table("Vたり", "Vたり（又…又…）", vTari30, "ヒント"); }
-function makeTaraTable() { makeTaraPartialColorTable("Vたら", "Vたら（如果）", vTara30); }
+function makeTaraTable() { makeTaraPartialColorTable("Vたら", "Vたら", vTara30); }
 function makeTaKotoArimasuTable() { makeFlat30Table("Vたことがあります", "Vたことがあります（有过）", vTaKotoArimasu30, "ヒント"); }
 function makeTekimasuTable() { makeFlat30Table("Vてきます", "Vてきます（回来）", vTekimasu30, "ヒント"); }
 function makeYouTable() { makeFlatTaggedTable("Vよう", "Vよう", vYou30); }
@@ -4728,18 +4831,28 @@ function unifyLeftColumnFontSize(table) {
 function fitTaraHintLines(table) {
   if (!table.classList.contains("tara-table")) return;
 
-  table.querySelectorAll(".tara-hint-line").forEach(line => {
-    let fontSize = parseFloat(getComputedStyle(line).fontSize);
+  table.querySelectorAll("td:first-child .word-text").forEach(wordText => {
+    const lines = Array.from(wordText.querySelectorAll(".tara-hint-line"));
+    if (!lines.length) return;
+
+    let fontSize = parseFloat(getComputedStyle(wordText).fontSize);
     if (!Number.isFinite(fontSize)) return;
 
-    while (fontSize > 8 && line.scrollWidth > line.clientWidth + 0.5) {
+    const hasOverflow = () => lines.some(line => line.scrollWidth > line.clientWidth + 0.5);
+
+    while (fontSize > 8 && hasOverflow()) {
       fontSize -= 1;
-      line.style.setProperty("font-size", `${fontSize}px`, "important");
+      wordText.style.setProperty("font-size", `${fontSize}px`, "important");
     }
 
-    if (line.scrollWidth > line.clientWidth + 0.5 && line.clientWidth > 0) {
-      const fittedSize = Math.max(1, (fontSize * line.clientWidth) / line.scrollWidth - 0.5);
-      line.style.setProperty("font-size", `${fittedSize}px`, "important");
+    if (hasOverflow()) {
+      const widthRatios = lines
+        .filter(line => line.clientWidth > 0 && line.scrollWidth > 0)
+        .map(line => line.clientWidth / line.scrollWidth);
+      if (widthRatios.length) {
+        const fittedSize = Math.max(1, fontSize * Math.min(...widthRatios) - 0.5);
+        wordText.style.setProperty("font-size", `${fittedSize}px`, "important");
+      }
     }
   });
 }
@@ -4767,9 +4880,6 @@ function fitTableTextOneLine() {
     table.dataset.fittedFontSize = String(maxFont);
     shrinkTargets().forEach(el => {
       el.style.removeProperty("font-size");
-    });
-    table.querySelectorAll(".tara-hint-line").forEach(line => {
-      line.style.removeProperty("font-size");
     });
     resetTableTextTransforms(table);
     updateTableAlignmentClasses(table);
