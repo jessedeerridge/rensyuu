@@ -2538,16 +2538,15 @@ function escapeForAttr(value) {
   return String(value || "").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
-function getRandomQuestionMemoItems(items, limit) {
+function getStableQuestionMemoItems(items, limit) {
   const list = Array.isArray(items) ? items.slice() : [];
-  if (list.length <= limit) return list;
+  const withOrder = list.map((item, index) => {
+    const seed = `${item.key || ""}|${item.legacyKey || ""}|${item.leftText || ""}|${item.rightText || ""}`;
+    return { item, index, order: seededRandom(seed)() };
+  });
 
-  for (let i = list.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [list[i], list[j]] = [list[j], list[i]];
-  }
-
-  return list.slice(0, limit);
+  withOrder.sort((a, b) => a.order - b.order || a.index - b.index);
+  return withOrder.slice(0, limit).map(entry => entry.item);
 }
 
 function renderQuestionMemoLayer() {
@@ -2558,7 +2557,7 @@ function renderQuestionMemoLayer() {
 
   const allItems = safeParseQuestionStore();
   const sourceItems = isConjugationMenu ? allItems.filter(isConjugationQuestionItem) : allItems;
-  const items = getRandomQuestionMemoItems(sourceItems, TOP_MEMO_DISPLAY_LIMIT);
+  const items = getStableQuestionMemoItems(sourceItems, TOP_MEMO_DISPLAY_LIMIT);
   layer.innerHTML = "";
   if (!items.length) return;
 
