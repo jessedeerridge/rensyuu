@@ -508,6 +508,10 @@
     overflow-y: visible;
   }
 
+  body.listen-wide-mode .table-wrap {
+    padding-right: 0;
+  }
+
   table {
     width: 100%;
     border-collapse: separate;
@@ -1268,9 +1272,25 @@
     white-space: nowrap !important;
   }
 
+  #tableArea table.listen-table th:first-child,
+  #tableArea table.listen-table td:first-child {
+    width: 42%;
+  }
+
+  #tableArea table.listen-table th:last-child,
+  #tableArea table.listen-table td:last-child {
+    width: 58%;
+  }
+
+  #tableArea table.listen-table td:last-child {
+    padding-left: 1em;
+    padding-right: 0;
+  }
+
   #tableArea table.listen-table td:last-child .answer-text,
   #tableArea table.listen-table.fitting-table td:last-child .answer-text,
   #tableArea table.listen-table td:last-child.text-adjusted-cell .answer-text {
+    width: 100%;
     white-space: nowrap !important;
     transform: none !important;
     line-height: 1.18;
@@ -1538,7 +1558,7 @@ function openHome() {
   tableVisible = false;
   stopMaskLoop();
   clearAllMasks();
-  document.body.classList.remove("home-mode", "menu-mode", "sheet-high", "table-start-lowered");
+  document.body.classList.remove("home-mode", "menu-mode", "sheet-high", "table-start-lowered", "listen-wide-mode");
   document.body.classList.add("home-mode");
   document.getElementById("tableScreen").style.display = "none";
   document.getElementById("menuScreen").style.display = "none";
@@ -1549,7 +1569,7 @@ function openHome() {
 
 function openConjugationMenu() {
   currentSection = "conjugation";
-  document.body.classList.remove("home-mode", "sheet-high", "table-start-lowered");
+  document.body.classList.remove("home-mode", "sheet-high", "table-start-lowered", "listen-wide-mode");
   document.body.classList.add("menu-mode");
   document.getElementById("homeScreen").style.display = "none";
   document.getElementById("tableScreen").style.display = "none";
@@ -2872,7 +2892,7 @@ function makeSpeakTable() {
 
 function showPlaceholderTable(title, message, returnSection = "home") {
   currentSection = returnSection;
-  document.body.classList.remove("home-mode", "menu-mode", "sheet-high", "table-start-lowered");
+  document.body.classList.remove("home-mode", "menu-mode", "sheet-high", "table-start-lowered", "listen-wide-mode");
   document.body.classList.add("table-start-lowered");
   document.getElementById("homeScreen").style.display = "none";
   document.getElementById("menuScreen").style.display = "none";
@@ -2886,7 +2906,10 @@ function showPlaceholderTable(title, message, returnSection = "home") {
 }
 
 function showTable(type, focusKey = "") {
-  document.body.classList.remove("home-mode", "menu-mode", "sheet-high", "table-start-lowered");
+  document.body.classList.remove("home-mode", "menu-mode", "sheet-high", "table-start-lowered", "listen-wide-mode");
+  if (type === "聞く") {
+    document.body.classList.add("listen-wide-mode");
+  }
   if (type === "Vて" || type === "Vた" || type === "聞く") {
     document.body.classList.add("table-start-lowered");
   }
@@ -3030,7 +3053,7 @@ function backMenu() {
   if (currentSection === "conjugation") {
     document.getElementById("homeScreen").style.display = "none";
     document.getElementById("menuScreen").style.display = "block";
-    document.body.classList.remove("home-mode");
+    document.body.classList.remove("home-mode", "listen-wide-mode");
     document.body.classList.add("menu-mode");
     requestAnimationFrame(renderQuestionMemoLayer);
   } else {
