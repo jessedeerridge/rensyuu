@@ -795,6 +795,84 @@
     stroke: none !important;
   }
 
+  .speak-cross-wrap {
+    position: relative;
+    display: inline-block;
+  }
+
+  .speak-cross-mark {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, calc(-54% + 8px)) rotate(-8deg);
+    color: #d90000;
+    font-size: 1.55em;
+    font-weight: 900;
+    line-height: 1;
+    text-shadow:
+      0 1px 0 #fff,
+      1px 0 0 #fff,
+      0 -1px 0 #fff,
+      -1px 0 0 #fff;
+    pointer-events: none;
+  }
+
+  .speak-ticket-tilt {
+    display: inline-block;
+  }
+
+  .speak-ticket-tilt.left {
+    transform: rotate(5deg);
+  }
+
+  .speak-ticket-tilt.right {
+    transform: rotate(5deg);
+  }
+
+  .speak-route {
+    display: inline-grid;
+    grid-template-columns: auto 1.75em auto;
+    grid-template-rows: auto auto auto;
+    align-items: center;
+    justify-items: center;
+    column-gap: 0.12em;
+    line-height: 1;
+  }
+
+  .speak-route-start {
+    grid-row: 1 / 4;
+    grid-column: 1;
+  }
+
+  .speak-route-end {
+    grid-row: 1 / 4;
+    grid-column: 3;
+  }
+
+  .speak-route-top {
+    grid-row: 1;
+    grid-column: 2;
+    font-size: 0.58em;
+    font-weight: 900;
+  }
+
+  .speak-route-line {
+    grid-row: 2;
+    grid-column: 2;
+    width: 100%;
+    border-top: 0.12em solid currentColor;
+  }
+
+  .speak-route-bottom {
+    grid-row: 3;
+    grid-column: 2;
+    font-size: 0.68em;
+  }
+
+  .speak-route-bottom.flip {
+    transform: scaleX(-1);
+  }
+
 
   /* ===== メニュー：そのページに存在するボタン群を画面中央に配置 ===== */
   body.home-mode #homeScreen,
@@ -1343,15 +1421,18 @@ function isConjugationQuestionItem(item) {
 
 const speakPracticeData = [
   ["大阪🏠", "<ruby>大阪<rt>おおさか</rt></ruby>に <ruby>住<rt>す</rt></ruby>んでいます。"],
+  ["<span class=\"speak-route\"><span class=\"speak-route-start\">🏠</span><span class=\"speak-route-top\">２ｈ</span><span class=\"speak-route-line\"></span><span class=\"speak-route-bottom\">🚃</span><span class=\"speak-route-end\">🏫</span></span>", "<ruby>家<rt>いえ</rt></ruby>から <ruby>学校<rt>がっこう</rt></ruby>まで <ruby>電車<rt>でんしゃ</rt></ruby>で <ruby>二時間<rt>にじかん</rt></ruby>くらいです。"],
+  ["<span class=\"speak-route\"><span class=\"speak-route-start\">🚉</span><span class=\"speak-route-top\">10分</span><span class=\"speak-route-line\"></span><span class=\"speak-route-bottom flip\">🚗</span><span class=\"speak-route-end\">🏫</span></span>", "<ruby>駅<rt>えき</rt></ruby>から <ruby>学校<rt>がっこう</rt></ruby>まで <ruby>車<rt>くるま</rt></ruby>で10<ruby>分<rt>ぷん</rt></ruby>くらいです。"],
+  ["<span class=\"speak-route\"><span class=\"speak-route-start\">🏫</span><span class=\"speak-route-top\">15分</span><span class=\"speak-route-line\"></span><span class=\"speak-route-bottom flip\">🚶</span><span class=\"speak-route-end\">🚉</span></span>", "<ruby>学校<rt>がっこう</rt></ruby>から <ruby>駅<rt>えき</rt></ruby>まで <ruby>歩<rt>ある</rt></ruby>いて15<ruby>分<rt>ふん</rt></ruby>くらいです。"],
   ["🐶１", "<ruby>犬<rt>いぬ</rt></ruby>が <ruby>一匹<rt>いっぴき</rt></ruby>います。"],
   ["👨１👦１", "<ruby>兄<rt>あに</rt></ruby>が<ruby>1人<rt>ひとり</rt></ruby>と <ruby>弟<rt>おとうと</rt></ruby>が<ruby>1人<rt>ひとり</rt></ruby>います。"],
-  ["🎫🎫", "チケットが<ruby>2枚<rt>にまい</rt></ruby>あります。"],
+  ["<span class=\"speak-ticket-tilt left\">🎫</span><span class=\"speak-ticket-tilt right\">🎫</span>", "チケットが<ruby>2枚<rt>にまい</rt></ruby>あります。"],
   ["👦🏻🧍🏻‍♂️高", "<ruby>兄<rt>あに</rt></ruby>は <ruby>背<rt>せ</rt></ruby>が <ruby>高<rt>たか</rt></ruby>いです。"],
   ["👩🏻💇🏻‍♀️長", "<ruby>姉<rt>あね</rt></ruby>は <ruby>髪<rt>かみ</rt></ruby>が <ruby>長<rt>なが</rt></ruby>いです。"],
   ["👨🏻✋大", "<ruby>父<rt>ちち</rt></ruby>は <ruby>手<rt>て</rt></ruby>が <ruby>大<rt>おお</rt></ruby>きいです。"],
   ["🏙️🛒", "<ruby>町<rt>まち</rt></ruby>に スーパーがあります。"],
   ["大阪🏯", "<ruby>大阪<rt>おおさか</rt></ruby>に お<ruby>城<rt>しろ</rt></ruby>があります。"],
-  ["東京🏮", "<ruby>東京<rt>とうきょう</rt></ruby>で お<ruby>祭<rt>まつ</rt></ruby>りがあります。"],
+  ["東京🎆", "<ruby>東京<rt>とうきょう</rt></ruby>で お<ruby>祭<rt>まつ</rt></ruby>りがあります。"],
   ["🏫📝", "<ruby>学校<rt>がっこう</rt></ruby>で テストがあります。"],
   ["🎬❤️", "<ruby>映画<rt>えいが</rt></ruby>を <ruby>見<rt>み</rt></ruby>るのが <ruby>好<rt>す</rt></ruby>きです。"],
   ["🎨❤️", "<ruby>絵<rt>え</rt></ruby>を かくのが <ruby>好<rt>す</rt></ruby>きです。"],
@@ -1360,22 +1441,22 @@ const speakPracticeData = [
   ["📝🕐❌", "まだ <ruby>終<rt>お</rt></ruby>わっていません。"],
   ["🍚😋", "もう <ruby>食<rt>た</rt></ruby>べました。"],
   ["📝🎉", "もう <ruby>終<rt>お</rt></ruby>わりました。"],
-  ["🐟～", "あ！<ruby>魚<rt>さかな</rt></ruby>が <ruby>泳<rt>およ</rt></ruby>いでいます。"],
-  ["🐒🍌", "あ！サルが バナナを <ruby>食<rt>た</rt></ruby>べています。"],
-  ["🏃‍♂️", "あ！<ruby>子<rt>こ</rt></ruby>どもが <ruby>走<rt>はし</rt></ruby>っています。"],
+  ["あ！🐟～", "あ！<ruby>魚<rt>さかな</rt></ruby>が <ruby>泳<rt>およ</rt></ruby>いでいます。"],
+  ["あ！🐒🍌", "あ！サルが バナナを <ruby>食<rt>た</rt></ruby>べています。"],
+  ["あ！🏃‍♂️", "あ！<ruby>子<rt>こ</rt></ruby>どもが <ruby>走<rt>はし</rt></ruby>っています。"],
   ["💊👍", "<ruby>薬<rt>くすり</rt></ruby>を <ruby>飲<rt>の</rt></ruby>んだほうがいいですよ。"],
   ["🛏️👍", "<ruby>休<rt>やす</rt></ruby>んだほうがいいですよ。"],
   ["🍺❌", "お<ruby>酒<rt>さけ</rt></ruby>を <ruby>飲<rt>の</rt></ruby>まないほうがいいですよ。"],
   ["🌃📱❌", "<ruby>夜<rt>よる</rt></ruby>、スマホを <ruby>見<rt>み</rt></ruby>ないほうがいいですよ。"],
-  ["🏫❌👌🏻", "<ruby>明日<rt>あした</rt></ruby>は <ruby>学校<rt>がっこう</rt></ruby>に <ruby>行<rt>い</rt></ruby>かなくてもいいです。"],
-  ["⏰❌👌🏻", "<ruby>明日<rt>あした</rt></ruby>は <ruby>早<rt>はや</rt></ruby>く <ruby>起<rt>お</rt></ruby>きなくてもいいです。"],
-  ["✍️❌👌🏻", "<ruby>名前<rt>なまえ</rt></ruby>を <ruby>書<rt>か</rt></ruby>かなくてもいいです。"],
-  ["明日🌧️👂", "<ruby>明日<rt>あした</rt></ruby>は <ruby>雨<rt>あめ</rt></ruby>が <ruby>降<rt>ふ</rt></ruby>るそうです。"],
-  ["陳さん🤧👂", "<ruby>陳<rt>ちん</rt></ruby>さんは <ruby>風邪<rt>かぜ</rt></ruby>をひいたそうです。"],
-  ["🍰🔥👂", "このケーキ<ruby>屋<rt>や</rt></ruby>は <ruby>人気<rt>にんき</rt></ruby>だそうです。"],
-  ["明日☀️🤔", "<ruby>明日<rt>あした</rt></ruby>は <ruby>暑<rt>あつ</rt></ruby>いと <ruby>思<rt>おも</rt></ruby>います。"],
-  ["年末👥👥🤔", "<ruby>年末<rt>ねんまつ</rt></ruby>は <ruby>人<rt>ひと</rt></ruby>が <ruby>多<rt>おお</rt></ruby>いと <ruby>思<rt>おも</rt></ruby>います。"],
-  ["✈️👍🤔", "<ruby>飛行機<rt>ひこうき</rt></ruby>のほうがいいと <ruby>思<rt>おも</rt></ruby>います。"]
+  ["明日<span class=\"speak-cross-wrap\">🏫<span class=\"speak-cross-mark\">×</span></span>👌🏻", "<ruby>明日<rt>あした</rt></ruby>は <ruby>学校<rt>がっこう</rt></ruby>に <ruby>行<rt>い</rt></ruby>かなくてもいいです。"],
+  ["明日🥱<span class=\"speak-cross-wrap\">⏰<span class=\"speak-cross-mark\">×</span></span>👌🏻", "<ruby>明日<rt>あした</rt></ruby>は <ruby>早<rt>はや</rt></ruby>く <ruby>起<rt>お</rt></ruby>きなくてもいいです。"],
+  ["名前<span class=\"speak-cross-wrap\">✍️<span class=\"speak-cross-mark\">×</span></span>👌🏻", "<ruby>名前<rt>なまえ</rt></ruby>を <ruby>書<rt>か</rt></ruby>かなくてもいいです。"],
+  ["明日🌧️/👂", "<ruby>明日<rt>あした</rt></ruby>は <ruby>雨<rt>あめ</rt></ruby>が <ruby>降<rt>ふ</rt></ruby>るそうです。"],
+  ["陳さん🤧/👂", "<ruby>陳<rt>ちん</rt></ruby>さんは <ruby>風邪<rt>かぜ</rt></ruby>をひいたそうです。"],
+  ["🍰🔥/👂", "このケーキ<ruby>屋<rt>や</rt></ruby>は <ruby>人気<rt>にんき</rt></ruby>だそうです。"],
+  ["明日☀️/🤔", "<ruby>明日<rt>あした</rt></ruby>は <ruby>暑<rt>あつ</rt></ruby>いと <ruby>思<rt>おも</rt></ruby>います。"],
+  ["年末👥👥/🤔", "<ruby>年末<rt>ねんまつ</rt></ruby>は <ruby>人<rt>ひと</rt></ruby>が <ruby>多<rt>おお</rt></ruby>いと <ruby>思<rt>おも</rt></ruby>います。"],
+  ["✈️👍/🤔", "<ruby>飛行機<rt>ひこうき</rt></ruby>のほうがいいと <ruby>思<rt>おも</rt></ruby>います。"]
 ];
 
 const listenPracticeData = [
@@ -2762,7 +2843,7 @@ function makeListenTable() {
 function makeSpeakTable() {
   const rows = speakPracticeData.map(([prompt, answer]) => `
     <tr>
-      <td>${makeWordCell(escapeHtml(prompt))}</td>
+      <td>${makeWordCell(prompt)}</td>
       <td><span class="answer-text">${answer}</span></td>
     </tr>
   `).join("");
