@@ -1533,6 +1533,57 @@ const listenPracticeData = [
   ["问三个以上之中哪个好时", "どれがいいですか。"],
 ];
 
+const connectPracticeData = [
+  ["～て", "やさしくて、かっこいいです。"],
+  ["～て", "人が多くて、にぎやかなところです。"],
+  ["～て", "やすくて、おいしいです。"],
+  ["～て", "合格できて、うれしかったです。"],
+  ["～て", "友だちに会えて、うれしいです。"],
+  ["～て", "たくさん食べられて、うれしかったです。"],
+  ["～て", "間に合って、よかったです。"],
+  ["～で", "風邪で、学校を休みました。"],
+  ["～で", "テストの勉強で、忙しいです。"],
+  ["～で", "用事で、明日は行けません。"],
+  ["ですけど・ですが", "難しいですけど、おもしろいです。"],
+  ["ですけど・ですが", "高いですけど、おいしいです。"],
+  ["ですけど・ですが", "旅行に行きたいですけど、時間がありません。"],
+  ["ですけど・ですが", "おいしかったですけど、ちょっと辛かったです。"],
+  ["ですけど・ですが", "ちょっと大変でしたけど、おもしろかったです。"],
+  ["理由", "雨が降っているから、傘を持っていきます。"],
+  ["理由", "お腹がすいたから、ご飯を買ってきます。"],
+  ["理由", "眠いから、早く寝ます。"],
+  ["理由", "お金がないから、旅行に行きません。"],
+  ["理由", "本を忘れたので、見せてください。"],
+  ["理由", "疲れたので、ちょっと休んでもいいですか。"],
+  ["前に・てから", "寝る前に歯を磨きます。"],
+  ["前に・てから", "学校へ行く前に朝ごはんを食べます。"],
+  ["前に・てから", "靴を脱いでから、入ってください。"],
+  ["前に・てから", "ご飯を食べてから、薬を飲んでください。"],
+  ["就算", "雨が降っても、試合はあります。"],
+  ["就算", "調べても、わかりません。"],
+  ["就算", "洗っても、きれいになりません。"],
+  ["就算", "走っても、電車に間に合いません。"],
+  ["就算", "練習しても、上手くなりません。"],
+  ["就算", "薬を飲んでも、よくなりません。"],
+  ["就算", "寝ても、元気になりません。"],
+  ["就算", "友だちに電話しても、出ません。"],
+  ["就算", "眠くなくても、11時に寝ます。"],
+  ["就算", "安くても、買いません。"],
+  ["就算", "遠くても、行きます。"],
+  ["～たら（時）", "授業が終わったら、食堂に行きます。"],
+  ["～たら（時）", "7時になったら、ご飯を食べます。"],
+  ["～たら（時）", "卒業したら、日本ではたらきます。"],
+  ["～たら（時）", "家に帰ったら、電話してください。"],
+  ["～たら（時）", "駅に着いたら、教えてください。"],
+  ["～たら（条件）", "お金があったら、海外に行きたいです。"],
+  ["～たら（条件）", "雨が降ったら、試合は中止です。"],
+  ["～たら（条件）", "日本に行ったら、ラーメンを食べたいです。"],
+  ["～たら（条件）", "合格できたら、うれしいです。"],
+  ["～たら（条件）", "安かったら、買います。"],
+  ["～たら（条件）", "天気がよかったら、お花見をしませんか。"],
+  ["～たら（条件）", "暇だったら、手伝ってください。"]
+];
+
 function openHome() {
   currentSection = "home";
   tableVisible = false;
@@ -1571,7 +1622,7 @@ function openSpeakPage() {
 
 function openConnectPage() {
   currentSection = "connect";
-  showPlaceholderTable("つなぐ", "つなぐページはまだ準備中です。", "home");
+  showTable("つなぐ");
 }
 
 function escapeHtml(value) {
@@ -2870,6 +2921,22 @@ function makeSpeakTable() {
   `;
 }
 
+function makeConnectTable() {
+  const rows = connectPracticeData.map(([pattern, sentence]) => `
+    <tr>
+      <td>${makeWordCell(escapeHtml(pattern))}</td>
+      <td><span class="answer-text">${escapeHtml(sentence)}</span></td>
+    </tr>
+  `).join("");
+  document.getElementById("tableArea").innerHTML = `
+    <table class="listen-table">
+      <tr><th>つなぎ方</th><th>例文</th></tr>
+      ${rows}
+    </table>
+    <div class="scroll-extra-y"></div>
+  `;
+}
+
 function showPlaceholderTable(title, message, returnSection = "home") {
   currentSection = returnSection;
   document.body.classList.remove("home-mode", "menu-mode", "sheet-high", "table-start-lowered");
@@ -2887,7 +2954,7 @@ function showPlaceholderTable(title, message, returnSection = "home") {
 
 function showTable(type, focusKey = "") {
   document.body.classList.remove("home-mode", "menu-mode", "sheet-high", "table-start-lowered");
-  if (type === "Vて" || type === "Vた" || type === "聞く") {
+  if (type === "Vて" || type === "Vた" || type === "聞く" || type === "話す" || type === "つなぐ") {
     document.body.classList.add("table-start-lowered");
   }
   document.getElementById("homeScreen").style.display = "none";
@@ -2905,6 +2972,8 @@ function showTable(type, focusKey = "") {
     makeListenTable();
   } else if (type === "話す") {
     makeSpeakTable();
+  } else if (type === "つなぐ") {
+    makeConnectTable();
   } else if (type === "Vます") {
     masuSwapped = false;
     makeMasuTable();
