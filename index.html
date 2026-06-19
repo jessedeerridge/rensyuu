@@ -829,6 +829,46 @@
     transform: rotate(5deg);
   }
 
+  .speak-route {
+    display: inline-grid;
+    grid-template-columns: auto 2.6em auto;
+    grid-template-rows: auto auto auto;
+    align-items: center;
+    justify-items: center;
+    column-gap: 0.12em;
+    line-height: 1;
+  }
+
+  .speak-route-start {
+    grid-row: 1 / 4;
+    grid-column: 1;
+  }
+
+  .speak-route-end {
+    grid-row: 1 / 4;
+    grid-column: 3;
+  }
+
+  .speak-route-top {
+    grid-row: 1;
+    grid-column: 2;
+    font-size: 0.58em;
+    font-weight: 900;
+  }
+
+  .speak-route-line {
+    grid-row: 2;
+    grid-column: 2;
+    width: 100%;
+    border-top: 0.12em solid currentColor;
+  }
+
+  .speak-route-bottom {
+    grid-row: 3;
+    grid-column: 2;
+    font-size: 0.68em;
+  }
+
 
   /* ===== メニュー：そのページに存在するボタン群を画面中央に配置 ===== */
   body.home-mode #homeScreen,
@@ -1377,6 +1417,9 @@ function isConjugationQuestionItem(item) {
 
 const speakPracticeData = [
   ["大阪🏠", "<ruby>大阪<rt>おおさか</rt></ruby>に <ruby>住<rt>す</rt></ruby>んでいます。"],
+  ["<span class=\"speak-route\"><span class=\"speak-route-start\">🏠</span><span class=\"speak-route-top\">２ｈ</span><span class=\"speak-route-line\"></span><span class=\"speak-route-bottom\">🚃</span><span class=\"speak-route-end\">🏫</span></span>", "<ruby>家<rt>いえ</rt></ruby>から <ruby>学校<rt>がっこう</rt></ruby>まで <ruby>電車<rt>でんしゃ</rt></ruby>で <ruby>二時間<rt>にじかん</rt></ruby>くらいです。"],
+  ["<span class=\"speak-route\"><span class=\"speak-route-start\">🚉</span><span class=\"speak-route-top\">10分</span><span class=\"speak-route-line\"></span><span class=\"speak-route-bottom\">🚗</span><span class=\"speak-route-end\">🏫</span></span>", "<ruby>駅<rt>えき</rt></ruby>から <ruby>学校<rt>がっこう</rt></ruby>まで <ruby>車<rt>くるま</rt></ruby>で10<ruby>分<rt>ぷん</rt></ruby>くらいです。"],
+  ["<span class=\"speak-route\"><span class=\"speak-route-start\">🏫</span><span class=\"speak-route-top\">15分</span><span class=\"speak-route-line\"></span><span class=\"speak-route-bottom\">🚶</span><span class=\"speak-route-end\">🚉</span></span>", "<ruby>学校<rt>がっこう</rt></ruby>から <ruby>駅<rt>えき</rt></ruby>まで <ruby>歩<rt>ある</rt></ruby>いて15<ruby>分<rt>ふん</rt></ruby>くらいです。"],
   ["🐶１", "<ruby>犬<rt>いぬ</rt></ruby>が <ruby>一匹<rt>いっぴき</rt></ruby>います。"],
   ["👨１👦１", "<ruby>兄<rt>あに</rt></ruby>が<ruby>1人<rt>ひとり</rt></ruby>と <ruby>弟<rt>おとうと</rt></ruby>が<ruby>1人<rt>ひとり</rt></ruby>います。"],
   ["<span class=\"speak-ticket-tilt left\">🎫</span><span class=\"speak-ticket-tilt right\">🎫</span>", "チケットが<ruby>2枚<rt>にまい</rt></ruby>あります。"],
