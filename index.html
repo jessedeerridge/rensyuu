@@ -1341,6 +1341,43 @@ function isConjugationQuestionItem(item) {
   return item && !nonConjugationQuestionTypes.has(item.type);
 }
 
+const speakPracticeData = [
+  ["大阪🏠", "<ruby>大阪<rt>おおさか</rt></ruby>に <ruby>住<rt>す</rt></ruby>んでいます。"],
+  ["🐶１", "<ruby>犬<rt>いぬ</rt></ruby>が <ruby>一匹<rt>いっぴき</rt></ruby>います。"],
+  ["👨１👦１", "<ruby>兄<rt>あに</rt></ruby>が<ruby>1人<rt>ひとり</rt></ruby>と <ruby>弟<rt>おとうと</rt></ruby>が<ruby>1人<rt>ひとり</rt></ruby>います。"],
+  ["🎫🎫", "チケットが<ruby>2枚<rt>にまい</rt></ruby>あります。"],
+  ["👦🏻🧍🏻‍♂️高", "<ruby>兄<rt>あに</rt></ruby>は <ruby>背<rt>せ</rt></ruby>が <ruby>高<rt>たか</rt></ruby>いです。"],
+  ["👩🏻💇🏻‍♀️長", "<ruby>姉<rt>あね</rt></ruby>は <ruby>髪<rt>かみ</rt></ruby>が <ruby>長<rt>なが</rt></ruby>いです。"],
+  ["👨🏻✋大", "<ruby>父<rt>ちち</rt></ruby>は <ruby>手<rt>て</rt></ruby>が <ruby>大<rt>おお</rt></ruby>きいです。"],
+  ["🏙️🛒", "<ruby>町<rt>まち</rt></ruby>に スーパーがあります。"],
+  ["大阪🏯", "<ruby>大阪<rt>おおさか</rt></ruby>に お<ruby>城<rt>しろ</rt></ruby>があります。"],
+  ["東京🏮", "<ruby>東京<rt>とうきょう</rt></ruby>で お<ruby>祭<rt>まつ</rt></ruby>りがあります。"],
+  ["🏫📝", "<ruby>学校<rt>がっこう</rt></ruby>で テストがあります。"],
+  ["🎬❤️", "<ruby>映画<rt>えいが</rt></ruby>を <ruby>見<rt>み</rt></ruby>るのが <ruby>好<rt>す</rt></ruby>きです。"],
+  ["🎨❤️", "<ruby>絵<rt>え</rt></ruby>を かくのが <ruby>好<rt>す</rt></ruby>きです。"],
+  ["🎤❤️", "<ruby>歌<rt>うた</rt></ruby>うのが <ruby>好<rt>す</rt></ruby>きです。"],
+  ["🍚🕐❌", "まだ <ruby>食<rt>た</rt></ruby>べていません。"],
+  ["📝🕐❌", "まだ <ruby>終<rt>お</rt></ruby>わっていません。"],
+  ["🍚😋", "もう <ruby>食<rt>た</rt></ruby>べました。"],
+  ["📝🎉", "もう <ruby>終<rt>お</rt></ruby>わりました。"],
+  ["🐟～", "あ！<ruby>魚<rt>さかな</rt></ruby>が <ruby>泳<rt>およ</rt></ruby>いでいます。"],
+  ["🐒🍌", "あ！サルが バナナを <ruby>食<rt>た</rt></ruby>べています。"],
+  ["🏃‍♂️", "あ！<ruby>子<rt>こ</rt></ruby>どもが <ruby>走<rt>はし</rt></ruby>っています。"],
+  ["💊👍", "<ruby>薬<rt>くすり</rt></ruby>を <ruby>飲<rt>の</rt></ruby>んだほうがいいですよ。"],
+  ["🛏️👍", "<ruby>休<rt>やす</rt></ruby>んだほうがいいですよ。"],
+  ["🍺❌", "お<ruby>酒<rt>さけ</rt></ruby>を <ruby>飲<rt>の</rt></ruby>まないほうがいいですよ。"],
+  ["🌃📱❌", "<ruby>夜<rt>よる</rt></ruby>、スマホを <ruby>見<rt>み</rt></ruby>ないほうがいいですよ。"],
+  ["🏫❌👌🏻", "<ruby>明日<rt>あした</rt></ruby>は <ruby>学校<rt>がっこう</rt></ruby>に <ruby>行<rt>い</rt></ruby>かなくてもいいです。"],
+  ["⏰❌👌🏻", "<ruby>明日<rt>あした</rt></ruby>は <ruby>早<rt>はや</rt></ruby>く <ruby>起<rt>お</rt></ruby>きなくてもいいです。"],
+  ["✍️❌👌🏻", "<ruby>名前<rt>なまえ</rt></ruby>を <ruby>書<rt>か</rt></ruby>かなくてもいいです。"],
+  ["明日🌧️👂", "<ruby>明日<rt>あした</rt></ruby>は <ruby>雨<rt>あめ</rt></ruby>が <ruby>降<rt>ふ</rt></ruby>るそうです。"],
+  ["陳さん🤧👂", "<ruby>陳<rt>ちん</rt></ruby>さんは <ruby>風邪<rt>かぜ</rt></ruby>をひいたそうです。"],
+  ["🍰🔥👂", "このケーキ<ruby>屋<rt>や</rt></ruby>は <ruby>人気<rt>にんき</rt></ruby>だそうです。"],
+  ["明日☀️🤔", "<ruby>明日<rt>あした</rt></ruby>は <ruby>暑<rt>あつ</rt></ruby>いと <ruby>思<rt>おも</rt></ruby>います。"],
+  ["年末👥👥🤔", "<ruby>年末<rt>ねんまつ</rt></ruby>は <ruby>人<rt>ひと</rt></ruby>が <ruby>多<rt>おお</rt></ruby>いと <ruby>思<rt>おも</rt></ruby>います。"],
+  ["✈️👍🤔", "<ruby>飛行機<rt>ひこうき</rt></ruby>のほうがいいと <ruby>思<rt>おも</rt></ruby>います。"]
+];
+
 const listenPracticeData = [
   ["问正在吃的菜味道时", "どうですか。"],
   ["提议去某个地方（咖喱店）", "カレー屋は どうですか。"],
@@ -1434,7 +1471,7 @@ function openListenPage() {
 
 function openSpeakPage() {
   currentSection = "speak";
-  showPlaceholderTable("話す", "話すページはまだ準備中です。", "home");
+  showTable("話す");
 }
 
 function openConnectPage() {
@@ -2538,16 +2575,15 @@ function escapeForAttr(value) {
   return String(value || "").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
-function getRandomQuestionMemoItems(items, limit) {
+function getStableQuestionMemoItems(items, limit) {
   const list = Array.isArray(items) ? items.slice() : [];
-  if (list.length <= limit) return list;
+  const withOrder = list.map((item, index) => {
+    const seed = `${item.key || ""}|${item.legacyKey || ""}|${item.leftText || ""}|${item.rightText || ""}`;
+    return { item, index, order: seededRandom(seed)() };
+  });
 
-  for (let i = list.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [list[i], list[j]] = [list[j], list[i]];
-  }
-
-  return list.slice(0, limit);
+  withOrder.sort((a, b) => a.order - b.order || a.index - b.index);
+  return withOrder.slice(0, limit).map(entry => entry.item);
 }
 
 function renderQuestionMemoLayer() {
@@ -2558,7 +2594,7 @@ function renderQuestionMemoLayer() {
 
   const allItems = safeParseQuestionStore();
   const sourceItems = isConjugationMenu ? allItems.filter(isConjugationQuestionItem) : allItems;
-  const items = getRandomQuestionMemoItems(sourceItems, TOP_MEMO_DISPLAY_LIMIT);
+  const items = getStableQuestionMemoItems(sourceItems, TOP_MEMO_DISPLAY_LIMIT);
   layer.innerHTML = "";
   if (!items.length) return;
 
@@ -2723,6 +2759,22 @@ function makeListenTable() {
   `;
 }
 
+function makeSpeakTable() {
+  const rows = speakPracticeData.map(([prompt, answer]) => `
+    <tr>
+      <td>${makeWordCell(escapeHtml(prompt))}</td>
+      <td><span class="answer-text">${answer}</span></td>
+    </tr>
+  `).join("");
+  document.getElementById("tableArea").innerHTML = `
+    <table class="listen-table">
+      <tr><th>ヒント</th><th>日本語</th></tr>
+      ${rows}
+    </table>
+    <div class="scroll-extra-y"></div>
+  `;
+}
+
 function showPlaceholderTable(title, message, returnSection = "home") {
   currentSection = returnSection;
   document.body.classList.remove("home-mode", "menu-mode", "sheet-high", "table-start-lowered");
@@ -2756,6 +2808,8 @@ function showTable(type, focusKey = "") {
 
   if (type === "聞く") {
     makeListenTable();
+  } else if (type === "話す") {
+    makeSpeakTable();
   } else if (type === "Vます") {
     masuSwapped = false;
     makeMasuTable();
