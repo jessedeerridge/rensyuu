@@ -977,32 +977,31 @@
     line-height: 0.88;
   }
 
-  #tableArea .connect-separator-fast {
-    position: relative;
-    top: -0.06em;
-    width: 1.22em;
-    height: 1.22em;
-    border-radius: 3px;
-    background: #102a56;
-    color: #fff;
-    font-size: 0.68em;
-    font-weight: 900;
-    overflow: hidden;
-  }
-
-  #tableArea .connect-separator-fast span + span {
-    margin-left: -0.34em;
-  }
-
+  #tableArea .connect-separator-fast,
   #tableArea .connect-separator-temo {
     position: relative;
     top: -0.06em;
     width: 1.22em;
     height: 1.22em;
-    border-radius: 5px;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: inset 0 -2px 0 rgba(0,0,0,0.16);
+  }
+
+  #tableArea .connect-separator-fast {
+    background: #102a56;
+    color: #fff;
+    font-size: 0.54em;
+    font-weight: 900;
+  }
+
+  #tableArea .connect-separator-fast span + span {
+    margin-left: -0.28em;
+  }
+
+  #tableArea .connect-separator-temo {
     background: #b98551;
     color: #fffaf0;
-    box-shadow: inset 0 -2px 0 rgba(0,0,0,0.16);
   }
 
   #tableArea .temo-arrow-stem {
