@@ -2957,9 +2957,26 @@ function makeSpeakTable() {
 }
 
 
+function compactJapanese(html) {
+  return String(html || "").replace(/[\s　]+/g, "");
+}
+
+function makeTwoLineHint(hint) {
+  const compactHint = compactJapanese(hint);
+  const separatorIndex = compactHint.indexOf("・");
+  if (separatorIndex < 0) return compactHint;
+
+  const firstLine = compactHint.slice(0, separatorIndex + 1);
+  const secondLine = compactHint.slice(separatorIndex + 1);
+  return `
+    <span class="tara-hint-line">${firstLine}</span>
+    <span class="tara-hint-line">${secondLine}</span>
+  `;
+}
+
 function makeConnectTable() {
   let html = `
-    <table class="listen-table">
+    <table class="listen-table tara-table connect-table">
       <tr><th>普通形</th><th>つなぐ</th></tr>
   `;
 
@@ -2973,8 +2990,8 @@ function makeConnectTable() {
     group.rows.forEach(([prompt, answer]) => {
       html += `
         <tr>
-          <td>${makeWordCell(escapeHtml(prompt))}</td>
-          <td><span class="answer-text">${escapeHtml(answer)}</span></td>
+          <td>${makeWordCell(makeTwoLineHint(escapeHtml(prompt)))}</td>
+          <td><span class="answer-text">${compactJapanese(escapeHtml(answer))}</span></td>
         </tr>
       `;
     });
@@ -4048,20 +4065,6 @@ function makeFlat30Table(title, rightTitle, rows, leftTitle = "辞書形") {
 
 
 function makeTaraPartialColorTable(title, rightTitle, rows) {
-  const compactJapanese = html => String(html || "").replace(/[\s　]+/g, "");
-  const makeTaraHint = hint => {
-    const compactHint = compactJapanese(hint);
-    const separatorIndex = compactHint.indexOf("・");
-    if (separatorIndex < 0) return compactHint;
-
-    const firstLine = compactHint.slice(0, separatorIndex + 1);
-    const secondLine = compactHint.slice(separatorIndex + 1);
-    return `
-      <span class="tara-hint-line">${firstLine}</span>
-      <span class="tara-hint-line">${secondLine}</span>
-    `;
-  };
-
   let html = `
     <table class="tara-table">
       <tr>
@@ -4082,7 +4085,7 @@ function makeTaraPartialColorTable(title, rightTitle, rows) {
 
     html += `
       <tr class="${index < 9 ? "tara-after-row" : "tara-if-row"}">
-        <td>${makeWordCell(makeTaraHint(row[0]))}</td>
+        <td>${makeWordCell(makeTwoLineHint(row[0]))}</td>
         <td><span class="answer-text">${compactJapanese(row[1])}</span></td>
       </tr>
     `;
