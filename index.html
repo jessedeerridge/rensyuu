@@ -1644,7 +1644,7 @@ const speakPracticeData = [
 
 const connectPracticeData = [
   {
-    title: "～て",
+    title: "くて",
     rows: [
       ["やさしい・かっこいいです。", "やさしくて、かっこいいです。"],
       ["人が多い・にぎやかなところです。", "人が多くて、にぎやかなところです。"],
@@ -1656,7 +1656,12 @@ const connectPracticeData = [
     rows: [
       ["風邪・学校を休みました。", "風邪で、学校を休みました。"],
       ["テストの勉強・忙しいです。", "テストの勉強で、忙しいです。"],
-      ["用事・明日は行けません。", "用事で、明日は行けません。"],
+      ["用事・明日は行けません。", "用事で、明日は行けません。"]
+    ]
+  },
+  {
+    title: "Vて",
+    rows: [
       ["合格できる・うれしかったです。", "合格できて、うれしかったです。"],
       ["友だちに会える・うれしいです。", "友だちに会えて、うれしいです。"],
       ["たくさん食べられる・うれしかったです。", "たくさん食べられて、うれしかったです。"],
@@ -3144,9 +3149,8 @@ function makeTwoLineHint(hint) {
 }
 
 function makeConnectSeparator(groupTitle, rowIndex = 0) {
-  if (groupTitle === "～て" && rowIndex >= 3) return `<span class="connect-separator connect-separator-square connect-separator-fast"><span>▶</span><span>▶</span></span>`;
-  if (groupTitle === "～て") return `<span class="connect-separator connect-separator-plus">+</span>`;
-  if (groupTitle === "～で" && rowIndex >= 3) return `<span class="connect-separator connect-separator-square connect-separator-fast connect-separator-soft-blue"><span>▶</span><span>▶</span></span>`;
+  if (groupTitle === "くて" || groupTitle === "～て") return `<span class="connect-separator connect-separator-plus">+</span>`;
+  if (groupTitle === "Vて") return `<span class="connect-separator connect-separator-square connect-separator-fast connect-separator-soft-blue"><span>▶</span><span>▶</span></span>`;
   if (groupTitle === "～で") return `<span class="connect-separator connect-separator-square connect-separator-fast"><span>▶</span><span>▶</span></span>`;
   if (groupTitle === "ですけど・ですが") return `<span class="connect-separator connect-separator-square connect-separator-contrast"><span class="bidi-arrow"><span class="bidi-arrow-left"></span><span class="bidi-arrow-right"></span></span></span>`;
   if (groupTitle === "理由") return `<span class="connect-separator connect-separator-square connect-separator-fast connect-separator-soft-blue"><span>▶</span><span>▶</span></span>`;
@@ -3177,13 +3181,11 @@ function makeConnectTable() {
   `;
 
   connectPracticeData.forEach(group => {
-    if (group.title !== "～て" && group.title !== "～で") {
-      html += `
-        <tr class="group-row">
-          <td colspan="2">${group.title}</td>
-        </tr>
-      `;
-    }
+    html += `
+      <tr class="group-row">
+        <td colspan="2">${group.title}</td>
+      </tr>
+    `;
 
     group.rows.forEach(([prompt, answer], rowIndex) => {
       html += `
