@@ -883,6 +883,32 @@
     transform: scaleX(1.18);
   }
 
+  .speak-compare-small,
+  .speak-compare-large {
+    display: inline-block;
+    line-height: 1;
+    vertical-align: middle;
+  }
+
+  .speak-compare-small {
+    font-size: 0.72em;
+  }
+
+  .speak-compare-large {
+    font-size: 1.42em;
+  }
+
+  .speak-tight-emojis {
+    display: inline-flex;
+    align-items: center;
+    letter-spacing: -0.18em;
+  }
+
+  .speak-tight-emojis span {
+    display: inline-block;
+    line-height: 1;
+  }
+
 
   /* ===== メニュー：そのページに存在するボタン群を画面中央に配置 ===== */
   body.home-mode #homeScreen,
@@ -1616,7 +1642,11 @@ const speakPracticeData = [
   ["公園🐱", "<ruby>公園<rt>こうえん</rt></ruby>に <ruby>猫<rt>ねこ</rt></ruby>がいます。"],
   ["大阪🏯", "<ruby>大阪<rt>おおさか</rt></ruby>に お<ruby>城<rt>しろ</rt></ruby>があります。"],
   ["東京🎆", "<ruby>東京<rt>とうきょう</rt></ruby>で お<ruby>祭<rt>まつ</rt></ruby>りがあります。"],
-  ["🏫📝", "<ruby>学校<rt>がっこう</rt></ruby>で テストがあります。"],
+  ["学校📝", "<ruby>学校<rt>がっこう</rt></ruby>で テストがあります。"],
+  ["😍<span class=\"speak-tight-emojis\"><span>💭</span><span>💸</span><span>👗</span></span>", "<ruby>新<rt>あたら</rt></ruby>しい<ruby>服<rt>ふく</rt></ruby>が ほしいです。"],
+  ["😍<span class=\"speak-tight-emojis\"><span>💭</span><span>✈</span><span>🗾</span></span>", "<ruby>日本<rt>にほん</rt></ruby>に <ruby>行<rt>い</rt></ruby>きたいです。"],
+  ["<span class=\"speak-compare-small\">🐟</span>|<span class=\"speak-compare-large\">🍖</span>💕", "<ruby>肉<rt>にく</rt></ruby>のほうが <ruby>好<rt>す</rt></ruby>きです。"],
+  ["<span class=\"speak-compare-small\">🚶‍♂️</span>|<span class=\"speak-compare-large\">🚕</span>✨", "タクシーのほうが いいです。"],
   ["🎬❤️", "<ruby>映画<rt>えいが</rt></ruby>を <ruby>見<rt>み</rt></ruby>るのが <ruby>好<rt>す</rt></ruby>きです。"],
   ["🎨❤️", "<ruby>絵<rt>え</rt></ruby>を かくのが <ruby>好<rt>す</rt></ruby>きです。"],
   ["🎤❤️", "<ruby>歌<rt>うた</rt></ruby>うのが <ruby>好<rt>す</rt></ruby>きです。"],
@@ -1657,11 +1687,11 @@ const connectPracticeData = [
   {
     title: "ですけど・ですが",
     rows: [
-      ["難しい・おもしろいです。", "難しいですけど、おもしろいです。"],
-      ["高い・おいしいです。", "高いですけど、おいしいです。"],
-      ["旅行に行きたい・時間がありません。", "旅行に行きたいですけど、時間がありません。"],
-      ["おいしい・ちょっと辛かったです。", "おいしかったですけど、ちょっと辛かったです。"],
-      ["ちょっと大変・おもしろかったです。", "ちょっと大変でしたけど、おもしろかったです。"]
+      ["難しいです・おもしろいです。", "難しいですけど、おもしろいです。"],
+      ["高いです・おいしいです。", "高いですけど、おいしいです。"],
+      ["旅行に行きたいです・時間がありません。", "旅行に行きたいですけど、時間がありません。"],
+      ["おいしかったです・ちょっと辛かったです。", "おいしかったですけど、ちょっと辛かったです。"],
+      ["ちょっと大変でした・おもしろかったです。", "ちょっと大変でしたけど、おもしろかったです。"]
     ]
   },
   {
