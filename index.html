@@ -883,6 +883,21 @@
     transform: scaleX(1.18);
   }
 
+  .speak-compare-small,
+  .speak-compare-large {
+    display: inline-block;
+    line-height: 1;
+    vertical-align: middle;
+  }
+
+  .speak-compare-small {
+    font-size: 0.72em;
+  }
+
+  .speak-compare-large {
+    font-size: 1.42em;
+  }
+
 
   /* ===== メニュー：そのページに存在するボタン群を画面中央に配置 ===== */
   body.home-mode #homeScreen,
@@ -1619,8 +1634,8 @@ const speakPracticeData = [
   ["🏫📝", "<ruby>学校<rt>がっこう</rt></ruby>で テストがあります。"],
   ["😍💭💸👗", "<ruby>新<rt>あたら</rt></ruby>しい<ruby>服<rt>ふく</rt></ruby>が ほしいです。"],
   ["😍💭✈🗾", "<ruby>日本<rt>にほん</rt></ruby>に <ruby>行<rt>い</rt></ruby>きたいです。"],
-  ["🐟|🍖💕", "<ruby>肉<rt>にく</rt></ruby>のほうが <ruby>好<rt>す</rt></ruby>きです。"],
-  ["🚶‍♂️|🚕✨", "タクシーのほうが いいです。"],
+  ["<span class=\"speak-compare-small\">🐟</span>|<span class=\"speak-compare-large\">🍖</span>💕", "<ruby>肉<rt>にく</rt></ruby>のほうが <ruby>好<rt>す</rt></ruby>きです。"],
+  ["<span class=\"speak-compare-small\">🚶‍♂️</span>|<span class=\"speak-compare-large\">🚕</span>✨", "タクシーのほうが いいです。"],
   ["🎬❤️", "<ruby>映画<rt>えいが</rt></ruby>を <ruby>見<rt>み</rt></ruby>るのが <ruby>好<rt>す</rt></ruby>きです。"],
   ["🎨❤️", "<ruby>絵<rt>え</rt></ruby>を かくのが <ruby>好<rt>す</rt></ruby>きです。"],
   ["🎤❤️", "<ruby>歌<rt>うた</rt></ruby>うのが <ruby>好<rt>す</rt></ruby>きです。"],
