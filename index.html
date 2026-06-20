@@ -3168,12 +3168,14 @@ function compactJapanese(html) {
   return String(html || "").replace(/[\s　]+/g, "");
 }
 
-function makeTwoLineHint(hint) {
+function makeTwoLineHint(hint, showCloud = false) {
   const compactHint = compactJapanese(hint);
   const separatorIndex = compactHint.indexOf("・");
   if (separatorIndex < 0) return compactHint;
 
-  const firstLine = compactHint.slice(0, separatorIndex + 1);
+  const cloud = showCloud ? `<span class="tara-hint-cloud" aria-hidden="true">☁️</span>` : "";
+  const arrow = `<span class="tara-hint-arrow" aria-hidden="true">➜</span>`;
+  const firstLine = `${cloud}${compactHint.slice(0, separatorIndex)}${arrow}`;
   const secondLine = compactHint.slice(separatorIndex + 1);
   return `
     <span class="tara-hint-line">${firstLine}</span>
@@ -4318,7 +4320,7 @@ function makeTaraPartialColorTable(title, rightTitle, rows) {
 
     html += `
       <tr class="${index < 9 ? "tara-after-row" : "tara-if-row"}">
-        <td>${makeWordCell(makeTwoLineHint(row[0]))}</td>
+        <td>${makeWordCell(makeTwoLineHint(row[0], index >= 9))}</td>
         <td><span class="answer-text">${compactJapanese(row[1])}</span></td>
       </tr>
     `;
