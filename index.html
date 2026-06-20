@@ -969,12 +969,14 @@
 
   #tableArea .connect-separator-plus {
     position: relative;
-    top: -0.04em;
+    top: 0;
+    width: 1em;
+    height: 1em;
     color: #102a56;
     font-family: Arial Black, "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif;
-    font-size: 1.25em;
+    font-size: 1.2em;
     font-weight: 1000;
-    line-height: 0.88;
+    line-height: 1;
   }
 
   #tableArea .connect-separator-square {
@@ -3171,7 +3173,7 @@ function makeConnectHint(prompt, groupTitle, rowIndex) {
 function makeConnectTable() {
   let html = `
     <table class="listen-table tara-table connect-table">
-      <tr><th>普通形</th><th>つなぐ</th></tr>
+      <tr><th>ヒント</th><th>日本語</th></tr>
   `;
 
   connectPracticeData.forEach(group => {
