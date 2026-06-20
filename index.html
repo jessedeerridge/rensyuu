@@ -967,20 +967,12 @@
     line-height: 1;
   }
 
-  #tableArea .connect-separator-red {
-    padding: 1px 5px;
-    border-radius: 6px;
-    background: #ff4d4f;
-    color: #fff;
-    font-weight: 900;
-  }
-
   #tableArea .connect-separator-temo {
     width: 1.7em;
     height: 1.25em;
     border-radius: 5px;
-    background: #8b5a2b;
-    color: #fff7df;
+    background: #b98551;
+    color: #fffaf0;
     font-size: 0.86em;
     font-weight: 900;
     gap: 1px;
@@ -3005,10 +2997,10 @@ function makeTwoLineHint(hint) {
 
 function makeConnectSeparator(groupTitle) {
   if (groupTitle === "～て") return `<span class="connect-separator">➕</span>`;
-  if (groupTitle === "～で") return `<span class="connect-separator connect-separator-red">⏩</span>`;
+  if (groupTitle === "～で") return `<span class="connect-separator">⏩</span>`;
   if (groupTitle === "ですけど・ですが") return `<span class="connect-separator">↔️</span>`;
   if (groupTitle === "理由") return `<span class="connect-separator">⏩</span>`;
-  if (groupTitle === "就算（～ても）") return `<span class="connect-separator connect-separator-temo"><span>→</span><span>!</span></span>`;
+  if (groupTitle === "就算（～ても）") return `<span class="connect-separator connect-separator-temo"><span>➡</span><span>!</span></span>`;
   if (groupTitle === "～たら") return `<span class="connect-separator">➡️</span>`;
   return `<span class="connect-separator">・</span>`;
 }
@@ -3019,7 +3011,8 @@ function makeConnectHint(prompt, groupTitle, rowIndex) {
   if (separatorIndex < 0) return compactHint;
 
   const addThought = groupTitle === "～たら" && rowIndex > 4;
-  const firstLine = `${addThought ? "💭" : ""}${compactHint.slice(0, separatorIndex)}${makeConnectSeparator(groupTitle)}`;
+  const separator = addThought ? "" : makeConnectSeparator(groupTitle);
+  const firstLine = `${addThought ? "💭" : ""}${compactHint.slice(0, separatorIndex)}${separator}`;
   const secondLine = compactHint.slice(separatorIndex + 1);
   return `
     <span class="tara-hint-line">${firstLine}</span>
