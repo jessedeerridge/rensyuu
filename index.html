@@ -967,6 +967,12 @@
   }
 
 
+  #tableArea .connect-red-separator {
+    color: #e53935;
+    font-weight: 900;
+  }
+
+
 
   /* ===== ？保存メモ：トップ画面に小さく表示 ===== */
   #homeQuestionMemoLayer,
@@ -1477,31 +1483,31 @@ const connectPracticeData = [
   {
     title: "～て",
     rows: [
-      ["やさしい・かっこいいです。", "やさしくて、かっこいいです。"],
-      ["人が多い・にぎやかなところです。", "人が多くて、にぎやかなところです。"],
-      ["やすい・おいしいです。", "やすくて、おいしいです。"],
-      ["合格できる・うれしかったです。", "合格できて、うれしかったです。"],
-      ["友だちに会える・うれしいです。", "友だちに会えて、うれしいです。"],
-      ["たくさん食べられる・うれしかったです。", "たくさん食べられて、うれしかったです。"],
-      ["間に合う・よかったです。", "間に合って、よかったです。"]
+      ["やさしい➕かっこいいです。", "やさしくて、かっこいいです。"],
+      ["人が多い➕にぎやかなところです。", "人が多くて、にぎやかなところです。"],
+      ["やすい➕おいしいです。", "やすくて、おいしいです。"],
+      ["合格できる➕うれしかったです。", "合格できて、うれしかったです。"],
+      ["友だちに会える➕うれしいです。", "友だちに会えて、うれしいです。"],
+      ["たくさん食べられる➕うれしかったです。", "たくさん食べられて、うれしかったです。"],
+      ["間に合う➕よかったです。", "間に合って、よかったです。"]
     ]
   },
   {
     title: "～で",
     rows: [
-      ["風邪・学校を休みました。", "風邪で、学校を休みました。"],
-      ["テストの勉強・忙しいです。", "テストの勉強で、忙しいです。"],
-      ["用事・明日は行けません。", "用事で、明日は行けません。"]
+      ["風邪⏩学校を休みました。", "風邪で、学校を休みました。"],
+      ["テストの勉強⏩忙しいです。", "テストの勉強で、忙しいです。"],
+      ["用事⏩明日は行けません。", "用事で、明日は行けません。"]
     ]
   },
   {
     title: "ですけど・ですが",
     rows: [
-      ["難しいです・おもしろいです。", "難しいですけど、おもしろいです。"],
-      ["高いです・おいしいです。", "高いですけど、おいしいです。"],
-      ["旅行に行きたいです・時間がありません。", "旅行に行きたいですけど、時間がありません。"],
-      ["おいしかったです・ちょっと辛かったです。", "おいしかったですけど、ちょっと辛かったです。"],
-      ["ちょっと大変でした・おもしろかったです。", "ちょっと大変でしたけど、おもしろかったです。"]
+      ["難しいです↔️おもしろいです。", "難しいですけど、おもしろいです。"],
+      ["高いです↔️おいしいです。", "高いですけど、おいしいです。"],
+      ["旅行に行きたいです↔️時間がありません。", "旅行に行きたいですけど、時間がありません。"],
+      ["おいしかったです↔️ちょっと辛かったです。", "おいしかったですけど、ちょっと辛かったです。"],
+      ["ちょっと大変でした↔️おもしろかったです。", "ちょっと大変でしたけど、おもしろかったです。"]
     ]
   },
   {
@@ -2963,11 +2969,19 @@ function compactJapanese(html) {
 
 function makeTwoLineHint(hint) {
   const compactHint = compactJapanese(hint);
-  const separatorIndex = compactHint.indexOf("・");
-  if (separatorIndex < 0) return compactHint;
+  const separators = ["・", "➕", "⏩", "↔️"];
+  const separatorMatch = separators
+    .map(separator => ({ separator, index: compactHint.indexOf(separator) }))
+    .filter(match => match.index >= 0)
+    .sort((a, b) => a.index - b.index)[0];
+  if (!separatorMatch) return compactHint;
 
-  const firstLine = compactHint.slice(0, separatorIndex + 1);
-  const secondLine = compactHint.slice(separatorIndex + 1);
+  const { separator, index } = separatorMatch;
+  const separatorHtml = separator === "⏩"
+    ? `<span class="connect-red-separator">${separator}</span>`
+    : separator;
+  const firstLine = `${compactHint.slice(0, index)}${separatorHtml}`;
+  const secondLine = compactHint.slice(index + separator.length);
   return `
     <span class="tara-hint-line">${firstLine}</span>
     <span class="tara-hint-line">${secondLine}</span>
