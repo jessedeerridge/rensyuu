@@ -967,6 +967,27 @@
     line-height: 1;
   }
 
+  #tableArea .connect-separator-plus {
+    color: #102a56;
+    font-weight: 900;
+    font-size: 1.16em;
+  }
+
+  #tableArea .connect-separator-fast {
+    width: 1.38em;
+    height: 1.25em;
+    border-radius: 4px;
+    background: #102a56;
+    color: #fff;
+    font-size: 0.82em;
+    font-weight: 900;
+    overflow: hidden;
+  }
+
+  #tableArea .connect-separator-fast span + span {
+    margin-left: -0.38em;
+  }
+
   #tableArea .connect-separator-temo {
     width: 1.7em;
     height: 1.25em;
@@ -2996,10 +3017,10 @@ function makeTwoLineHint(hint) {
 }
 
 function makeConnectSeparator(groupTitle) {
-  if (groupTitle === "～て") return `<span class="connect-separator">➕</span>`;
-  if (groupTitle === "～で") return `<span class="connect-separator">⏩</span>`;
+  if (groupTitle === "～て") return `<span class="connect-separator connect-separator-plus">+</span>`;
+  if (groupTitle === "～で") return `<span class="connect-separator connect-separator-fast"><span>▶</span><span>▶</span></span>`;
   if (groupTitle === "ですけど・ですが") return `<span class="connect-separator">↔️</span>`;
-  if (groupTitle === "理由") return `<span class="connect-separator">⏩</span>`;
+  if (groupTitle === "理由") return `<span class="connect-separator connect-separator-fast"><span>▶</span><span>▶</span></span>`;
   if (groupTitle === "就算（～ても）") return `<span class="connect-separator connect-separator-temo"><span>➡</span><span>!</span></span>`;
   if (groupTitle === "～たら") return `<span class="connect-separator">➡️</span>`;
   return `<span class="connect-separator">・</span>`;
