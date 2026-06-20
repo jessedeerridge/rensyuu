@@ -998,6 +998,10 @@
     margin-left: calc(-0.28em - 1px);
   }
 
+  #tableArea .connect-separator-soft-blue {
+    background: #3f6fa3;
+  }
+
   #tableArea .connect-separator-contrast {
     background: #8d5aa8;
     color: #fff;
@@ -3140,9 +3144,10 @@ function makeTwoLineHint(hint) {
 function makeConnectSeparator(groupTitle, rowIndex = 0) {
   if (groupTitle === "～て" && rowIndex >= 3) return `<span class="connect-separator connect-separator-square connect-separator-fast"><span>▶</span><span>▶</span></span>`;
   if (groupTitle === "～て") return `<span class="connect-separator connect-separator-plus">+</span>`;
+  if (groupTitle === "～で" && rowIndex >= 3) return `<span class="connect-separator connect-separator-square connect-separator-fast connect-separator-soft-blue"><span>▶</span><span>▶</span></span>`;
   if (groupTitle === "～で") return `<span class="connect-separator connect-separator-square connect-separator-fast"><span>▶</span><span>▶</span></span>`;
   if (groupTitle === "ですけど・ですが") return `<span class="connect-separator connect-separator-square connect-separator-contrast"><span class="bidi-arrow"><span class="bidi-arrow-left"></span><span class="bidi-arrow-right"></span></span></span>`;
-  if (groupTitle === "理由") return `<span class="connect-separator connect-separator-square connect-separator-fast"><span>▶</span><span>▶</span></span>`;
+  if (groupTitle === "理由") return `<span class="connect-separator connect-separator-square connect-separator-fast connect-separator-soft-blue"><span>▶</span><span>▶</span></span>`;
   if (groupTitle === "就算（～ても）") return `<span class="connect-separator connect-separator-square connect-separator-temo"><span class="temo-arrow-stem"></span><span class="temo-arrow-head"></span><span class="temo-bang"></span></span>`;
   if (groupTitle === "～たら") return `<span class="connect-separator connect-separator-square connect-separator-tara"><span class="tara-arrow-stem"></span><span class="tara-arrow-head"></span></span>`;
   return `<span class="connect-separator">・</span>`;
