@@ -958,6 +958,173 @@
     white-space: nowrap;
   }
 
+  #tableArea .connect-separator {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 2px;
+    vertical-align: middle;
+    line-height: 1;
+  }
+
+  #tableArea .connect-separator-plus {
+    position: relative;
+    top: -0.04em;
+    color: #102a56;
+    font-family: Arial Black, "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif;
+    font-size: 1.25em;
+    font-weight: 1000;
+    line-height: 0.88;
+  }
+
+  #tableArea .connect-separator-square {
+    position: relative;
+    top: -0.06em;
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: inset 0 -2px 0 rgba(0,0,0,0.16);
+  }
+
+  #tableArea .connect-separator-fast {
+    background: #2f4d7c;
+    color: #fff;
+    font-size: 0.46em;
+    font-weight: 900;
+  }
+
+  #tableArea .connect-separator-fast span + span {
+    margin-left: calc(-0.28em - 1px);
+  }
+
+  #tableArea .connect-separator-soft-blue {
+    background: #3f6fa3;
+  }
+
+  #tableArea .connect-separator-contrast {
+    background: #7f8792;
+    color: #fff;
+  }
+
+  #tableArea .connect-separator-temo {
+    background: #b98551;
+    color: #fffaf0;
+  }
+
+  #tableArea .connect-separator-tara {
+    background: #3f8cff;
+    color: #fff;
+  }
+
+
+  #tableArea .bidi-arrow {
+    position: relative;
+    width: 14px;
+    height: 8px;
+  }
+
+  #tableArea .bidi-arrow::before {
+    content: "";
+    position: absolute;
+    left: 4px;
+    right: 4px;
+    top: 50%;
+    height: 3px;
+    border-radius: 999px;
+    background: currentColor;
+    transform: translateY(-50%);
+  }
+
+  #tableArea .bidi-arrow-left,
+  #tableArea .bidi-arrow-right {
+    position: absolute;
+    top: 50%;
+    width: 0;
+    height: 0;
+    transform: translateY(-50%);
+  }
+
+  #tableArea .bidi-arrow-left {
+    left: 0;
+    border-top: 3.5px solid transparent;
+    border-bottom: 3.5px solid transparent;
+    border-right: 4.5px solid currentColor;
+  }
+
+  #tableArea .bidi-arrow-right {
+    right: 0;
+    border-top: 3.5px solid transparent;
+    border-bottom: 3.5px solid transparent;
+    border-left: 4.5px solid currentColor;
+  }
+
+
+  #tableArea .tara-arrow-stem {
+    width: 6px;
+    height: 3px;
+    margin-left: -1px;
+    background: currentColor;
+    border-radius: 999px;
+  }
+
+  #tableArea .tara-arrow-head {
+    width: 0;
+    height: 0;
+    margin-left: -1px;
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+    border-left: 5px solid currentColor;
+  }
+
+  #tableArea .temo-arrow-stem {
+    width: 4px;
+    height: 3px;
+    margin-left: -1px;
+    background: currentColor;
+    border-radius: 999px;
+  }
+
+  #tableArea .temo-arrow-head {
+    width: 0;
+    height: 0;
+    margin-left: -1px;
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+    border-left: 5px solid currentColor;
+  }
+
+  #tableArea .temo-bang {
+    position: relative;
+    width: 3px;
+    height: 9px;
+    margin-left: 1px;
+  }
+
+  #tableArea .temo-bang::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: 2px;
+    height: 6px;
+    border-radius: 999px;
+    background: currentColor;
+    transform: translateX(-50%);
+  }
+
+  #tableArea .temo-bang::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: 2px;
+    height: 2px;
+    border-radius: 50%;
+    background: currentColor;
+    transform: translateX(-50%);
+  }
+
   #tableArea .tara-hint-line:first-child {
     text-align: left;
   }
@@ -1479,11 +1646,7 @@ const connectPracticeData = [
     rows: [
       ["やさしい・かっこいいです。", "やさしくて、かっこいいです。"],
       ["人が多い・にぎやかなところです。", "人が多くて、にぎやかなところです。"],
-      ["やすい・おいしいです。", "やすくて、おいしいです。"],
-      ["合格できる・うれしかったです。", "合格できて、うれしかったです。"],
-      ["友だちに会える・うれしいです。", "友だちに会えて、うれしいです。"],
-      ["たくさん食べられる・うれしかったです。", "たくさん食べられて、うれしかったです。"],
-      ["間に合う・よかったです。", "間に合って、よかったです。"]
+      ["やすい・おいしいです。", "やすくて、おいしいです。"]
     ]
   },
   {
@@ -1491,7 +1654,11 @@ const connectPracticeData = [
     rows: [
       ["風邪・学校を休みました。", "風邪で、学校を休みました。"],
       ["テストの勉強・忙しいです。", "テストの勉強で、忙しいです。"],
-      ["用事・明日は行けません。", "用事で、明日は行けません。"]
+      ["用事・明日は行けません。", "用事で、明日は行けません。"],
+      ["合格できる・うれしかったです。", "合格できて、うれしかったです。"],
+      ["友だちに会える・うれしいです。", "友だちに会えて、うれしいです。"],
+      ["たくさん食べられる・うれしかったです。", "たくさん食べられて、うれしかったです。"],
+      ["間に合う・よかったです。", "間に合って、よかったです。"]
     ]
   },
   {
@@ -1525,22 +1692,6 @@ const connectPracticeData = [
     ]
   },
   {
-    title: "就算（～ても）",
-    rows: [
-      ["雨が降る・試合はあります。", "雨が降っても、試合はあります。"],
-      ["調べる・わかりません。", "調べても、わかりません。"],
-      ["洗う・きれいになりません。", "洗っても、きれいになりません。"],
-      ["走る・電車に間に合いません。", "走っても、電車に間に合いません。"],
-      ["練習する・上手くなりません。", "練習しても、上手くなりません。"],
-      ["薬を飲む・よくなりません。", "薬を飲んでも、よくなりません。"],
-      ["寝る・元気になりません。", "寝ても、元気になりません。"],
-      ["友だちに電話する・出ません。", "友だちに電話しても、出ません。"],
-      ["眠くない・11時に寝ます。", "眠くなくても、11時に寝ます。"],
-      ["安い・買いません。", "安くても、買いません。"],
-      ["遠い・行きます。", "遠くても、行きます。"]
-    ]
-  },
-  {
     title: "～たら",
     rows: [
       ["授業が終わる・食堂に行きます。", "授業が終わったら、食堂に行きます。"],
@@ -1555,6 +1706,22 @@ const connectPracticeData = [
       ["安い・買います。", "安かったら、買います。"],
       ["天気がいい・お花見をしませんか。", "天気がよかったら、お花見をしませんか。"],
       ["暇・手伝ってください。", "暇だったら、手伝ってください。"]
+    ]
+  },
+  {
+    title: "就算（～ても）",
+    rows: [
+      ["雨が降る・試合はあります。", "雨が降っても、試合はあります。"],
+      ["調べる・わかりません。", "調べても、わかりません。"],
+      ["洗う・きれいになりません。", "洗っても、きれいになりません。"],
+      ["走る・電車に間に合いません。", "走っても、電車に間に合いません。"],
+      ["練習する・上手くなりません。", "練習しても、上手くなりません。"],
+      ["薬を飲む・よくなりません。", "薬を飲んでも、よくなりません。"],
+      ["寝る・元気になりません。", "寝ても、元気になりません。"],
+      ["友だちに電話する・出ません。", "友だちに電話しても、出ません。"],
+      ["眠くない・11時に寝ます。", "眠くなくても、11時に寝ます。"],
+      ["安い・買いません。", "安くても、買いません。"],
+      ["遠い・行きます。", "遠くても、行きます。"]
     ]
   }
 ];
@@ -2974,6 +3141,33 @@ function makeTwoLineHint(hint) {
   `;
 }
 
+function makeConnectSeparator(groupTitle, rowIndex = 0) {
+  if (groupTitle === "～て" && rowIndex >= 3) return `<span class="connect-separator connect-separator-square connect-separator-fast"><span>▶</span><span>▶</span></span>`;
+  if (groupTitle === "～て") return `<span class="connect-separator connect-separator-plus">+</span>`;
+  if (groupTitle === "～で" && rowIndex >= 3) return `<span class="connect-separator connect-separator-square connect-separator-fast connect-separator-soft-blue"><span>▶</span><span>▶</span></span>`;
+  if (groupTitle === "～で") return `<span class="connect-separator connect-separator-square connect-separator-fast"><span>▶</span><span>▶</span></span>`;
+  if (groupTitle === "ですけど・ですが") return `<span class="connect-separator connect-separator-square connect-separator-contrast"><span class="bidi-arrow"><span class="bidi-arrow-left"></span><span class="bidi-arrow-right"></span></span></span>`;
+  if (groupTitle === "理由") return `<span class="connect-separator connect-separator-square connect-separator-fast"><span>▶</span><span>▶</span></span>`;
+  if (groupTitle === "就算（～ても）") return `<span class="connect-separator connect-separator-square connect-separator-temo"><span class="temo-arrow-stem"></span><span class="temo-arrow-head"></span><span class="temo-bang"></span></span>`;
+  if (groupTitle === "～たら") return `<span class="connect-separator connect-separator-square connect-separator-tara"><span class="tara-arrow-stem"></span><span class="tara-arrow-head"></span></span>`;
+  return `<span class="connect-separator">・</span>`;
+}
+
+function makeConnectHint(prompt, groupTitle, rowIndex) {
+  const compactHint = compactJapanese(escapeHtml(prompt));
+  const separatorIndex = compactHint.indexOf("・");
+  if (separatorIndex < 0) return compactHint;
+
+  const addThought = groupTitle === "～たら" && rowIndex > 4;
+  const separator = addThought ? "" : makeConnectSeparator(groupTitle, rowIndex);
+  const firstLine = `${addThought ? "💭" : ""}${compactHint.slice(0, separatorIndex)}${separator}`;
+  const secondLine = compactHint.slice(separatorIndex + 1);
+  return `
+    <span class="tara-hint-line">${firstLine}</span>
+    <span class="tara-hint-line">${secondLine}</span>
+  `;
+}
+
 function makeConnectTable() {
   let html = `
     <table class="listen-table tara-table connect-table">
@@ -2981,16 +3175,18 @@ function makeConnectTable() {
   `;
 
   connectPracticeData.forEach(group => {
-    html += `
-      <tr class="group-row">
-        <td colspan="2">${group.title}</td>
-      </tr>
-    `;
+    if (group.title !== "～て" && group.title !== "～で") {
+      html += `
+        <tr class="group-row">
+          <td colspan="2">${group.title}</td>
+        </tr>
+      `;
+    }
 
-    group.rows.forEach(([prompt, answer]) => {
+    group.rows.forEach(([prompt, answer], rowIndex) => {
       html += `
         <tr>
-          <td>${makeWordCell(makeTwoLineHint(escapeHtml(prompt)))}</td>
+          <td>${makeWordCell(makeConnectHint(prompt, group.title, rowIndex))}</td>
           <td><span class="answer-text">${compactJapanese(escapeHtml(answer))}</span></td>
         </tr>
       `;
