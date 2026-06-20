@@ -968,36 +968,89 @@
   }
 
   #tableArea .connect-separator-plus {
+    position: relative;
+    top: -0.04em;
     color: #102a56;
-    font-weight: 900;
-    font-size: 1.16em;
+    font-family: Arial Black, "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif;
+    font-size: 1.25em;
+    font-weight: 1000;
+    line-height: 0.88;
   }
 
   #tableArea .connect-separator-fast {
-    width: 1.38em;
-    height: 1.25em;
-    border-radius: 4px;
+    position: relative;
+    top: -0.06em;
+    width: 1.08em;
+    height: 1.08em;
+    border-radius: 3px;
     background: #102a56;
     color: #fff;
-    font-size: 0.82em;
+    font-size: 0.62em;
     font-weight: 900;
     overflow: hidden;
   }
 
   #tableArea .connect-separator-fast span + span {
-    margin-left: -0.38em;
+    margin-left: -0.34em;
   }
 
   #tableArea .connect-separator-temo {
-    width: 1.7em;
-    height: 1.25em;
+    position: relative;
+    top: -0.06em;
+    width: 1.42em;
+    height: 1.42em;
     border-radius: 5px;
     background: #b98551;
     color: #fffaf0;
-    font-size: 0.86em;
-    font-weight: 900;
-    gap: 1px;
     box-shadow: inset 0 -2px 0 rgba(0,0,0,0.16);
+  }
+
+  #tableArea .temo-arrow-stem {
+    width: 0.34em;
+    height: 0.17em;
+    margin-left: -0.08em;
+    background: currentColor;
+    border-radius: 999px;
+  }
+
+  #tableArea .temo-arrow-head {
+    width: 0;
+    height: 0;
+    margin-left: -0.02em;
+    border-top: 0.25em solid transparent;
+    border-bottom: 0.25em solid transparent;
+    border-left: 0.34em solid currentColor;
+  }
+
+  #tableArea .temo-bang {
+    position: relative;
+    width: 0.16em;
+    height: 0.62em;
+    margin-left: 0.12em;
+  }
+
+  #tableArea .temo-bang::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: 0.13em;
+    height: 0.42em;
+    border-radius: 999px;
+    background: currentColor;
+    transform: translateX(-50%);
+  }
+
+  #tableArea .temo-bang::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: 0.14em;
+    height: 0.14em;
+    border-radius: 50%;
+    background: currentColor;
+    transform: translateX(-50%);
   }
 
   #tableArea .tara-hint-line:first-child {
@@ -3021,7 +3074,7 @@ function makeConnectSeparator(groupTitle) {
   if (groupTitle === "～で") return `<span class="connect-separator connect-separator-fast"><span>▶</span><span>▶</span></span>`;
   if (groupTitle === "ですけど・ですが") return `<span class="connect-separator">↔️</span>`;
   if (groupTitle === "理由") return `<span class="connect-separator connect-separator-fast"><span>▶</span><span>▶</span></span>`;
-  if (groupTitle === "就算（～ても）") return `<span class="connect-separator connect-separator-temo"><span>➡</span><span>!</span></span>`;
+  if (groupTitle === "就算（～ても）") return `<span class="connect-separator connect-separator-temo"><span class="temo-arrow-stem"></span><span class="temo-arrow-head"></span><span class="temo-bang"></span></span>`;
   if (groupTitle === "～たら") return `<span class="connect-separator">➡️</span>`;
   return `<span class="connect-separator">・</span>`;
 }
