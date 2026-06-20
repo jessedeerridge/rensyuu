@@ -980,33 +980,27 @@
   #tableArea .connect-separator-square {
     position: relative;
     top: -0.06em;
-    width: 22px;
-    height: 22px;
+    width: 20px;
+    height: 20px;
     border-radius: 4px;
     overflow: hidden;
     box-shadow: inset 0 -2px 0 rgba(0,0,0,0.16);
   }
 
   #tableArea .connect-separator-fast {
-    background: #102a56;
+    background: #2f4d7c;
     color: #fff;
     font-size: 0.54em;
     font-weight: 900;
   }
 
   #tableArea .connect-separator-fast span + span {
-    margin-left: -0.28em;
+    margin-left: calc(-0.28em - 1px);
   }
 
   #tableArea .connect-separator-contrast {
     background: #8d5aa8;
     color: #fff;
-    font-size: 0.74em;
-    font-weight: 900;
-  }
-
-  #tableArea .connect-separator-reason {
-    background: #c36b2c;
   }
 
   #tableArea .connect-separator-temo {
@@ -1015,10 +1009,77 @@
   }
 
   #tableArea .connect-separator-tara {
-    background: #4d8f62;
-    color: #fff;
+    background: #bfe4ff;
+    color: #102a56;
     font-size: 0.72em;
     font-weight: 900;
+  }
+
+
+  #tableArea .bidi-arrow {
+    position: relative;
+    width: 15px;
+    height: 11px;
+  }
+
+  #tableArea .bidi-arrow-left,
+  #tableArea .bidi-arrow-right {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 5px;
+  }
+
+  #tableArea .bidi-arrow-left {
+    top: 0;
+  }
+
+  #tableArea .bidi-arrow-right {
+    bottom: 0;
+  }
+
+  #tableArea .bidi-arrow-left::before,
+  #tableArea .bidi-arrow-right::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: 9px;
+    height: 3px;
+    border-radius: 999px;
+    background: currentColor;
+    transform: translateY(-50%);
+  }
+
+  #tableArea .bidi-arrow-left::before {
+    right: 2px;
+  }
+
+  #tableArea .bidi-arrow-right::before {
+    left: 2px;
+  }
+
+  #tableArea .bidi-arrow-left::after,
+  #tableArea .bidi-arrow-right::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: 0;
+    height: 0;
+    transform: translateY(-50%);
+  }
+
+  #tableArea .bidi-arrow-left::after {
+    left: 0;
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+    border-right: 6px solid currentColor;
+  }
+
+  #tableArea .bidi-arrow-right::after {
+    right: 0;
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+    border-left: 6px solid currentColor;
   }
 
   #tableArea .temo-arrow-stem {
@@ -3085,11 +3146,12 @@ function makeTwoLineHint(hint) {
   `;
 }
 
-function makeConnectSeparator(groupTitle) {
+function makeConnectSeparator(groupTitle, rowIndex = 0) {
+  if (groupTitle === "～て" && rowIndex >= 3) return `<span class="connect-separator connect-separator-square connect-separator-fast"><span>▶</span><span>▶</span></span>`;
   if (groupTitle === "～て") return `<span class="connect-separator connect-separator-plus">+</span>`;
   if (groupTitle === "～で") return `<span class="connect-separator connect-separator-square connect-separator-fast"><span>▶</span><span>▶</span></span>`;
-  if (groupTitle === "ですけど・ですが") return `<span class="connect-separator connect-separator-square connect-separator-contrast">↔</span>`;
-  if (groupTitle === "理由") return `<span class="connect-separator connect-separator-square connect-separator-fast connect-separator-reason"><span>▶</span><span>▶</span></span>`;
+  if (groupTitle === "ですけど・ですが") return `<span class="connect-separator connect-separator-square connect-separator-contrast"><span class="bidi-arrow"><span class="bidi-arrow-left"></span><span class="bidi-arrow-right"></span></span></span>`;
+  if (groupTitle === "理由") return `<span class="connect-separator connect-separator-square connect-separator-fast"><span>▶</span><span>▶</span></span>`;
   if (groupTitle === "就算（～ても）") return `<span class="connect-separator connect-separator-square connect-separator-temo"><span class="temo-arrow-stem"></span><span class="temo-arrow-head"></span><span class="temo-bang"></span></span>`;
   if (groupTitle === "～たら") return `<span class="connect-separator connect-separator-square connect-separator-tara">➡</span>`;
   return `<span class="connect-separator">・</span>`;
@@ -3101,7 +3163,7 @@ function makeConnectHint(prompt, groupTitle, rowIndex) {
   if (separatorIndex < 0) return compactHint;
 
   const addThought = groupTitle === "～たら" && rowIndex > 4;
-  const separator = addThought ? "" : makeConnectSeparator(groupTitle);
+  const separator = addThought ? "" : makeConnectSeparator(groupTitle, rowIndex);
   const firstLine = `${addThought ? "💭" : ""}${compactHint.slice(0, separatorIndex)}${separator}`;
   const secondLine = compactHint.slice(separatorIndex + 1);
   return `
