@@ -980,8 +980,8 @@
   #tableArea .connect-separator-square {
     position: relative;
     top: -0.06em;
-    width: 20px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
     border-radius: 4px;
     overflow: hidden;
     box-shadow: inset 0 -2px 0 rgba(0,0,0,0.16);
@@ -990,7 +990,7 @@
   #tableArea .connect-separator-fast {
     background: #2f4d7c;
     color: #fff;
-    font-size: 0.54em;
+    font-size: 0.46em;
     font-weight: 900;
   }
 
@@ -1009,58 +1009,33 @@
   }
 
   #tableArea .connect-separator-tara {
-    background: #bfe4ff;
-    color: #102a56;
-    font-size: 0.72em;
+    background: #3f8cff;
+    color: #fff;
+    font-size: 0.58em;
     font-weight: 900;
   }
 
 
   #tableArea .bidi-arrow {
     position: relative;
-    width: 15px;
-    height: 11px;
+    width: 13px;
+    height: 7px;
   }
 
-  #tableArea .bidi-arrow-left,
-  #tableArea .bidi-arrow-right {
-    position: absolute;
-    left: 0;
-    right: 0;
-    height: 5px;
-  }
-
-  #tableArea .bidi-arrow-left {
-    top: 0;
-  }
-
-  #tableArea .bidi-arrow-right {
-    bottom: 0;
-  }
-
-  #tableArea .bidi-arrow-left::before,
-  #tableArea .bidi-arrow-right::before {
+  #tableArea .bidi-arrow::before {
     content: "";
     position: absolute;
+    left: 3px;
+    right: 3px;
     top: 50%;
-    width: 9px;
     height: 3px;
     border-radius: 999px;
     background: currentColor;
     transform: translateY(-50%);
   }
 
-  #tableArea .bidi-arrow-left::before {
-    right: 2px;
-  }
-
-  #tableArea .bidi-arrow-right::before {
-    left: 2px;
-  }
-
-  #tableArea .bidi-arrow-left::after,
-  #tableArea .bidi-arrow-right::after {
-    content: "";
+  #tableArea .bidi-arrow-left,
+  #tableArea .bidi-arrow-right {
     position: absolute;
     top: 50%;
     width: 0;
@@ -1068,14 +1043,14 @@
     transform: translateY(-50%);
   }
 
-  #tableArea .bidi-arrow-left::after {
+  #tableArea .bidi-arrow-left {
     left: 0;
     border-top: 4px solid transparent;
     border-bottom: 4px solid transparent;
     border-right: 6px solid currentColor;
   }
 
-  #tableArea .bidi-arrow-right::after {
+  #tableArea .bidi-arrow-right {
     right: 0;
     border-top: 4px solid transparent;
     border-bottom: 4px solid transparent;
@@ -1697,22 +1672,6 @@ const connectPracticeData = [
     ]
   },
   {
-    title: "就算（～ても）",
-    rows: [
-      ["雨が降る・試合はあります。", "雨が降っても、試合はあります。"],
-      ["調べる・わかりません。", "調べても、わかりません。"],
-      ["洗う・きれいになりません。", "洗っても、きれいになりません。"],
-      ["走る・電車に間に合いません。", "走っても、電車に間に合いません。"],
-      ["練習する・上手くなりません。", "練習しても、上手くなりません。"],
-      ["薬を飲む・よくなりません。", "薬を飲んでも、よくなりません。"],
-      ["寝る・元気になりません。", "寝ても、元気になりません。"],
-      ["友だちに電話する・出ません。", "友だちに電話しても、出ません。"],
-      ["眠くない・11時に寝ます。", "眠くなくても、11時に寝ます。"],
-      ["安い・買いません。", "安くても、買いません。"],
-      ["遠い・行きます。", "遠くても、行きます。"]
-    ]
-  },
-  {
     title: "～たら",
     rows: [
       ["授業が終わる・食堂に行きます。", "授業が終わったら、食堂に行きます。"],
@@ -1727,6 +1686,22 @@ const connectPracticeData = [
       ["安い・買います。", "安かったら、買います。"],
       ["天気がいい・お花見をしませんか。", "天気がよかったら、お花見をしませんか。"],
       ["暇・手伝ってください。", "暇だったら、手伝ってください。"]
+    ]
+  },
+  {
+    title: "就算（～ても）",
+    rows: [
+      ["雨が降る・試合はあります。", "雨が降っても、試合はあります。"],
+      ["調べる・わかりません。", "調べても、わかりません。"],
+      ["洗う・きれいになりません。", "洗っても、きれいになりません。"],
+      ["走る・電車に間に合いません。", "走っても、電車に間に合いません。"],
+      ["練習する・上手くなりません。", "練習しても、上手くなりません。"],
+      ["薬を飲む・よくなりません。", "薬を飲んでも、よくなりません。"],
+      ["寝る・元気になりません。", "寝ても、元気になりません。"],
+      ["友だちに電話する・出ません。", "友だちに電話しても、出ません。"],
+      ["眠くない・11時に寝ます。", "眠くなくても、11時に寝ます。"],
+      ["安い・買いません。", "安くても、買いません。"],
+      ["遠い・行きます。", "遠くても、行きます。"]
     ]
   }
 ];
