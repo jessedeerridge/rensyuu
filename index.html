@@ -969,12 +969,14 @@
 
   #tableArea .connect-separator-plus {
     position: relative;
-    top: -0.04em;
+    top: 0;
+    width: 1em;
+    height: 1em;
     color: #102a56;
     font-family: Arial Black, "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif;
-    font-size: 1.25em;
+    font-size: 1.2em;
     font-weight: 1000;
-    line-height: 0.88;
+    line-height: 1;
   }
 
   #tableArea .connect-separator-square {
@@ -999,7 +1001,7 @@
   }
 
   #tableArea .connect-separator-soft-blue {
-    background: #3f6fa3;
+    background: #4f8fd2;
   }
 
   #tableArea .connect-separator-contrast {
@@ -1642,11 +1644,11 @@ const speakPracticeData = [
 
 const connectPracticeData = [
   {
-    title: "～て",
+    title: "くて",
     rows: [
-      ["やさしい・かっこいいです。", "やさしくて、かっこいいです。"],
+      ["やすい・おいしいです。", "やすくて、おいしいです。"],
       ["人が多い・にぎやかなところです。", "人が多くて、にぎやかなところです。"],
-      ["やすい・おいしいです。", "やすくて、おいしいです。"]
+      ["このゲームは簡単・おもしろいです。", "このゲームは簡単で、おもしろいです。"]
     ]
   },
   {
@@ -1654,7 +1656,12 @@ const connectPracticeData = [
     rows: [
       ["風邪・学校を休みました。", "風邪で、学校を休みました。"],
       ["テストの勉強・忙しいです。", "テストの勉強で、忙しいです。"],
-      ["用事・明日は行けません。", "用事で、明日は行けません。"],
+      ["用事・明日は行けません。", "用事で、明日は行けません。"]
+    ]
+  },
+  {
+    title: "Vて",
+    rows: [
       ["合格できる・うれしかったです。", "合格できて、うれしかったです。"],
       ["友だちに会える・うれしいです。", "友だちに会えて、うれしいです。"],
       ["たくさん食べられる・うれしかったです。", "たくさん食べられて、うれしかったです。"],
@@ -3142,12 +3149,11 @@ function makeTwoLineHint(hint) {
 }
 
 function makeConnectSeparator(groupTitle, rowIndex = 0) {
-  if (groupTitle === "～て" && rowIndex >= 3) return `<span class="connect-separator connect-separator-square connect-separator-fast"><span>▶</span><span>▶</span></span>`;
-  if (groupTitle === "～て") return `<span class="connect-separator connect-separator-plus">+</span>`;
-  if (groupTitle === "～で" && rowIndex >= 3) return `<span class="connect-separator connect-separator-square connect-separator-fast connect-separator-soft-blue"><span>▶</span><span>▶</span></span>`;
+  if (groupTitle === "くて" || groupTitle === "～て") return `<span class="connect-separator connect-separator-plus">+</span>`;
+  if (groupTitle === "Vて") return `<span class="connect-separator connect-separator-square connect-separator-fast connect-separator-soft-blue"><span>▶</span><span>▶</span></span>`;
   if (groupTitle === "～で") return `<span class="connect-separator connect-separator-square connect-separator-fast"><span>▶</span><span>▶</span></span>`;
   if (groupTitle === "ですけど・ですが") return `<span class="connect-separator connect-separator-square connect-separator-contrast"><span class="bidi-arrow"><span class="bidi-arrow-left"></span><span class="bidi-arrow-right"></span></span></span>`;
-  if (groupTitle === "理由") return `<span class="connect-separator connect-separator-square connect-separator-fast"><span>▶</span><span>▶</span></span>`;
+  if (groupTitle === "理由") return `<span class="connect-separator connect-separator-square connect-separator-fast connect-separator-soft-blue"><span>▶</span><span>▶</span></span>`;
   if (groupTitle === "就算（～ても）") return `<span class="connect-separator connect-separator-square connect-separator-temo"><span class="temo-arrow-stem"></span><span class="temo-arrow-head"></span><span class="temo-bang"></span></span>`;
   if (groupTitle === "～たら") return `<span class="connect-separator connect-separator-square connect-separator-tara"><span class="tara-arrow-stem"></span><span class="tara-arrow-head"></span></span>`;
   return `<span class="connect-separator">・</span>`;
@@ -3171,17 +3177,15 @@ function makeConnectHint(prompt, groupTitle, rowIndex) {
 function makeConnectTable() {
   let html = `
     <table class="listen-table tara-table connect-table">
-      <tr><th>普通形</th><th>つなぐ</th></tr>
+      <tr><th>ヒント</th><th>日本語</th></tr>
   `;
 
   connectPracticeData.forEach(group => {
-    if (group.title !== "～て" && group.title !== "～で") {
-      html += `
-        <tr class="group-row">
-          <td colspan="2">${group.title}</td>
-        </tr>
-      `;
-    }
+    html += `
+      <tr class="group-row">
+        <td colspan="2">${group.title}</td>
+      </tr>
+    `;
 
     group.rows.forEach(([prompt, answer], rowIndex) => {
       html += `
