@@ -918,14 +918,35 @@
   }
 
   .speak-tight-emojis {
-    display: inline-flex;
-    align-items: center;
-    letter-spacing: -0.18em;
+    display: inline-grid;
+    grid-template: 1em / 1em;
+    place-items: center;
+    vertical-align: middle;
+    line-height: 1;
+    margin-left: 0.04em;
+    margin-right: 0.42em;
   }
 
-  .speak-tight-emojis span {
+  .speak-tight-thought,
+  .speak-tight-items {
+    grid-area: 1 / 1;
+  }
+
+  .speak-tight-items {
+    display: inline-flex;
+    gap: 0;
+    transform: translateX(0.24em);
+    z-index: 1;
+  }
+
+  .speak-tight-items span {
     display: inline-block;
     line-height: 1;
+    margin-right: -0.34em;
+  }
+
+  .speak-tight-items span:last-child {
+    margin-right: 0;
   }
 
 
@@ -1662,8 +1683,8 @@ const speakPracticeData = [
   ["大阪🏯", "<ruby>大阪<rt>おおさか</rt></ruby>に お<ruby>城<rt>しろ</rt></ruby>があります。"],
   ["東京🎆", "<ruby>東京<rt>とうきょう</rt></ruby>で お<ruby>祭<rt>まつ</rt></ruby>りがあります。"],
   ["学校📝", "<ruby>学校<rt>がっこう</rt></ruby>で テストがあります。"],
-  ["😍<span class=\"speak-tight-emojis\"><span>💭</span><span>💸</span><span>👗</span></span>", "<ruby>新<rt>あたら</rt></ruby>しい<ruby>服<rt>ふく</rt></ruby>が ほしいです。"],
-  ["😍<span class=\"speak-tight-emojis\"><span>💭</span><span>✈</span><span>🗾</span></span>", "<ruby>日本<rt>にほん</rt></ruby>に <ruby>行<rt>い</rt></ruby>きたいです。"],
+  ["😍<span class=\"speak-tight-emojis\"><span class=\"speak-tight-thought\">💭</span><span class=\"speak-tight-items\"><span>💸</span><span>👗</span></span></span>", "<ruby>新<rt>あたら</rt></ruby>しい<ruby>服<rt>ふく</rt></ruby>が ほしいです。"],
+  ["😍<span class=\"speak-tight-emojis\"><span class=\"speak-tight-thought\">💭</span><span class=\"speak-tight-items\"><span>✈</span><span>🗾</span></span></span>", "<ruby>日本<rt>にほん</rt></ruby>に <ruby>行<rt>い</rt></ruby>きたいです。"],
   ["<span class=\"speak-compare-small\">🐟</span>|<span class=\"speak-compare-large\">🍖</span>💕", "<ruby>肉<rt>にく</rt></ruby>のほうが <ruby>好<rt>す</rt></ruby>きです。"],
   ["<span class=\"speak-compare-small\">🚶‍♂️</span>|<span class=\"speak-compare-large\">🚕</span>✨", "タクシーのほうが いいです。"],
   ["🎬❤️", "<ruby>映画<rt>えいが</rt></ruby>を <ruby>見<rt>み</rt></ruby>るのが <ruby>好<rt>す</rt></ruby>きです。"],
