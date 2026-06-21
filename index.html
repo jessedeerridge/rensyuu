@@ -883,6 +883,25 @@
     transform: scaleX(1.18);
   }
 
+  .speak-hand-stack {
+    display: inline-grid;
+    grid-template: 1em / 1em;
+    place-items: center;
+    vertical-align: middle;
+    line-height: 1;
+    margin-right: 0.34em;
+  }
+
+  .speak-hand-stack-hand,
+  .speak-hand-stack-item {
+    grid-area: 1 / 1;
+  }
+
+  .speak-hand-stack-item {
+    transform: translate(0.28em, -0.38em);
+    z-index: 1;
+  }
+
   .speak-compare-small,
   .speak-compare-large {
     display: inline-block;
@@ -899,14 +918,39 @@
   }
 
   .speak-tight-emojis {
-    display: inline-flex;
-    align-items: center;
-    letter-spacing: -0.18em;
+    display: inline-grid;
+    grid-template: 1em / 1em;
+    place-items: center;
+    vertical-align: middle;
+    line-height: 1;
+    margin-left: 0.04em;
+    margin-right: 0.42em;
   }
 
-  .speak-tight-emojis span {
+  .speak-tight-thought,
+  .speak-tight-items {
+    grid-area: 1 / 1;
+  }
+
+  .speak-tight-thought {
+    transform: scale(1.3);
+  }
+
+  .speak-tight-items {
+    display: inline-flex;
+    gap: 0;
+    transform: translate(0.46em, -0.46em);
+    z-index: 1;
+  }
+
+  .speak-tight-items span {
     display: inline-block;
     line-height: 1;
+    margin-right: -0.34em;
+  }
+
+  .speak-tight-items span:last-child {
+    margin-right: 0;
   }
 
 
@@ -1008,6 +1052,31 @@
     justify-content: center;
   }
 
+  #tableArea .connect-separator-before-after {
+    position: relative;
+    top: -0.06em;
+    width: auto;
+    height: 16px;
+    padding: 0;
+    border-radius: 4px;
+    background: #ff8fc7;
+    color: #fff;
+    box-shadow: inset 0 -2px 0 rgba(0,0,0,0.12);
+    font-size: 0.54em;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+  }
+
+  #tableArea .connect-separator-before-after.is-after {
+    background: #d79ab7;
+  }
+
+  #tableArea .connect-separator-before-after-label {
+    display: inline-block;
+    transform: scaleX(0.68) scaleY(1.16);
+    transform-origin: center;
+  }
+
   #tableArea .connect-separator-square {
     position: relative;
     top: -0.06em;
@@ -1031,6 +1100,26 @@
 
   #tableArea .connect-separator-soft-blue {
     background: #4f8fd2;
+  }
+
+  #tableArea .reason-kara-wrap {
+    position: relative;
+    display: inline-block;
+    padding-bottom: 1.12em;
+    line-height: 1;
+    vertical-align: top;
+  }
+
+  #tableArea .reason-kara-note {
+    position: absolute;
+    top: 1.78em;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #d90000;
+    font-size: calc(0.48em + 2px);
+    font-weight: 900;
+    white-space: nowrap;
+    line-height: 1;
   }
 
   #tableArea .connect-separator-contrast {
@@ -1643,15 +1732,15 @@ const speakPracticeData = [
   ["大阪🏯", "<ruby>大阪<rt>おおさか</rt></ruby>に お<ruby>城<rt>しろ</rt></ruby>があります。"],
   ["東京🎆", "<ruby>東京<rt>とうきょう</rt></ruby>で お<ruby>祭<rt>まつ</rt></ruby>りがあります。"],
   ["学校📝", "<ruby>学校<rt>がっこう</rt></ruby>で テストがあります。"],
-  ["😍<span class=\"speak-tight-emojis\"><span>💭</span><span>💸</span><span>👗</span></span>", "<ruby>新<rt>あたら</rt></ruby>しい<ruby>服<rt>ふく</rt></ruby>が ほしいです。"],
-  ["😍<span class=\"speak-tight-emojis\"><span>💭</span><span>✈</span><span>🗾</span></span>", "<ruby>日本<rt>にほん</rt></ruby>に <ruby>行<rt>い</rt></ruby>きたいです。"],
+  ["😍<span class=\"speak-tight-emojis\"><span class=\"speak-tight-thought\">💭</span><span class=\"speak-tight-items\"><span>💸</span><span>👗</span></span></span>", "<ruby>新<rt>あたら</rt></ruby>しい<ruby>服<rt>ふく</rt></ruby>が ほしいです。"],
+  ["😍<span class=\"speak-tight-emojis\"><span class=\"speak-tight-thought\">💭</span><span class=\"speak-tight-items\"><span>✈</span><span>🗾</span></span></span>", "<ruby>日本<rt>にほん</rt></ruby>に <ruby>行<rt>い</rt></ruby>きたいです。"],
   ["<span class=\"speak-compare-small\">🐟</span>|<span class=\"speak-compare-large\">🍖</span>💕", "<ruby>肉<rt>にく</rt></ruby>のほうが <ruby>好<rt>す</rt></ruby>きです。"],
   ["<span class=\"speak-compare-small\">🚶‍♂️</span>|<span class=\"speak-compare-large\">🚕</span>✨", "タクシーのほうが いいです。"],
   ["🎬❤️", "<ruby>映画<rt>えいが</rt></ruby>を <ruby>見<rt>み</rt></ruby>るのが <ruby>好<rt>す</rt></ruby>きです。"],
   ["🎨❤️", "<ruby>絵<rt>え</rt></ruby>を かくのが <ruby>好<rt>す</rt></ruby>きです。"],
   ["🎤❤️", "<ruby>歌<rt>うた</rt></ruby>うのが <ruby>好<rt>す</rt></ruby>きです。"],
-  ["🤲👟<span class=\"speak-bold-arrow\">⬅</span>👱🏼", "<ruby>友<rt>とも</rt></ruby>だちが <ruby>靴<rt>くつ</rt></ruby>をくれました。"],
-  ["🤲💻<span class=\"speak-bold-arrow\">⬅</span>👱🏼", "<ruby>友<rt>とも</rt></ruby>だちが パソコンをくれました。"],
+  ["<span class=\"speak-hand-stack\"><span class=\"speak-hand-stack-hand\">🤲</span><span class=\"speak-hand-stack-item\">👟</span></span><span class=\"speak-bold-arrow\">⬅</span>👱🏼", "<ruby>友<rt>とも</rt></ruby>だちが <ruby>靴<rt>くつ</rt></ruby>をくれました。"],
+  ["<span class=\"speak-hand-stack\"><span class=\"speak-hand-stack-hand\">🤲</span><span class=\"speak-hand-stack-item\">💻</span></span><span class=\"speak-bold-arrow\">⬅</span>👱🏼", "<ruby>友<rt>とも</rt></ruby>だちが パソコンをくれました。"],
   ["🫴<span class=\"speak-bold-arrow\">➡</span>🎁👱🏼", "<ruby>友<rt>とも</rt></ruby>だちに プレゼントをあげました。"],
   ["🍚🕐❌", "まだ <ruby>食<rt>た</rt></ruby>べていません。"],
   ["📝🕐❌", "まだ <ruby>終<rt>お</rt></ruby>わっていません。"],
@@ -1729,6 +1818,18 @@ const connectPracticeData = [
       ["学校へ行く・朝ごはんを食べます。", "学校へ行く前に朝ごはんを食べます。"],
       ["靴を脱ぐ・入ってください。", "靴を脱いでから、入ってください。"],
       ["ご飯を食べる・薬を飲んでください。", "ご飯を食べてから、薬を飲んでください。"]
+    ]
+  },
+  {
+    title: "🕐",
+    rows: [
+      ["本を借りる・カードがいります。", "本を借りるとき、カードがいります。"],
+      ["コーヒーを飲む・砂糖を入れます。", "コーヒーを飲むとき、砂糖を入れます。"],
+      ["映画を見る・お菓子を食べます。", "映画を見るとき、お菓子を食べます。"],
+      ["旅行に行く・いつも家族におみやげを買います。", "旅行に行ったとき、いつも家族におみやげを買います。"],
+      ["海に行く・写真を撮りました。", "海に行ったとき、写真を撮りました。"],
+      ["つかれる・スマホで動画を見ます。", "つかれたとき、スマホで動画を見ます。"],
+      ["先生に会う・いつもあいさつをします。", "先生に会ったとき、いつもあいさつをします。"]
     ]
   },
   {
@@ -3185,6 +3286,7 @@ const rubyTextMap = {
   "体": "<ruby>体<rt>からだ</rt></ruby>",
   "何": "<ruby>何<rt>なに</rt></ruby>",
   "兄": "<ruby>兄<rt>にい</rt></ruby>",
+  "入れ": "<ruby>入<rt>い</rt></ruby>れ",
   "入": "<ruby>入<rt>はい</rt></ruby>",
   "写真": "<ruby>写真<rt>しゃしん</rt></ruby>",
   "前": "<ruby>前<rt>まえ</rt></ruby>",
@@ -3196,6 +3298,12 @@ const rubyTextMap = {
   "宿題": "<ruby>宿題<rt>しゅくだい</rt></ruby>",
   "家": "<ruby>家<rt>いえ</rt></ruby>",
   "寮": "<ruby>寮<rt>りょう</rt></ruby>",
+  "海": "<ruby>海<rt>うみ</rt></ruby>",
+  "砂糖": "<ruby>砂糖<rt>さとう</rt></ruby>",
+  "先生": "<ruby>先生<rt>せんせい</rt></ruby>",
+  "動画": "<ruby>動画<rt>どうが</rt></ruby>",
+  "撮": "<ruby>撮<rt>と</rt></ruby>",
+  "簡単": "<ruby>簡単<rt>かんたん</rt></ruby>",
   "意味": "<ruby>意味<rt>いみ</rt></ruby>",
   "手伝": "<ruby>手伝<rt>てつだ</rt></ruby>",
   "持": "<ruby>持<rt>も</rt></ruby>",
@@ -3203,6 +3311,9 @@ const rubyTextMap = {
   "教": "<ruby>教<rt>おし</rt></ruby>",
   "日本": "<ruby>日本<rt>にほん</rt></ruby>",
   "映画": "<ruby>映画<rt>えいが</rt></ruby>",
+  "お菓子": "お<ruby>菓子<rt>かし</rt></ruby>",
+  "家族": "<ruby>家族<rt>かぞく</rt></ruby>",
+  "行": "<ruby>行<rt>い</rt></ruby>",
   "時": "<ruby>時<rt>じ</rt></ruby>",
   "時間": "<ruby>時間<rt>じかん</rt></ruby>",
   "明日": "<ruby>明日<rt>あした</rt></ruby>",
@@ -3307,7 +3418,12 @@ function makeConnectSeparator(groupTitle, rowIndex = 0) {
   if (groupTitle === "～で") return `<span class="connect-separator connect-separator-square connect-separator-fast"><span>▶</span><span>▶</span></span>`;
   if (groupTitle === "ですけど・ですが") return `<span class="connect-separator connect-separator-square connect-separator-contrast"><span class="bidi-arrow"><span class="bidi-arrow-left"></span><span class="bidi-arrow-right"></span></span></span>`;
   if (groupTitle === "理由") return `<span class="connect-separator connect-separator-square connect-separator-fast connect-separator-soft-blue"><span>▶</span><span>▶</span></span>`;
+  if (groupTitle === "前に・てから") {
+    const isBefore = rowIndex < 2;
+    return `<span class="connect-separator connect-separator-before-after ${isBefore ? "is-before" : "is-after"}"><span class="connect-separator-before-after-label">${isBefore ? "before" : "after"}</span></span>`;
+  }
   if (groupTitle === "就算（～ても）") return `<span class="connect-separator connect-separator-square connect-separator-temo"><span class="temo-arrow-stem"></span><span class="temo-arrow-head"></span><span class="temo-bang"></span></span>`;
+  if (groupTitle === "🕐") return `<span class="connect-separator">${rowIndex < 3 ? "🕐" : "🕣"}</span>`;
   if (groupTitle === "～たら") return `<span class="connect-separator connect-separator-square connect-separator-tara"><span class="tara-arrow-stem"></span><span class="tara-arrow-head"></span></span>`;
   return `<span class="connect-separator">・</span>`;
 }
@@ -3327,6 +3443,10 @@ function makeConnectHint(prompt, groupTitle, rowIndex) {
   `;
 }
 
+function addReasonKaraNote(html) {
+  return String(html || "").replace("から", `<span class="reason-kara-wrap">から<span class="reason-kara-note">（ので）</span></span>`);
+}
+
 function makeConnectTable() {
   let html = `
     <table class="listen-table tara-table connect-table">
@@ -3341,10 +3461,13 @@ function makeConnectTable() {
     `;
 
     group.rows.forEach(([prompt, answer], rowIndex) => {
+      const answerHtml = addFurigana(compactJapanese(escapeHtml(answer)));
+      const displayedAnswer = group.title === "理由" ? addReasonKaraNote(answerHtml) : answerHtml;
+
       html += `
         <tr>
           <td>${makeWordCell(addFurigana(makeConnectHint(prompt, group.title, rowIndex)))}</td>
-          <td><span class="answer-text">${addFurigana(compactJapanese(escapeHtml(answer)))}</span></td>
+          <td><span class="answer-text">${displayedAnswer}</span></td>
         </tr>
       `;
     });
