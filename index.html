@@ -1053,16 +1053,24 @@
   }
 
   #tableArea .connect-separator-before-after {
-    min-width: 2.95em;
-    height: 1.24em;
-    padding: 0 0.24em;
-    border-radius: 0.26em;
+    position: relative;
+    top: -0.06em;
+    min-width: 34px;
+    height: 16px;
+    padding: 0 3px;
+    border-radius: 4px;
     background: #ff8fc7;
     color: #fff;
-    box-shadow: inset 0 -0.16em 0 rgba(0,0,0,0.12);
-    font-size: 0.58em;
+    box-shadow: inset 0 -2px 0 rgba(0,0,0,0.12);
+    font-size: 0.54em;
     font-weight: 900;
-    letter-spacing: 0.01em;
+    letter-spacing: -0.02em;
+  }
+
+  #tableArea .connect-separator-before-after-label {
+    display: inline-block;
+    transform: scaleX(0.68) scaleY(1.16);
+    transform-origin: center;
   }
 
   #tableArea .connect-separator-square {
@@ -1100,7 +1108,7 @@
 
   #tableArea .reason-kara-note {
     position: absolute;
-    top: 1.34em;
+    top: 1.52em;
     left: 50%;
     transform: translateX(-50%);
     color: #d90000;
@@ -3406,7 +3414,7 @@ function makeConnectSeparator(groupTitle, rowIndex = 0) {
   if (groupTitle === "～で") return `<span class="connect-separator connect-separator-square connect-separator-fast"><span>▶</span><span>▶</span></span>`;
   if (groupTitle === "ですけど・ですが") return `<span class="connect-separator connect-separator-square connect-separator-contrast"><span class="bidi-arrow"><span class="bidi-arrow-left"></span><span class="bidi-arrow-right"></span></span></span>`;
   if (groupTitle === "理由") return `<span class="connect-separator connect-separator-square connect-separator-fast connect-separator-soft-blue"><span>▶</span><span>▶</span></span>`;
-  if (groupTitle === "前に・てから") return `<span class="connect-separator connect-separator-before-after">${rowIndex < 2 ? "before" : "after"}</span>`;
+  if (groupTitle === "前に・てから") return `<span class="connect-separator connect-separator-before-after"><span class="connect-separator-before-after-label">${rowIndex < 2 ? "before" : "after"}</span></span>`;
   if (groupTitle === "就算（～ても）") return `<span class="connect-separator connect-separator-square connect-separator-temo"><span class="temo-arrow-stem"></span><span class="temo-arrow-head"></span><span class="temo-bang"></span></span>`;
   if (groupTitle === "🕐") return `<span class="connect-separator">🕐</span>`;
   if (groupTitle === "～たら") return `<span class="connect-separator connect-separator-square connect-separator-tara"><span class="tara-arrow-stem"></span><span class="tara-arrow-head"></span></span>`;
