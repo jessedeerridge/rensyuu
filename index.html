@@ -1077,16 +1077,19 @@
     background: #4f8fd2;
   }
 
-  #tableArea .connect-separator-reason {
+  #tableArea .reason-kara-wrap {
     position: relative;
-    overflow: visible;
+    display: inline-block;
+    padding-bottom: 0.62em;
+    line-height: 1;
+    vertical-align: top;
   }
 
-  #tableArea .connect-separator-reason-note {
+  #tableArea .reason-kara-note {
     position: absolute;
-    top: 100%;
-    right: -0.16em;
-    margin-top: 0.08em;
+    top: 1.05em;
+    left: 50%;
+    transform: translateX(-50%);
     color: #4f8fd2;
     font-size: 0.48em;
     font-weight: 900;
@@ -3385,7 +3388,7 @@ function makeConnectSeparator(groupTitle, rowIndex = 0) {
   if (groupTitle === "Vて") return `<span class="connect-separator connect-separator-square connect-separator-fast connect-separator-soft-blue"><span>▶</span><span>▶</span></span>`;
   if (groupTitle === "～で") return `<span class="connect-separator connect-separator-square connect-separator-fast"><span>▶</span><span>▶</span></span>`;
   if (groupTitle === "ですけど・ですが") return `<span class="connect-separator connect-separator-square connect-separator-contrast"><span class="bidi-arrow"><span class="bidi-arrow-left"></span><span class="bidi-arrow-right"></span></span></span>`;
-  if (groupTitle === "理由") return `<span class="connect-separator connect-separator-square connect-separator-fast connect-separator-soft-blue connect-separator-reason"><span>▶</span><span>▶</span><span class="connect-separator-reason-note">（ので）</span></span>`;
+  if (groupTitle === "理由") return `<span class="connect-separator connect-separator-square connect-separator-fast connect-separator-soft-blue"><span>▶</span><span>▶</span></span>`;
   if (groupTitle === "就算（～ても）") return `<span class="connect-separator connect-separator-square connect-separator-temo"><span class="temo-arrow-stem"></span><span class="temo-arrow-head"></span><span class="temo-bang"></span></span>`;
   if (groupTitle === "🕐") return `<span class="connect-separator">🕐</span>`;
   if (groupTitle === "～たら") return `<span class="connect-separator connect-separator-square connect-separator-tara"><span class="tara-arrow-stem"></span><span class="tara-arrow-head"></span></span>`;
@@ -3407,6 +3410,10 @@ function makeConnectHint(prompt, groupTitle, rowIndex) {
   `;
 }
 
+function addReasonKaraNote(html) {
+  return String(html || "").replace("から", `<span class="reason-kara-wrap">から<span class="reason-kara-note">（ので）</span></span>`);
+}
+
 function makeConnectTable() {
   let html = `
     <table class="listen-table tara-table connect-table">
@@ -3421,10 +3428,13 @@ function makeConnectTable() {
     `;
 
     group.rows.forEach(([prompt, answer], rowIndex) => {
+      const answerHtml = addFurigana(compactJapanese(escapeHtml(answer)));
+      const displayedAnswer = group.title === "理由" ? addReasonKaraNote(answerHtml) : answerHtml;
+
       html += `
         <tr>
           <td>${makeWordCell(addFurigana(makeConnectHint(prompt, group.title, rowIndex)))}</td>
-          <td><span class="answer-text">${addFurigana(compactJapanese(escapeHtml(answer)))}</span></td>
+          <td><span class="answer-text">${displayedAnswer}</span></td>
         </tr>
       `;
     });
