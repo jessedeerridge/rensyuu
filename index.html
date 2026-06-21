@@ -3135,7 +3135,7 @@ function makeListenTable() {
   const rows = listenPracticeData.map(([prompt, answer]) => `
     <tr>
       <td>${makeWordCell(escapeHtml(prompt))}</td>
-      <td><span class="answer-text">${escapeHtml(answer)}</span></td>
+      <td><span class="answer-text">${addFurigana(escapeHtml(answer))}</span></td>
     </tr>
   `).join("");
   document.getElementById("tableArea").innerHTML = `
@@ -3168,12 +3168,132 @@ function compactJapanese(html) {
   return String(html || "").replace(/[\s　]+/g, "");
 }
 
-function makeTwoLineHint(hint) {
+const rubyTextMap = {
+  "友だち": "<ruby>友<rt>とも</rt></ruby>だち",
+  "お兄さん": "お<ruby>兄<rt>にい</rt></ruby>さん",
+  "ご飯": "ご<ruby>飯<rt>はん</rt></ruby>",
+  "お腹": "お<ruby>腹<rt>なか</rt></ruby>",
+  "お金": "お<ruby>金<rt>かね</rt></ruby>",
+  "お店": "お<ruby>店<rt>みせ</rt></ruby>",
+  "お花見": "お<ruby>花見<rt>はなみ</rt></ruby>",
+  "一度": "<ruby>一度<rt>いちど</rt></ruby>",
+  "三": "<ruby>三<rt>みっ</rt></ruby>",
+  "上手": "<ruby>上手<rt>うま</rt></ruby>",
+  "中止": "<ruby>中止<rt>ちゅうし</rt></ruby>",
+  "人": "<ruby>人<rt>ひと</rt></ruby>",
+  "今": "<ruby>今<rt>いま</rt></ruby>",
+  "体": "<ruby>体<rt>からだ</rt></ruby>",
+  "何": "<ruby>何<rt>なに</rt></ruby>",
+  "兄": "<ruby>兄<rt>にい</rt></ruby>",
+  "入": "<ruby>入<rt>はい</rt></ruby>",
+  "写真": "<ruby>写真<rt>しゃしん</rt></ruby>",
+  "前": "<ruby>前<rt>まえ</rt></ruby>",
+  "勉強": "<ruby>勉強<rt>べんきょう</rt></ruby>",
+  "合格": "<ruby>合格<rt>ごうかく</rt></ruby>",
+  "多": "<ruby>多<rt>おお</rt></ruby>",
+  "大変": "<ruby>大変<rt>たいへん</rt></ruby>",
+  "安": "<ruby>安<rt>やす</rt></ruby>",
+  "宿題": "<ruby>宿題<rt>しゅくだい</rt></ruby>",
+  "家": "<ruby>家<rt>いえ</rt></ruby>",
+  "寮": "<ruby>寮<rt>りょう</rt></ruby>",
+  "意味": "<ruby>意味<rt>いみ</rt></ruby>",
+  "手伝": "<ruby>手伝<rt>てつだ</rt></ruby>",
+  "持": "<ruby>持<rt>も</rt></ruby>",
+  "授業": "<ruby>授業<rt>じゅぎょう</rt></ruby>",
+  "教": "<ruby>教<rt>おし</rt></ruby>",
+  "日本": "<ruby>日本<rt>にほん</rt></ruby>",
+  "映画": "<ruby>映画<rt>えいが</rt></ruby>",
+  "時": "<ruby>時<rt>じ</rt></ruby>",
+  "時間": "<ruby>時間<rt>じかん</rt></ruby>",
+  "明日": "<ruby>明日<rt>あした</rt></ruby>",
+  "暇": "<ruby>暇<rt>ひま</rt></ruby>",
+  "書": "<ruby>書<rt>か</rt></ruby>",
+  "本": "<ruby>本<rt>ほん</rt></ruby>",
+  "来": "<ruby>来<rt>き</rt></ruby>",
+  "歌手": "<ruby>歌手<rt>かしゅ</rt></ruby>",
+  "歌": "<ruby>歌<rt>うた</rt></ruby>",
+  "歯": "<ruby>歯<rt>は</rt></ruby>",
+  "海外": "<ruby>海外<rt>かいがい</rt></ruby>",
+  "洗": "<ruby>洗<rt>あら</rt></ruby>",
+  "用事": "<ruby>用事<rt>ようじ</rt></ruby>",
+  "知": "<ruby>知<rt>し</rt></ruby>",
+  "磨": "<ruby>磨<rt>みが</rt></ruby>",
+  "立": "<ruby>立<rt>た</rt></ruby>",
+  "終": "<ruby>終<rt>お</rt></ruby>",
+  "練習": "<ruby>練習<rt>れんしゅう</rt></ruby>",
+  "聞": "<ruby>聞<rt>き</rt></ruby>",
+  "肉": "<ruby>肉<rt>にく</rt></ruby>",
+  "自転車": "<ruby>自転車<rt>じてんしゃ</rt></ruby>",
+  "薬": "<ruby>薬<rt>くすり</rt></ruby>",
+  "見": "<ruby>見<rt>み</rt></ruby>",
+  "言": "<ruby>言<rt>い</rt></ruby>",
+  "調": "<ruby>調<rt>しら</rt></ruby>",
+  "買": "<ruby>買<rt>か</rt></ruby>",
+  "起": "<ruby>起<rt>お</rt></ruby>",
+  "足": "<ruby>足<rt>た</rt></ruby>",
+  "走": "<ruby>走<rt>はし</rt></ruby>",
+  "旅行": "<ruby>旅行<rt>りょこう</rt></ruby>",
+  "辛": "<ruby>辛<rt>から</rt></ruby>",
+  "近": "<ruby>近<rt>ちか</rt></ruby>",
+  "遠": "<ruby>遠<rt>とお</rt></ruby>",
+  "部屋": "<ruby>部屋<rt>へや</rt></ruby>",
+  "靴": "<ruby>靴<rt>くつ</rt></ruby>",
+  "音": "<ruby>音<rt>おと</rt></ruby>",
+  "風邪": "<ruby>風邪<rt>かぜ</rt></ruby>",
+  "食堂": "<ruby>食堂<rt>しょくどう</rt></ruby>",
+  "食": "<ruby>食<rt>た</rt></ruby>",
+  "飲": "<ruby>飲<rt>の</rt></ruby>",
+  "高": "<ruby>高<rt>たか</rt></ruby>",
+  "降": "<ruby>降<rt>ふ</rt></ruby>",
+  "雨": "<ruby>雨<rt>あめ</rt></ruby>",
+  "雪": "<ruby>雪<rt>ゆき</rt></ruby>",
+  "電話": "<ruby>電話<rt>でんわ</rt></ruby>",
+  "電車": "<ruby>電車<rt>でんしゃ</rt></ruby>",
+  "難": "<ruby>難<rt>むずか</rt></ruby>",
+  "駅": "<ruby>駅<rt>えき</rt></ruby>",
+  "試合": "<ruby>試合<rt>しあい</rt></ruby>",
+  "誰": "<ruby>誰<rt>だれ</rt></ruby>",
+  "住": "<ruby>住<rt>す</rt></ruby>",
+  "休": "<ruby>休<rt>やす</rt></ruby>",
+  "借": "<ruby>借<rt>か</rt></ruby>",
+  "座": "<ruby>座<rt>すわ</rt></ruby>",
+  "売": "<ruby>売<rt>う</rt></ruby>",
+  "忘": "<ruby>忘<rt>わす</rt></ruby>",
+  "忙": "<ruby>忙<rt>いそが</rt></ruby>",
+  "脱": "<ruby>脱<rt>ぬ</rt></ruby>",
+  "良": "<ruby>良<rt>よ</rt></ruby>",
+  "間": "<ruby>間<rt>ま</rt></ruby>",
+  "会": "<ruby>会<rt>あ</rt></ruby>",
+  "帰": "<ruby>帰<rt>かえ</rt></ruby>",
+  "着": "<ruby>着<rt>つ</rt></ruby>",
+  "卒業": "<ruby>卒業<rt>そつぎょう</rt></ruby>",
+  "学校": "<ruby>学校<rt>がっこう</rt></ruby>",
+  "傘": "<ruby>傘<rt>かさ</rt></ruby>",
+  "眠": "<ruby>眠<rt>ねむ</rt></ruby>",
+  "寝": "<ruby>寝<rt>ね</rt></ruby>",
+  "元気": "<ruby>元気<rt>げんき</rt></ruby>",
+  "疲": "<ruby>疲<rt>つか</rt></ruby>",
+  "周杰伦": "<ruby>周杰伦<rt>しゅうけつりん</rt></ruby>"
+};
+
+const rubyTextPattern = new RegExp(Object.keys(rubyTextMap)
+  .sort((a, b) => b.length - a.length)
+  .map(text => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+  .join("|"), "g");
+
+function addFurigana(html) {
+  return String(html || "").replace(rubyTextPattern, text => rubyTextMap[text] || text);
+}
+
+function makeTwoLineHint(hint, showThoughtBubble = false) {
   const compactHint = compactJapanese(hint);
   const separatorIndex = compactHint.indexOf("・");
   if (separatorIndex < 0) return compactHint;
 
-  const firstLine = compactHint.slice(0, separatorIndex + 1);
+  const firstPart = compactHint.slice(0, separatorIndex);
+  const firstLine = showThoughtBubble
+    ? `💭${firstPart}`
+    : `${firstPart}${makeConnectSeparator("～たら")}`;
   const secondLine = compactHint.slice(separatorIndex + 1);
   return `
     <span class="tara-hint-line">${firstLine}</span>
@@ -3223,8 +3343,8 @@ function makeConnectTable() {
     group.rows.forEach(([prompt, answer], rowIndex) => {
       html += `
         <tr>
-          <td>${makeWordCell(makeConnectHint(prompt, group.title, rowIndex))}</td>
-          <td><span class="answer-text">${compactJapanese(escapeHtml(answer))}</span></td>
+          <td>${makeWordCell(addFurigana(makeConnectHint(prompt, group.title, rowIndex)))}</td>
+          <td><span class="answer-text">${addFurigana(compactJapanese(escapeHtml(answer)))}</span></td>
         </tr>
       `;
     });
@@ -4318,7 +4438,7 @@ function makeTaraPartialColorTable(title, rightTitle, rows) {
 
     html += `
       <tr class="${index < 9 ? "tara-after-row" : "tara-if-row"}">
-        <td>${makeWordCell(makeTwoLineHint(row[0]))}</td>
+        <td>${makeWordCell(makeTwoLineHint(row[0], index >= 9))}</td>
         <td><span class="answer-text">${compactJapanese(row[1])}</span></td>
       </tr>
     `;
