@@ -3285,14 +3285,15 @@ function addFurigana(html) {
   return String(html || "").replace(rubyTextPattern, text => rubyTextMap[text] || text);
 }
 
-function makeTwoLineHint(hint, showCloud = false) {
+function makeTwoLineHint(hint, showThoughtBubble = false) {
   const compactHint = compactJapanese(hint);
   const separatorIndex = compactHint.indexOf("・");
   if (separatorIndex < 0) return compactHint;
 
-  const cloud = showCloud ? `<span class="tara-hint-cloud" aria-hidden="true">☁️</span>` : "";
-  const arrow = `<span class="tara-hint-arrow" aria-hidden="true">➜</span>`;
-  const firstLine = `${cloud}${compactHint.slice(0, separatorIndex)}${arrow}`;
+  const firstPart = compactHint.slice(0, separatorIndex);
+  const firstLine = showThoughtBubble
+    ? `💭${firstPart}`
+    : `${firstPart}${makeConnectSeparator("～たら")}`;
   const secondLine = compactHint.slice(separatorIndex + 1);
   return `
     <span class="tara-hint-line">${firstLine}</span>
