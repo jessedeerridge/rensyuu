@@ -1077,6 +1077,23 @@
     background: #4f8fd2;
   }
 
+  #tableArea .connect-separator-reason {
+    position: relative;
+    overflow: visible;
+  }
+
+  #tableArea .connect-separator-reason-note {
+    position: absolute;
+    top: 100%;
+    right: -0.16em;
+    margin-top: 0.08em;
+    color: #4f8fd2;
+    font-size: 0.48em;
+    font-weight: 900;
+    white-space: nowrap;
+    line-height: 1;
+  }
+
   #tableArea .connect-separator-contrast {
     background: #7f8792;
     color: #fff;
@@ -3368,7 +3385,7 @@ function makeConnectSeparator(groupTitle, rowIndex = 0) {
   if (groupTitle === "Vて") return `<span class="connect-separator connect-separator-square connect-separator-fast connect-separator-soft-blue"><span>▶</span><span>▶</span></span>`;
   if (groupTitle === "～で") return `<span class="connect-separator connect-separator-square connect-separator-fast"><span>▶</span><span>▶</span></span>`;
   if (groupTitle === "ですけど・ですが") return `<span class="connect-separator connect-separator-square connect-separator-contrast"><span class="bidi-arrow"><span class="bidi-arrow-left"></span><span class="bidi-arrow-right"></span></span></span>`;
-  if (groupTitle === "理由") return `<span class="connect-separator connect-separator-square connect-separator-fast connect-separator-soft-blue"><span>▶</span><span>▶</span></span>`;
+  if (groupTitle === "理由") return `<span class="connect-separator connect-separator-square connect-separator-fast connect-separator-soft-blue connect-separator-reason"><span>▶</span><span>▶</span><span class="connect-separator-reason-note">（ので）</span></span>`;
   if (groupTitle === "就算（～ても）") return `<span class="connect-separator connect-separator-square connect-separator-temo"><span class="temo-arrow-stem"></span><span class="temo-arrow-head"></span><span class="temo-bang"></span></span>`;
   if (groupTitle === "🕐") return `<span class="connect-separator">🕐</span>`;
   if (groupTitle === "～たら") return `<span class="connect-separator connect-separator-square connect-separator-tara"><span class="tara-arrow-stem"></span><span class="tara-arrow-head"></span></span>`;
