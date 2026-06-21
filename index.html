@@ -1776,6 +1776,16 @@ const connectPracticeData = [
     ]
   },
   {
+    title: "🕐",
+    rows: [
+      ["本を借りる・カードがいります。", "本を借りるとき、カードがいります。"],
+      ["コーヒーを飲む・砂糖を入れます。", "コーヒーを飲むとき、砂糖を入れます。"],
+      ["疲れた・スマホで動画を見ます。", "疲れたとき、スマホで動画を見ます。"],
+      ["先生に会う・いつもあいさつをします。", "先生に会ったとき、いつもあいさつをします。"],
+      ["海に行く・写真を撮りました。", "海に行ったとき、写真を撮りました。"]
+    ]
+  },
+  {
     title: "～たら",
     rows: [
       ["授業が終わる・食堂に行きます。", "授業が終わったら、食堂に行きます。"],
@@ -3229,6 +3239,7 @@ const rubyTextMap = {
   "体": "<ruby>体<rt>からだ</rt></ruby>",
   "何": "<ruby>何<rt>なに</rt></ruby>",
   "兄": "<ruby>兄<rt>にい</rt></ruby>",
+  "入れ": "<ruby>入<rt>い</rt></ruby>れ",
   "入": "<ruby>入<rt>はい</rt></ruby>",
   "写真": "<ruby>写真<rt>しゃしん</rt></ruby>",
   "前": "<ruby>前<rt>まえ</rt></ruby>",
@@ -3240,6 +3251,11 @@ const rubyTextMap = {
   "宿題": "<ruby>宿題<rt>しゅくだい</rt></ruby>",
   "家": "<ruby>家<rt>いえ</rt></ruby>",
   "寮": "<ruby>寮<rt>りょう</rt></ruby>",
+  "海": "<ruby>海<rt>うみ</rt></ruby>",
+  "砂糖": "<ruby>砂糖<rt>さとう</rt></ruby>",
+  "先生": "<ruby>先生<rt>せんせい</rt></ruby>",
+  "動画": "<ruby>動画<rt>どうが</rt></ruby>",
+  "撮": "<ruby>撮<rt>と</rt></ruby>",
   "簡単": "<ruby>簡単<rt>かんたん</rt></ruby>",
   "意味": "<ruby>意味<rt>いみ</rt></ruby>",
   "手伝": "<ruby>手伝<rt>てつだ</rt></ruby>",
@@ -3248,6 +3264,7 @@ const rubyTextMap = {
   "教": "<ruby>教<rt>おし</rt></ruby>",
   "日本": "<ruby>日本<rt>にほん</rt></ruby>",
   "映画": "<ruby>映画<rt>えいが</rt></ruby>",
+  "行": "<ruby>行<rt>い</rt></ruby>",
   "時": "<ruby>時<rt>じ</rt></ruby>",
   "時間": "<ruby>時間<rt>じかん</rt></ruby>",
   "明日": "<ruby>明日<rt>あした</rt></ruby>",
@@ -3353,6 +3370,7 @@ function makeConnectSeparator(groupTitle, rowIndex = 0) {
   if (groupTitle === "ですけど・ですが") return `<span class="connect-separator connect-separator-square connect-separator-contrast"><span class="bidi-arrow"><span class="bidi-arrow-left"></span><span class="bidi-arrow-right"></span></span></span>`;
   if (groupTitle === "理由") return `<span class="connect-separator connect-separator-square connect-separator-fast connect-separator-soft-blue"><span>▶</span><span>▶</span></span>`;
   if (groupTitle === "就算（～ても）") return `<span class="connect-separator connect-separator-square connect-separator-temo"><span class="temo-arrow-stem"></span><span class="temo-arrow-head"></span><span class="temo-bang"></span></span>`;
+  if (groupTitle === "🕐") return `<span class="connect-separator">🕐</span>`;
   if (groupTitle === "～たら") return `<span class="connect-separator connect-separator-square connect-separator-tara"><span class="tara-arrow-stem"></span><span class="tara-arrow-head"></span></span>`;
   return `<span class="connect-separator">・</span>`;
 }
