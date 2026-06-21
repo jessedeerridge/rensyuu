@@ -883,6 +883,25 @@
     transform: scaleX(1.18);
   }
 
+  .speak-hand-stack {
+    display: inline-grid;
+    grid-template: 1em / 1em;
+    place-items: center;
+    vertical-align: middle;
+    line-height: 1;
+    margin-right: 0.34em;
+  }
+
+  .speak-hand-stack-hand,
+  .speak-hand-stack-item {
+    grid-area: 1 / 1;
+  }
+
+  .speak-hand-stack-item {
+    transform: translateX(0.5em);
+    z-index: 1;
+  }
+
   .speak-compare-small,
   .speak-compare-large {
     display: inline-block;
@@ -1650,8 +1669,8 @@ const speakPracticeData = [
   ["🎬❤️", "<ruby>映画<rt>えいが</rt></ruby>を <ruby>見<rt>み</rt></ruby>るのが <ruby>好<rt>す</rt></ruby>きです。"],
   ["🎨❤️", "<ruby>絵<rt>え</rt></ruby>を かくのが <ruby>好<rt>す</rt></ruby>きです。"],
   ["🎤❤️", "<ruby>歌<rt>うた</rt></ruby>うのが <ruby>好<rt>す</rt></ruby>きです。"],
-  ["🤲👟<span class=\"speak-bold-arrow\">⬅</span>👱🏼", "<ruby>友<rt>とも</rt></ruby>だちが <ruby>靴<rt>くつ</rt></ruby>をくれました。"],
-  ["🤲💻<span class=\"speak-bold-arrow\">⬅</span>👱🏼", "<ruby>友<rt>とも</rt></ruby>だちが パソコンをくれました。"],
+  ["<span class=\"speak-hand-stack\"><span class=\"speak-hand-stack-hand\">🤲</span><span class=\"speak-hand-stack-item\">👟</span></span><span class=\"speak-bold-arrow\">⬅</span>👱🏼", "<ruby>友<rt>とも</rt></ruby>だちが <ruby>靴<rt>くつ</rt></ruby>をくれました。"],
+  ["<span class=\"speak-hand-stack\"><span class=\"speak-hand-stack-hand\">🤲</span><span class=\"speak-hand-stack-item\">💻</span></span><span class=\"speak-bold-arrow\">⬅</span>👱🏼", "<ruby>友<rt>とも</rt></ruby>だちが パソコンをくれました。"],
   ["🫴<span class=\"speak-bold-arrow\">➡</span>🎁👱🏼", "<ruby>友<rt>とも</rt></ruby>だちに プレゼントをあげました。"],
   ["🍚🕐❌", "まだ <ruby>食<rt>た</rt></ruby>べていません。"],
   ["📝🕐❌", "まだ <ruby>終<rt>お</rt></ruby>わっていません。"],
@@ -3196,6 +3215,7 @@ const rubyTextMap = {
   "宿題": "<ruby>宿題<rt>しゅくだい</rt></ruby>",
   "家": "<ruby>家<rt>いえ</rt></ruby>",
   "寮": "<ruby>寮<rt>りょう</rt></ruby>",
+  "簡単": "<ruby>簡単<rt>かんたん</rt></ruby>",
   "意味": "<ruby>意味<rt>いみ</rt></ruby>",
   "手伝": "<ruby>手伝<rt>てつだ</rt></ruby>",
   "持": "<ruby>持<rt>も</rt></ruby>",
