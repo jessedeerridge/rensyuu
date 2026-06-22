@@ -736,6 +736,31 @@
     --table-font-size: 15px;
   }
 
+  #tableArea .listen-prompt {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+    max-width: 100%;
+    line-height: 1.05;
+  }
+
+  #tableArea .listen-prompt-text,
+  #tableArea .listen-prompt-emoji {
+    display: block;
+    max-width: 100%;
+    white-space: nowrap !important;
+  }
+
+  #tableArea .listen-prompt-text {
+    font-size: 0.82em !important;
+  }
+
+  #tableArea .listen-prompt-emoji {
+    font-size: 1.26em !important;
+    line-height: 1;
+  }
+
   #tableArea table th:first-child,
   #tableArea table td:first-child {
     width: 45%;
@@ -4009,11 +4034,26 @@ function toggleRandomOrder() {
 }
 
 
+function formatListenPrompt(prompt) {
+  const value = String(prompt || "");
+  const separatorIndex = value.lastIndexOf(" ");
+  if (separatorIndex < 0) return escapeHtml(value);
+
+  const text = value.slice(0, separatorIndex);
+  const emoji = value.slice(separatorIndex + 1);
+  return `
+    <span class="listen-prompt">
+      <span class="listen-prompt-text">${escapeHtml(text)}</span>
+      <span class="listen-prompt-emoji">${escapeHtml(emoji)}</span>
+    </span>
+  `;
+}
+
 function makeListenTable() {
   const sourceData = currentHomeLevel === 0 ? basicListenPracticeData : listenPracticeData;
   const rows = sourceData.map(([prompt, answer]) => `
     <tr>
-      <td>${makeWordCell(escapeHtml(prompt))}</td>
+      <td>${makeWordCell(formatListenPrompt(prompt))}</td>
       <td><span class="answer-text">${addFurigana(escapeHtml(answer))}</span></td>
     </tr>
   `).join("");
