@@ -5567,7 +5567,7 @@ function resetTableTextTransforms(table) {
 }
 
 function squeezeRightColumnToOneLine(table) {
-  const minRightFont = 8;
+  const minRightFont = 15;
 
   table.querySelectorAll("td:last-child .answer-text").forEach(el => {
     el.style.removeProperty("transform");
@@ -5581,7 +5581,7 @@ function squeezeRightColumnToOneLine(table) {
     }
 
     if (el.scrollWidth > el.clientWidth + 0.5 && el.clientWidth > 0 && el.scrollWidth > 0) {
-      const fittedSize = Math.max(1, (fontSize * el.clientWidth) / el.scrollWidth - 0.5);
+      const fittedSize = Math.max(minRightFont, (fontSize * el.clientWidth) / el.scrollWidth - 0.5);
       el.style.setProperty("font-size", `${fittedSize}px`, "important");
     }
   });
@@ -5650,7 +5650,9 @@ function fitTaraHintLines(table) {
 
     const hasOverflow = () => lines.some(line => line.scrollWidth > line.clientWidth + 0.5);
 
-    while (fontSize > 8 && hasOverflow()) {
+    const minTaraHintFont = 15;
+
+    while (fontSize > minTaraHintFont && hasOverflow()) {
       fontSize -= 1;
       wordText.style.setProperty("font-size", `${fontSize}px`, "important");
     }
@@ -5660,7 +5662,7 @@ function fitTaraHintLines(table) {
         .filter(line => line.clientWidth > 0 && line.scrollWidth > 0)
         .map(line => line.clientWidth / line.scrollWidth);
       if (widthRatios.length) {
-        const fittedSize = Math.max(1, fontSize * Math.min(...widthRatios) - 0.5);
+        const fittedSize = Math.max(minTaraHintFont, fontSize * Math.min(...widthRatios) - 0.5);
         wordText.style.setProperty("font-size", `${fittedSize}px`, "important");
       }
     }
@@ -5675,8 +5677,8 @@ function fitTableTextOneLine() {
   const maxRightAnswerFont = 22;
   const minTableFont = 15;
   const minCellFont = 15;
-  const minLeftFont = 14;
-  const minRightFont = 8;
+  const minLeftFont = 15;
+  const minRightFont = 15;
   const wrap = document.querySelector(".table-wrap");
   applyTableModeClasses(table);
 
