@@ -1093,7 +1093,7 @@
   }
 
   #tableArea .connect-separator-time.is-ta-time {
-    background: #5dbb7a;
+    background: #78977C;
   }
 
   #tableArea .connect-separator-square {
@@ -6139,38 +6139,28 @@ function updateSheetHiddenText() {
       y: snap(point.y - rect.top)
     }));
     const pointsValue = maskPoints.map(point => `${point.x},${point.y}`).join(" ");
-    const svg = `
-      <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
-        <defs>
-          <mask id="answer-mask" maskUnits="userSpaceOnUse">
-            <rect x="0" y="0" width="${width}" height="${height}" fill="white"/>
-            <polygon points="${pointsValue}" fill="black"/>
-          </mask>
-        </defs>
-        <rect x="0" y="0" width="${width}" height="${height}" fill="white" mask="url(#answer-mask)"/>
-      </svg>
-    `;
-    const maskUrl = `url("data:image/svg+xml,${escapeSvgForDataUrl(svg)}")`;
-
     const key = `${width},${height},${pointsValue}`;
-    if (text.dataset.maskKey === key) return;
+    if (text.dataset.clipKey === key) return;
 
-    text.dataset.maskKey = key;
-    text.dataset.clipKey = "";
+    text.dataset.clipKey = key;
+    text.dataset.maskKey = "";
 
-    const cover = text.querySelector(":scope > .answer-mask-cover");
-    if (cover) cover.remove();
-
+    text.style.webkitMaskImage = "";
+    text.style.maskImage = "";
+    text.style.webkitMaskSize = "";
+    text.style.maskSize = "";
+    text.style.webkitMaskRepeat = "";
+    text.style.maskRepeat = "";
+    text.style.webkitMaskPosition = "";
+    text.style.maskPosition = "";
     text.style.webkitClipPath = "";
     text.style.clipPath = "";
-    text.style.webkitMaskImage = maskUrl;
-    text.style.maskImage = maskUrl;
-    text.style.webkitMaskSize = `${width}px ${height}px`;
-    text.style.maskSize = `${width}px ${height}px`;
-    text.style.webkitMaskRepeat = "no-repeat";
-    text.style.maskRepeat = "no-repeat";
-    text.style.webkitMaskPosition = "0 0";
-    text.style.maskPosition = "0 0";
+
+    const cover = getAnswerMaskCover(text);
+    const polygonValue = maskPoints.map(point => `${point.x}px ${point.y}px`).join(", ");
+    cover.style.setProperty("--answer-mask-bg", getAnswerMaskBackground(text));
+    cover.style.webkitClipPath = `polygon(${polygonValue})`;
+    cover.style.clipPath = `polygon(${polygonValue})`;
   });
 }
 function preventMobileZoom() {
@@ -6186,7 +6176,8 @@ function preventMobileZoom() {
 
   document.addEventListener("touchend", e => {
     const now = Date.now();
-    if (now - lastTouchEnd <= 360) {
+    const isInteractive = e.target.closest("button, a, input, select, textarea, [role='button']");
+    if (!isInteractive && now - lastTouchEnd <= 360) {
       e.preventDefault();
     }
     lastTouchEnd = now;
