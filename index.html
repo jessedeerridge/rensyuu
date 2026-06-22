@@ -1179,7 +1179,7 @@
     width: max-content;
     transform: translateX(-50%);
     color: inherit;
-    font-size: 1em;
+    font-size: calc(1em - 1px);
     font-weight: inherit;
     line-height: 1;
     text-align: center;
@@ -1687,13 +1687,12 @@
     flex: 0 0 auto;
     color: #d90000;
     font-size: 1em;
-    line-height: 1;
+    line-height: inherit;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     align-self: center;
     vertical-align: middle;
-    transform: translateY(0.03em);
   }
 
   .question-memo-card ruby,
@@ -1717,6 +1716,14 @@
     overflow: visible;
   }
 
+  .question-memo-card.memo-tara {
+    font-size: 11px;
+  }
+
+  .question-memo-card.memo-tara.memo-roomy {
+    font-size: 13px;
+  }
+
   @media (max-width: 420px) {
     .question-memo-card {
       min-height: 34px;
@@ -1727,6 +1734,14 @@
 
     .question-memo-card.memo-roomy {
       font-size: 11px;
+    }
+
+    .question-memo-card.memo-tara {
+      font-size: 7px;
+    }
+
+    .question-memo-card.memo-tara.memo-roomy {
+      font-size: 9px;
     }
 
     .question-memo-card .memo-type {
@@ -3562,7 +3577,8 @@ function renderQuestionMemoLayer() {
     const displayItem = getMemoDisplayItem(item);
     const card = document.createElement("div");
     const isStackedMemo = isStackedMemoType(displayItem.type);
-    card.className = `question-memo-card${pos.isRoomy ? " memo-roomy" : ""}${isStackedMemo ? " memo-stacked" : ""}${displayItem.rightHtml.includes("reason-kara-note") ? " memo-has-reason-note" : ""}`;
+    const isTaraMemo = isTaraMemoType(displayItem.type);
+    card.className = `question-memo-card${pos.isRoomy ? " memo-roomy" : ""}${isStackedMemo ? " memo-stacked" : ""}${isTaraMemo ? " memo-tara" : ""}${displayItem.rightHtml.includes("reason-kara-note") ? " memo-has-reason-note" : ""}`;
     card.style.left = `${pos.x}px`;
     card.style.top = `${pos.y}px`;
     card.style.width = `${pos.width}px`;
