@@ -210,6 +210,14 @@
     box-shadow: 0 1px 0 #ffd1e6, 0 4px 8px rgba(0,0,0,0.08);
   }
 
+  .menu-btn:disabled,
+  .menu-page.disabled-page .menu-btn {
+    opacity: 0.35;
+    cursor: not-allowed;
+    pointer-events: none;
+    filter: grayscale(0.45);
+  }
+
   .menu-btn.menu-btn-medium {
     font-size: 17px;
   }
@@ -2156,17 +2164,17 @@
       <button class="menu-btn" onclick="showTable('Vたら')">Vたら</button>
     </div>
 
-    <div class="menu-page" data-page="2">
-      <button class="menu-btn" onclick="showTable('おいしそう')">おいしそう</button>
-      <button class="menu-btn menu-btn-small" onclick="showTable('おいしいそう 听说')">おいしいそう 听说</button>
-      <button class="menu-btn" onclick="showTable('-やすい')">-やすい</button>
-      <button class="menu-btn" onclick="showTable('-すぎ')">-すぎ</button>
-      <button class="menu-btn" onclick="showTable('Vておきます')">Vておきます</button>
-      <button class="menu-btn menu-btn-small" onclick="showTable('Vたらいいですか')">Vたらいいですか</button>
-      <button class="menu-btn" onclick="showTable('Vてしまった')">Vてしまった</button>
-      <button class="menu-btn menu-btn-small" onclick="showTable('Vてもらいました')">Vてもらいました</button>
-      <button class="menu-btn menu-btn-xsmall" onclick="showTable('Vなければならない')">Vなければならない</button>
-      <button class="menu-btn menu-btn-xsmall" onclick="showTable('Vてもらえませんか')">Vてもらえませんか</button>
+    <div class="menu-page disabled-page" data-page="2" aria-disabled="true">
+      <button disabled class="menu-btn" onclick="showTable('おいしそう')">おいしそう</button>
+      <button disabled class="menu-btn menu-btn-small" onclick="showTable('おいしいそう 听说')">おいしいそう 听说</button>
+      <button disabled class="menu-btn" onclick="showTable('-やすい')">-やすい</button>
+      <button disabled class="menu-btn" onclick="showTable('-すぎ')">-すぎ</button>
+      <button disabled class="menu-btn" onclick="showTable('Vておきます')">Vておきます</button>
+      <button disabled class="menu-btn menu-btn-small" onclick="showTable('Vたらいいですか')">Vたらいいですか</button>
+      <button disabled class="menu-btn" onclick="showTable('Vてしまった')">Vてしまった</button>
+      <button disabled class="menu-btn menu-btn-small" onclick="showTable('Vてもらいました')">Vてもらいました</button>
+      <button disabled class="menu-btn menu-btn-xsmall" onclick="showTable('Vなければならない')">Vなければならない</button>
+      <button disabled class="menu-btn menu-btn-xsmall" onclick="showTable('Vてもらえませんか')">Vてもらえませんか</button>
     </div>
 
     <div class="menu-page" data-page="3">
@@ -2226,7 +2234,7 @@ const homeMenus = {
     title: "基礎",
     buttons: [
       { label: "聞く", className: "listen-btn", action: "openListenPage()" },
-      { label: "はなす", className: "speak-btn", action: "openSpeakPage()" },
+      { label: "話す", className: "speak-btn", action: "openSpeakPage()" },
       { label: "語彙", className: "connect-btn", action: "openVocabMenu()" },
       { label: "活用", className: "conjugation-btn", action: "openConjugationMenu()" }
     ]
@@ -2307,6 +2315,28 @@ function openVocabTable(type) {
 
 function isConjugationQuestionItem(item) {
   return item && !nonConjugationQuestionTypes.has(item.type);
+}
+
+function isCommonConjugationMemoItem(item) {
+  return isConjugationQuestionItem(item) && !vocabCategories.includes(item.type);
+}
+
+function getHomeLevelForMemoItem(item) {
+  if (!item) return null;
+  if (Number.isInteger(item.homeLevel)) return item.homeLevel;
+  if (vocabCategories.includes(item.type)) return 0;
+  if (item.type === "つなぐ") return 1;
+  return null;
+}
+
+function isHomeLevelMemoItem(item, level) {
+  if (isCommonConjugationMemoItem(item)) return false;
+  const itemLevel = getHomeLevelForMemoItem(item);
+  if (itemLevel === null) {
+    const menu = homeMenus[level] || homeMenus[1];
+    return !!menu.buttons.some(button => button.label === item.type || (button.label === "話す" && item.type === "話す") || (button.label === "聞く" && item.type === "聞く"));
+  }
+  return itemLevel === level;
 }
 
 const speakPracticeData = [
@@ -3259,7 +3289,8 @@ function normalizeQuestionItem(item) {
   const type = item.type || "";
   const key = item.key || `${type}::${leftText}::${rightText}`;
   const legacyKey = item.legacyKey || `${type}::${leftText}::${rightText}`;
-  return { key, legacyKey, type, leftHtml, rightHtml, leftText, rightText };
+  const homeLevel = Number.isInteger(item.homeLevel) ? item.homeLevel : null;
+  return { key, legacyKey, type, homeLevel, leftHtml, rightHtml, leftText, rightText };
 }
 
 function parseQuestionStoreValue(raw) {
@@ -3508,14 +3539,20 @@ function getQuestionInfo(button) {
 
   const type = currentTableType || document.getElementById("tableTitle")?.textContent || "";
   const rowIndex = getQuestionRowIndex(row);
+  const homeLevel = currentSection === "listen" || currentSection === "speak" || currentSection === "connect" || currentSection === "vocab" ? currentHomeLevel : null;
   const legacyKey = `${type}::${leftText}::${rightText}`;
-  const stableKey = rowIndex >= 0 ? makeStableQuestionKey(type, rowIndex) : legacyKey;
+  const stableKeyBase = rowIndex >= 0 ? makeStableQuestionKey(type, rowIndex) : legacyKey;
+  const stableKey = homeLevel === null ? stableKeyBase : `${type}::level:${homeLevel}::${rowIndex >= 0 ? `${QUESTION_ROW_KEY_PREFIX}:${rowIndex}` : `${leftText}::${rightText}`}`;
   const key = tableRandomized && button.dataset.questionKey ? button.dataset.questionKey : stableKey;
-  return { key, legacyKey, type, rowIndex, leftHtml, rightHtml, leftText, rightText };
+  return { key, legacyKey, type, homeLevel, rowIndex, leftHtml, rightHtml, leftText, rightText };
 }
 
 function questionItemMatchesInfo(item, info) {
   if (!item || !info) return false;
+  const itemHasLevel = Number.isInteger(item.homeLevel);
+  const infoHasLevel = Number.isInteger(info.homeLevel);
+  const sameLevel = !itemHasLevel || !infoHasLevel || item.homeLevel === info.homeLevel;
+  if (!sameLevel) return false;
   return item.key === info.key || item.key === info.legacyKey || item.legacyKey === info.key || item.legacyKey === info.legacyKey;
 }
 
@@ -3847,20 +3884,22 @@ function renderQuestionMemoLayer() {
   if (currentSection === "vocab") {
     items = getRandomQuestionMemoItems(allItems.filter(item => vocabCategories.includes(item.type)), memoLimit);
   } else if (isMenuMemo) {
-    items = getRandomQuestionMemoItems(allItems.filter(isConjugationQuestionItem), memoLimit);
+    items = getRandomQuestionMemoItems(allItems.filter(isCommonConjugationMemoItem), memoLimit);
   } else {
-    const nonConjugationLimit = Math.round(memoLimit * 0.7);
-    const conjugationLimit = memoLimit - nonConjugationLimit;
-    const nonConjugationSource = allItems.filter(item => !isConjugationQuestionItem(item));
-    const conjugationSource = allItems.filter(isConjugationQuestionItem);
-    const nonConjugationItems = getRandomQuestionMemoItems(nonConjugationSource, nonConjugationLimit);
+    const levelSpecificLimit = Math.round(memoLimit * 0.7);
+    const conjugationLimit = memoLimit - levelSpecificLimit;
+    const levelSpecificSource = allItems.filter(item => isHomeLevelMemoItem(item, currentHomeLevel));
+    const conjugationSource = allItems.filter(isCommonConjugationMemoItem);
+    const levelSpecificItems = getRandomQuestionMemoItems(levelSpecificSource, levelSpecificLimit);
     const conjugationItems = getRandomQuestionMemoItems(conjugationSource, conjugationLimit);
-    const selectedItems = [...nonConjugationItems, ...conjugationItems];
+    const selectedItems = [...levelSpecificItems, ...conjugationItems];
     const selectedKeys = new Set(selectedItems.map(item => item.key));
     const fillLimit = memoLimit - selectedItems.length;
-    const fillItems = fillLimit > 0
-      ? getRandomQuestionMemoItems(allItems.filter(item => !selectedKeys.has(item.key)), fillLimit)
-      : [];
+    const fillSource = [
+      ...levelSpecificSource.filter(item => !selectedKeys.has(item.key)),
+      ...conjugationSource.filter(item => !selectedKeys.has(item.key))
+    ];
+    const fillItems = fillLimit > 0 ? getRandomQuestionMemoItems(fillSource, fillLimit) : [];
     items = [...selectedItems, ...fillItems];
   }
   layer.innerHTML = "";
