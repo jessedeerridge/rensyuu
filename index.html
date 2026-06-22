@@ -738,16 +738,18 @@
 
   #tableArea .listen-prompt {
     display: inline-flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 3px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 0.35em;
+    row-gap: 3px;
     max-width: 100%;
     line-height: 1.05;
   }
 
   #tableArea .listen-prompt-text,
   #tableArea .listen-prompt-emoji {
-    display: block;
+    display: inline-block;
     max-width: 100%;
     white-space: nowrap !important;
   }
@@ -757,6 +759,7 @@
   }
 
   #tableArea .listen-prompt-emoji {
+    flex-shrink: 0;
     font-size: 1.26em !important;
     line-height: 1;
   }
