@@ -1121,29 +1121,15 @@
     background: #4f8fd2;
   }
 
-  #tableArea .reason-kara-wrap {
-    position: relative;
-    display: inline-block;
-    padding-bottom: 0;
-    line-height: inherit;
-    vertical-align: baseline;
-  }
-
-  #tableArea .reason-kara-note {
-    position: absolute;
-    top: 1.78em;
-    left: 50%;
-    transform: translateX(-50%);
+  #tableArea .reason-sentence-note {
+    display: block;
+    margin-top: 0.24em;
     color: #d90000;
     font-size: calc(0.48em + 2px);
     font-weight: 900;
-    white-space: nowrap;
     line-height: 1;
-    z-index: 2;
-  }
-
-  #tableArea .answer-text.reason-note-answer {
-    margin-bottom: 1.2em;
+    text-align: center;
+    white-space: nowrap;
   }
 
   #tableArea .connect-separator-contrast {
@@ -3471,7 +3457,9 @@ function makeConnectHint(prompt, groupTitle, rowIndex) {
 }
 
 function addReasonKaraNote(html) {
-  return String(html || "").replace("から", `<span class="reason-kara-wrap">から<span class="reason-kara-note">（ので）</span></span>`);
+  const text = String(html || "");
+  if (!text.includes("から")) return text;
+  return `${text}<span class="reason-sentence-note">（ので）</span>`;
 }
 
 function makeConnectTable() {
@@ -3494,7 +3482,7 @@ function makeConnectTable() {
       html += `
         <tr>
           <td>${makeWordCell(addFurigana(makeConnectHint(prompt, group.title, rowIndex)))}</td>
-          <td><span class="answer-text${group.title === "理由" ? " reason-note-answer" : ""}">${displayedAnswer}</span></td>
+          <td><span class="answer-text">${displayedAnswer}</span></td>
         </tr>
       `;
     });
