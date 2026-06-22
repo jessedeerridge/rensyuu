@@ -777,11 +777,11 @@
 
   #tableArea .listen-prompt-label {
     display: inline-block;
-    padding: 0.08em 0.24em;
+    padding: 0.06em 0.2em;
     border-radius: 0.12em;
     background: #ff8ac2;
     color: #fff;
-    font-size: 1em;
+    font-size: 0.88em;
     font-weight: 900;
     line-height: 1.1;
     vertical-align: middle;
@@ -6643,6 +6643,10 @@ function updateListenPromptBreaks(table) {
   });
 }
 
+function listenPromptTextUsesMoreThanTwoLines(el) {
+  return el.getClientRects().length > 2;
+}
+
 function fitTableTextOneLine() {
   const table = document.querySelector("#tableArea table");
   if (!table) return;
@@ -6651,12 +6655,13 @@ function fitTableTextOneLine() {
   const minTableFont = 15;
   const minCellFont = 15;
   const minLeftFont = 14;
+  const minListenPromptFont = 11;
   const minRightFont = 8;
   const wrap = document.querySelector(".table-wrap");
   applyTableModeClasses(table);
 
   const shrinkTargets = () => Array.from(table.querySelectorAll(
-    "th, .word-text, .answer-text, .group-row td"
+    "th, .word-text, .listen-prompt-text, .answer-text, .group-row td"
   )).filter(el => el.offsetParent !== null);
 
   const resetFont = () => {
@@ -6704,6 +6709,7 @@ function fitTableTextOneLine() {
   };
 
   resetFont();
+  updateListenPromptBreaks(table);
 
   let size = maxFont;
   while (size > minTableFont && isOverflowing()) {
@@ -6716,8 +6722,14 @@ function fitTableTextOneLine() {
     if (isConnectRightAnswer(el)) return;
 
     let cellSize = size;
-    const needsShrink = () => elementOverflows(el) || (el.matches(".word-text") && leftTextUsesMoreThanTwoLines(el));
-    const minFont = el.matches(".word-text") ? minLeftFont : (el.matches(".answer-text") ? minRightFont : minCellFont);
+    const needsShrink = () => (
+      elementOverflows(el)
+      || (el.matches(".word-text") && leftTextUsesMoreThanTwoLines(el))
+      || (el.matches(".listen-prompt-text") && listenPromptTextUsesMoreThanTwoLines(el))
+    );
+    const minFont = el.matches(".listen-prompt-text")
+      ? minListenPromptFont
+      : (el.matches(".word-text") ? minLeftFont : (el.matches(".answer-text") ? minRightFont : minCellFont));
     while (cellSize > minFont && needsShrink()) {
       cellSize -= 1;
       el.style.setProperty("font-size", `${cellSize}px`, "important");
