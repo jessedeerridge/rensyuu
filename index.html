@@ -737,23 +737,42 @@
   }
 
   #tableArea .listen-prompt {
-    display: inline-flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 3px;
+    display: inline-block;
     max-width: 100%;
     line-height: 1.05;
+    text-align: left;
   }
 
   #tableArea .listen-prompt-text,
   #tableArea .listen-prompt-emoji {
-    display: block;
     max-width: 100%;
-    white-space: nowrap !important;
   }
 
   #tableArea .listen-prompt-text {
+    display: inline;
     font-size: 0.82em !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+  }
+
+  #tableArea .listen-prompt-break {
+    display: block;
+    content: "";
+    margin-top: 3px;
+  }
+
+  #tableArea .listen-prompt.is-text-wrapped .listen-prompt-break {
+    display: none;
+  }
+
+  #tableArea .listen-prompt-emoji {
+    display: inline;
+    white-space: nowrap !important;
+  }
+
+  #tableArea .listen-prompt-eye {
+    display: inline-block;
+    transform: scaleX(-1);
   }
 
   #tableArea .listen-prompt-emoji {
@@ -2477,16 +2496,16 @@ const basicListenPracticeData = [];
 const basicSpeakPracticeData = [];
 
 const listenPracticeData = [
-  ["问正在吃的菜味道时 😋🍜❔", "どうですか。"],
+  ["问正在吃的菜味道时 ❔🍜😋", "どうですか。"],
   ["提议去某个地方（咖喱店） 👉🍛❔", "カレー屋は どうですか。"],
-  ["问旅行感想时 😊✈️❔", "どうでしたか。"],
-  ["问电影感想时 😊🎬❔", "どうでしたか。"],
-  ["问哥哥性格时 👨‍🦱💬❔", "お兄さんはどんな人ですか。"],
+  ["问旅行感想时 ✈️❔", "どうでしたか。"],
+  ["问电影感想时 🎬❔", "どうでしたか。"],
+  ["问哥哥性格时 👨‍🦱❔", "お兄さんはどんな人ですか。"],
   ["问电影内容时 🎬📖❔", "どんな映画ですか。"],
   ["邀请去唱卡拉OK时 🤝🎤❔", "カラオケに行きませんか。"],
   ["邀请一起烧烤时 🤝🍖❔", "バーベキューをしませんか。"],
   ["问对方在做什么时 👀❔", "なにをしていますか。"],
-  ["问对方工作时 💼👀❔", "なにをしていますか。"],
+  ["问对方工作时 💼❔", "なにをしていますか。"],
   ["问对方哪里不舒服时 👀❔🤒", "どうしたんですか。"],
   ["问对方为什么困扰时 👀❔😟", "どうしたんですか。"],
   ["问对方为什么开心时 👀❔😊", "どうしたんですか。"],
@@ -2519,7 +2538,7 @@ const listenPracticeData = [
   ["介绍喜欢的动漫时（コナン） 📺❔", "「コナン」というアニメを知っていますか。"],
   ["想改到8点时 🕗👌❔", "8時でもいいですか。"],
   ["想改到宿舍前时 🏫👌❔", "寮の前でもいいですか。"],
-  ["请对方帮忙检查日语时 🇯🇵🙏❔", "チェックしてもらえませんか。"],
+  ["请对方帮忙检查日语时 □日本語□🙏❔", "日本語をチェックしてもらえませんか。"],
   ["请对方再说一遍时 🙏❔", "もう一度言ってもらえませんか。"],
   ["想请对方帮忙拍照时 📸🙏❔", "写真をとってもらえませんか。"],
   ["请对方帮忙时 🙏❔", "手伝ってもらえませんか。"],
@@ -4044,9 +4063,19 @@ function formatListenPrompt(prompt) {
   return `
     <span class="listen-prompt">
       <span class="listen-prompt-text">${escapeHtml(text)}</span>
-      <span class="listen-prompt-emoji">${escapeHtml(emoji)}</span>
+      <br class="listen-prompt-break">
+      <span class="listen-prompt-emoji">${formatListenPromptEmoji(emoji)}</span>
     </span>
   `;
+}
+
+function formatListenPromptEmoji(emoji) {
+  return Array.from(String(emoji || "")).map(char => {
+    if (char === "👀") {
+      return `<span class="listen-prompt-eye">${escapeHtml(char)}</span>`;
+    }
+    return escapeHtml(char);
+  }).join("");
 }
 
 function makeListenTable() {
@@ -6542,6 +6571,18 @@ function fitTaraHintLines(table) {
   });
 }
 
+function updateListenPromptBreaks(table) {
+  table.querySelectorAll(".listen-prompt").forEach(prompt => {
+    const text = prompt.querySelector(".listen-prompt-text");
+    if (!text) return;
+
+    prompt.classList.remove("is-text-wrapped");
+    if (text.getClientRects().length > 1) {
+      prompt.classList.add("is-text-wrapped");
+    }
+  });
+}
+
 function fitTableTextOneLine() {
   const table = document.querySelector("#tableArea table");
   if (!table) return;
@@ -6627,6 +6668,7 @@ function fitTableTextOneLine() {
   unifyLeftColumnFontSize(table);
   fitTaraHintLines(table);
   squeezeRightColumnToOneLine(table);
+  updateListenPromptBreaks(table);
 
   table.dataset.fittedFontSize = String(size);
   table.classList.remove("fitting-table");
