@@ -5586,15 +5586,45 @@ function squeezeRightColumnToOneLine(table) {
 
   if (table.classList.contains("connect-table")) {
     const maxRightFont = 18;
+    const getNaturalAnswerWidth = (el, fontSize) => {
+      const clone = el.cloneNode(true);
+      clone.style.position = "absolute";
+      clone.style.visibility = "hidden";
+      clone.style.pointerEvents = "none";
+      clone.style.left = "-9999px";
+      clone.style.top = "0";
+      clone.style.width = "max-content";
+      clone.style.maxWidth = "none";
+      clone.style.fontSize = `${fontSize}px`;
+      clone.style.whiteSpace = "nowrap";
+      document.body.appendChild(clone);
+      const width = clone.getBoundingClientRect().width;
+      clone.remove();
+      return width;
+    };
 
     rightAnswers.forEach(el => {
+      const cell = el.closest("td");
+      const availableWidth = cell ? cell.clientWidth : el.clientWidth;
+      if (availableWidth <= 0) return;
+
       el.style.removeProperty("transform");
-      el.style.setProperty("font-size", `${maxRightFont}px`, "important");
 
-      if (el.scrollWidth <= el.clientWidth + 0.5 || el.clientWidth <= 0 || el.scrollWidth <= 0) return;
+      let low = 1;
+      let high = maxRightFont;
+      let best = low;
 
-      const fittedSize = Math.max(1, (maxRightFont * el.clientWidth) / el.scrollWidth - 0.5);
-      el.style.setProperty("font-size", `${fittedSize}px`, "important");
+      for (let i = 0; i < 8; i += 1) {
+        const mid = (low + high) / 2;
+        if (getNaturalAnswerWidth(el, mid) <= availableWidth + 0.25) {
+          best = mid;
+          low = mid;
+        } else {
+          high = mid;
+        }
+      }
+
+      el.style.setProperty("font-size", `${best}px`, "important");
     });
 
     return;
