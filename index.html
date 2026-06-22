@@ -737,19 +737,17 @@
   }
 
   #tableArea .listen-prompt {
-    display: inline-flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 3px;
+    display: inline;
     max-width: 100%;
     line-height: 1.05;
   }
 
   #tableArea .listen-prompt-text,
   #tableArea .listen-prompt-emoji {
-    display: block;
+    display: inline-block;
     max-width: 100%;
     white-space: nowrap !important;
+    vertical-align: baseline;
   }
 
   #tableArea .listen-prompt-text {
@@ -4043,7 +4041,7 @@ function formatListenPrompt(prompt) {
   const emoji = value.slice(separatorIndex + 1);
   return `
     <span class="listen-prompt">
-      <span class="listen-prompt-text">${escapeHtml(text)}</span>
+      <span class="listen-prompt-text">${escapeHtml(text)}</span><wbr>
       <span class="listen-prompt-emoji">${escapeHtml(emoji)}</span>
     </span>
   `;
