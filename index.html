@@ -210,6 +210,14 @@
     box-shadow: 0 1px 0 #ffd1e6, 0 4px 8px rgba(0,0,0,0.08);
   }
 
+  .menu-btn:disabled,
+  .menu-page.disabled-page .menu-btn {
+    opacity: 0.35;
+    cursor: not-allowed;
+    pointer-events: none;
+    filter: grayscale(0.45);
+  }
+
   .menu-btn.menu-btn-medium {
     font-size: 17px;
   }
@@ -573,12 +581,12 @@
   }
 
   #tableArea tr.vocab-special td {
-    background: #fff4cc !important;
+    background: #dff8ff !important;
   }
 
   #tableArea tr.vocab-special .question-box {
-    background: #fff4cc !important;
-    border-color: #e6c867 !important;
+    background: #dff8ff !important;
+    border-color: #8ed8ea !important;
   }
 
   ruby {
@@ -726,6 +734,31 @@
 
   #tableArea table.listen-table {
     --table-font-size: 15px;
+  }
+
+  #tableArea .listen-prompt {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+    max-width: 100%;
+    line-height: 1.05;
+  }
+
+  #tableArea .listen-prompt-text,
+  #tableArea .listen-prompt-emoji {
+    display: block;
+    max-width: 100%;
+    white-space: nowrap !important;
+  }
+
+  #tableArea .listen-prompt-text {
+    font-size: 0.82em !important;
+  }
+
+  #tableArea .listen-prompt-emoji {
+    font-size: 1.26em !important;
+    line-height: 1;
   }
 
   #tableArea table th:first-child,
@@ -1131,6 +1164,13 @@
     font-weight: 900;
   }
 
+  #tableArea .connect-separator-bold-arrow {
+    color: #111;
+    font-size: 1.28em;
+    font-weight: 1000;
+    transform: scaleX(1.22);
+  }
+
   #tableArea .connect-separator-fast span + span {
     margin-left: calc(-0.28em - 1px);
   }
@@ -1410,6 +1450,13 @@
     color: #fff;
     font-size: 7px;
     font-weight: 900;
+  }
+
+  .question-memo-card .connect-separator-bold-arrow {
+    color: #111;
+    font-size: 1.28em;
+    font-weight: 1000;
+    transform: scaleX(1.22);
   }
 
   .question-memo-card .connect-separator-fast span + span {
@@ -1751,6 +1798,91 @@
   }
 
 
+  /* ===== 位置詞：机と虫眼鏡で読む練習 ===== */
+  body.position-vocab .red-sheet,
+  body.position-vocab .random-order-btn {
+    display: none;
+  }
+
+  .position-practice {
+    position: relative;
+    min-height: calc(100vh - 150px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 10px 90px;
+    overflow: hidden;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .position-stage {
+    position: relative;
+    width: min(92vw, 560px);
+    height: min(72vh, 560px);
+    min-height: 420px;
+    border-radius: 28px;
+    background: rgba(255,255,255,0.58);
+    border: 3px dashed rgba(255, 179, 213, 0.75);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  }
+
+  .position-label {
+    position: absolute;
+    padding: 7px 11px;
+    border-radius: 999px;
+    background: #aeb4bd;
+    color: transparent;
+    font-size: clamp(16px, 4.5vw, 24px);
+    font-weight: 900;
+    white-space: nowrap;
+    box-shadow: inset 0 -3px 0 rgba(0,0,0,0.10), 0 3px 10px rgba(0,0,0,0.08);
+  }
+
+  .position-label.is-revealed {
+    color: #333;
+    background: #fff;
+  }
+
+  .position-label.pos-front { left: 50%; top: 15%; transform: translateX(-50%); }
+  .position-label.pos-back { left: 50%; bottom: 14%; transform: translateX(-50%); }
+  .position-label.pos-left { right: 68%; top: 50%; transform: translateY(-50%); }
+  .position-label.pos-right { left: 68%; top: 50%; transform: translateY(-50%); }
+  .position-label.pos-on { left: 50%; top: 39%; transform: translate(-50%, -50%); }
+  .position-label.pos-under { left: 50%; top: 63%; transform: translate(-50%, -50%); }
+  .position-label.pos-near { left: 8%; top: 15%; }
+  .position-label.pos-inside { right: 7%; top: 15%; }
+
+  .magnifier {
+    position: absolute;
+    left: calc(50% - 42px);
+    top: calc(50% + 118px);
+    z-index: 8;
+    width: 86px;
+    height: 86px;
+    border: 7px solid #333;
+    border-radius: 50%;
+    background: rgba(223,248,255,0.38);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.18), inset 0 0 0 3px rgba(255,255,255,0.62);
+    cursor: grab;
+    touch-action: none;
+  }
+
+  .magnifier::after {
+    content: "";
+    position: absolute;
+    width: 48px;
+    height: 13px;
+    right: -36px;
+    bottom: -18px;
+    border-radius: 999px;
+    background: #333;
+    transform: rotate(45deg);
+    transform-origin: left center;
+  }
+
+
   /* ===== 起動時の説明パネル ===== */
   .start-notice-overlay {
     position: fixed;
@@ -2002,23 +2134,23 @@
       <button class="menu-btn" onclick="showTable('Vたら')">Vたら</button>
     </div>
 
-    <div class="menu-page" data-page="2">
-      <button class="menu-btn" onclick="showTable('おいしそう')">おいしそう</button>
-      <button class="menu-btn menu-btn-small" onclick="showTable('おいしいそう 听说')">おいしいそう 听说</button>
-      <button class="menu-btn" onclick="showTable('-やすい')">-やすい</button>
-      <button class="menu-btn" onclick="showTable('-すぎ')">-すぎ</button>
-      <button class="menu-btn" onclick="showTable('Vておきます')">Vておきます</button>
-      <button class="menu-btn menu-btn-small" onclick="showTable('Vたらいいですか')">Vたらいいですか</button>
-      <button class="menu-btn" onclick="showTable('Vてしまった')">Vてしまった</button>
-      <button class="menu-btn menu-btn-small" onclick="showTable('Vてもらいました')">Vてもらいました</button>
-      <button class="menu-btn menu-btn-xsmall" onclick="showTable('Vなければならない')">Vなければならない</button>
-      <button class="menu-btn menu-btn-xsmall" onclick="showTable('Vてもらえませんか')">Vてもらえませんか</button>
+    <div class="menu-page disabled-page" data-page="2" aria-disabled="true">
+      <button disabled class="menu-btn" onclick="showTable('おいしそう')">おいしそう</button>
+      <button disabled class="menu-btn menu-btn-small" onclick="showTable('おいしいそう 听说')">おいしいそう 听说</button>
+      <button disabled class="menu-btn" onclick="showTable('-やすい')">-やすい</button>
+      <button disabled class="menu-btn" onclick="showTable('-すぎ')">-すぎ</button>
+      <button disabled class="menu-btn" onclick="showTable('Vておきます')">Vておきます</button>
+      <button disabled class="menu-btn menu-btn-small" onclick="showTable('Vたらいいですか')">Vたらいいですか</button>
+      <button disabled class="menu-btn" onclick="showTable('Vてしまった')">Vてしまった</button>
+      <button disabled class="menu-btn menu-btn-small" onclick="showTable('Vてもらいました')">Vてもらいました</button>
+      <button disabled class="menu-btn menu-btn-xsmall" onclick="showTable('Vなければならない')">Vなければならない</button>
+      <button disabled class="menu-btn menu-btn-xsmall" onclick="showTable('Vてもらえませんか')">Vてもらえませんか</button>
     </div>
 
-    <div class="menu-page" data-page="3">
-      <button class="menu-btn" onclick="showTable('Vられる')">Vられる</button>
-      <button class="menu-btn" onclick="showTable('Vさせる')">Vさせる</button>
-      <button class="menu-btn menu-btn-medium" onclick="showTable('Vさせられる')">Vさせられる</button>
+    <div class="menu-page disabled-page" data-page="3" aria-disabled="true">
+      <button disabled class="menu-btn" onclick="showTable('Vられる')">Vられる</button>
+      <button disabled class="menu-btn" onclick="showTable('Vさせる')">Vさせる</button>
+      <button disabled class="menu-btn menu-btn-medium" onclick="showTable('Vさせられる')">Vさせられる</button>
     </div>
   </div>
 
@@ -2072,7 +2204,7 @@ const homeMenus = {
     title: "基礎",
     buttons: [
       { label: "聞く", className: "listen-btn", action: "openListenPage()" },
-      { label: "はなす", className: "speak-btn", action: "openSpeakPage()" },
+      { label: "話す", className: "speak-btn", action: "openSpeakPage()" },
       { label: "語彙", className: "connect-btn", action: "openVocabMenu()" },
       { label: "活用", className: "conjugation-btn", action: "openConjugationMenu()" }
     ]
@@ -2088,7 +2220,7 @@ const homeMenus = {
   }
 };
 
-const vocabCategories = ["位置詞", "数字", "日付", "曜日", "数え方", "時間", "月", "値段"];
+const vocabCategories = ["数字", "数え方", "月・日付", "時間・分", "位置詞"];
 
 function setHomeMenu(menuName = "main") {
   currentHomeMenu = menuName;
@@ -2129,11 +2261,12 @@ function changeHomeLevel(direction) {
   if (nextLevel < 0 || nextLevel > 1) return;
   currentHomeLevel = nextLevel;
   setHomeMenu("main");
+  renderQuestionMemoLayer();
 }
 
 function openVocabMenu() {
   currentSection = "vocab";
-  document.body.classList.remove("home-mode", "sheet-high", "table-start-lowered");
+  document.body.classList.remove("home-mode", "sheet-high", "table-start-lowered", "position-vocab");
   document.body.classList.add("menu-mode");
   document.getElementById("homeScreen").style.display = "none";
   document.getElementById("tableScreen").style.display = "none";
@@ -2153,6 +2286,25 @@ function openVocabTable(type) {
 
 function isConjugationQuestionItem(item) {
   return item && !nonConjugationQuestionTypes.has(item.type);
+}
+
+function isCommonConjugationMemoItem(item) {
+  return isConjugationQuestionItem(item) && !vocabCategories.includes(item.type);
+}
+
+function getHomeLevelForMemoItem(item) {
+  if (!item) return null;
+  if (Number.isInteger(item.homeLevel)) return item.homeLevel;
+  if (vocabCategories.includes(item.type)) return 0;
+  if (item.type === "つなぐ") return 1;
+  return null;
+}
+
+function isHomeLevelMemoItem(item, level) {
+  if (isCommonConjugationMemoItem(item)) return false;
+  const itemLevel = getHomeLevelForMemoItem(item);
+  if (itemLevel === null) return false;
+  return itemLevel === level;
 }
 
 const speakPracticeData = [
@@ -2227,6 +2379,14 @@ const connectPracticeData = [
     ]
   },
   {
+    title: "➡",
+    rows: [
+      ["お風呂に入る・寝ます。", "お風呂に入って、寝ます。"],
+      ["買い物をする・カフェに行きました。", "買い物をして、カフェに行きました。"],
+      ["家に帰る・宿題をしました。", "家に帰って、宿題をしました。"]
+    ]
+  },
+  {
     title: "～で",
     rows: [
       ["風邪・学校を休みました。", "風邪で、学校を休みました。"],
@@ -2240,7 +2400,10 @@ const connectPracticeData = [
       ["合格できた・うれしかったです。", "合格できて、うれしかったです。"],
       ["友だちに会えた・うれしいです。", "友だちに会えて、うれしいです。"],
       ["たくさん食べられた・うれしかったです。", "たくさん食べられて、うれしかったです。"],
-      ["間に合った・よかったです。", "間に合って、よかったです。"]
+      ["間に合った・よかったです。", "間に合って、よかったです。"],
+      ["雨が降る・残念です。", "雨が降って、残念です。"],
+      ["会えない・悲しいです。", "会えなくて、悲しいです。"],
+      ["仕事が多い・大変です。", "仕事が多くて、大変です。"]
     ]
   },
   {
@@ -2310,64 +2473,67 @@ const connectPracticeData = [
   }
 ];
 
+const basicListenPracticeData = [];
+const basicSpeakPracticeData = [];
+
 const listenPracticeData = [
-  ["问正在吃的菜味道时", "どうですか。"],
-  ["提议去某个地方（咖喱店）", "カレー屋は どうですか。"],
-  ["问旅行感想时", "どうでしたか。"],
-  ["问电影感想时", "どうでしたか。"],
-  ["问哥哥性格时", "お兄さんはどんな人ですか。"],
-  ["问电影内容时", "どんな映画ですか。"],
-  ["邀请去唱卡拉OK时", "カラオケに行きませんか。"],
-  ["邀请一起烧烤时", "バーベキューをしませんか。"],
-  ["问对方在做什么时", "なにをしていますか。"],
-  ["问对方工作时", "なにをしていますか。"],
-  ["问对方哪里不舒服时", "どうしたんですか。"],
-  ["问对方为什么困扰时", "どうしたんですか。"],
-  ["问对方为什么开心时", "どうしたんですか。"],
-  ["想主动帮忙时", "手伝いましょうか。"],
-  ["想帮对方拿行李时", "持ちましょうか。"],
-  ["问是谁带来的时", "だれが持ってきましたか。"],
-  ["问房间里有谁时", "だれがいますか。"],
-  ["问果汁还有没有剩时", "まだジュースがありますか。"],
-  ["问咖喱还有没有剩时", "まだカレーがありますか。"],
-  ["问住在哪里时", "どこに住んでいますか。"],
-  ["问和谁一起住时", "だれと住んでいますか。"],
-  ["问收到什么礼物时", "なにをもらいましたか。"],
-  ["在窗口想借自行车时", "ここで自転車を借りることができますか。"],
-  ["在窗口想买票时", "ここでチケットを買うことができますか。"],
-  ["问作业做完没有时", "もう宿題をしましたか。"],
-  ["问午饭吃了没有时", "もうご飯を食べましたか。"],
-  ["打电话时想确认对方能不能听见时", "聞こえますか。"],
-  ["想确认对方能不能看清黑板上的字时", "見えますか。"],
-  ["想去厕所时", "トイレに行ってもいいですか。"],
-  ["想休息一下时", "ちょっと休んでもいいですか。"],
-  ["想坐在旁边时", "ここに座ってもいいですか。"],
-　["邀请对方一起吃点东西时", "なにか食べませんか。"],
-　["邀请对方一起去某个地方时", "どこか行きませんか。"],
-  ["问有没有好店时", "どこかいいお店を知っていますか。"],
-  ["提议送点礼物时", "なにかプレゼントをあげませんか。"],
-  ["问有没有健康习惯时", "なにか体にいいことをしていますか。"],
-  ["问有没有出国经历时", "海外に行ったことがありますか。"],
-  ["问有没有潜水经历时（ダイビング）", "ダイビングをしたことがありますか。"],
-  ["介绍喜欢的歌手时（周杰伦）", "周杰伦という歌手を知っていますか。"],
-  ["介绍喜欢的动漫时（コナン）", "「コナン」というアニメを知っていますか。"],
-  ["想改到8点时", "8時でもいいですか。"],
-  ["想改到宿舍前时", "寮の前でもいいですか。"],
-  ["请对方帮忙检查日语时", "チェックしてもらえませんか。"],
-  ["请对方再说一遍时", "もう一度言ってもらえませんか。"],
-  ["想请对方帮忙拍照时", "写真をとってもらえませんか。"],
-  ["请对方帮忙时", "手伝ってもらえませんか。"],
-  ["不明白词语意思时", "どういう意味ですか。"],
-  ["想问怎么去时", "どうやって行ったらいいですか。"],
-  ["想问怎么买票时", "どうやって買ったらいいですか。"],
-  ["问推荐的店时", "よく行くお店はどこですか。"],
-  ["问推荐的歌时", "よく聞く歌はなんですか。"],
-  ["问哪里有卖便宜肉的店时", "安い肉を売っているお店はどこにありますか。"],
-  ["问两个之中是哪一个时", "どっちですか。"],
-  ["问两个之中哪个好时", "どっちがいいですか。"],
-  ["问三个以上之中是哪一个时", "どれですか。"],
-  ["问是哪本书时", "どの本ですか。"],
-  ["问三个以上之中哪个好时", "どれがいいですか。"],
+  ["问正在吃的菜味道时 😋🍜❔", "どうですか。"],
+  ["提议去某个地方（咖喱店） 👉🍛❔", "カレー屋は どうですか。"],
+  ["问旅行感想时 😊✈️❔", "どうでしたか。"],
+  ["问电影感想时 😊🎬❔", "どうでしたか。"],
+  ["问哥哥性格时 👨‍🦱💬❔", "お兄さんはどんな人ですか。"],
+  ["问电影内容时 🎬📖❔", "どんな映画ですか。"],
+  ["邀请去唱卡拉OK时 🤝🎤❔", "カラオケに行きませんか。"],
+  ["邀请一起烧烤时 🤝🍖❔", "バーベキューをしませんか。"],
+  ["问对方在做什么时 👀❔", "なにをしていますか。"],
+  ["问对方工作时 💼👀❔", "なにをしていますか。"],
+  ["问对方哪里不舒服时 👀❔🤒", "どうしたんですか。"],
+  ["问对方为什么困扰时 👀❔😟", "どうしたんですか。"],
+  ["问对方为什么开心时 👀❔😊", "どうしたんですか。"],
+  ["想主动帮忙时 🙋‍♂️❔🧽🍽️", "手伝いましょうか。"],
+  ["想帮对方拿行李时 🙋‍♂️❔🧳", "持ちましょうか。"],
+  ["问是谁带来的时 👤❔", "だれが持ってきましたか。"],
+  ["问房间里有谁时 👥❔", "だれがいますか。"],
+  ["问果汁还有没有剩时 🧃❔", "まだジュースがありますか。"],
+  ["问咖喱还有没有剩时 🍛❔", "まだカレーがありますか。"],
+  ["问住在哪里时 🏠❔", "どこに住んでいますか。"],
+  ["问和谁一起住时 🏠👥❔", "だれと住んでいますか。"],
+  ["问收到什么礼物时 🎁❔", "なにをもらいましたか。"],
+  ["在窗口想借自行车时 💴🚲❔", "ここで自転車を借りることができますか。"],
+  ["在窗口想买票时 💴🎫❔", "ここでチケットを買うことができますか。"],
+  ["问作业做完没有时 📝❔", "もう宿題をしましたか。"],
+  ["问午饭吃了没有时 🍜❔", "もうご飯を食べましたか。"],
+  ["打电话时想确认对方能不能听见时 👂❔", "聞こえますか。"],
+  ["想确认对方能不能看清黑板上的字时 👀❔", "見えますか。"],
+  ["想去厕所时 🚻🙋❔", "トイレに行ってもいいですか。"],
+  ["想休息一下时 😮‍💨❔", "ちょっと休んでもいいですか。"],
+  ["想坐在旁边时 👉🪑❔", "ここに座ってもいいですか。"],
+  ["邀请对方一起吃点东西时 🤝🍙❔", "なにか食べませんか。"],
+  ["邀请对方一起去某个地方时 🤝🚶‍♂️❔", "どこか行きませんか。"],
+  ["问有没有好店时 🏪✨❔", "どこかいいお店を知っていますか。"],
+  ["提议送点礼物时 🤔🎁❔", "なにかプレゼントをあげませんか。"],
+  ["问有没有健康习惯时 💪🍎❔", "なにか体にいいことをしていますか。"],
+  ["问有没有出国经历时 ✈️❔", "海外に行ったことがありますか。"],
+  ["问有没有潜水经历时（ダイビング） 🤿❔", "ダイビングをしたことがありますか。"],
+  ["介绍喜欢的歌手时（周杰伦） 🎤👨‍🎤❔", "周杰伦という歌手を知っていますか。"],
+  ["介绍喜欢的动漫时（コナン） 📺❔", "「コナン」というアニメを知っていますか。"],
+  ["想改到8点时 🕗👌❔", "8時でもいいですか。"],
+  ["想改到宿舍前时 🏫👌❔", "寮の前でもいいですか。"],
+  ["请对方帮忙检查日语时 🇯🇵🙏❔", "チェックしてもらえませんか。"],
+  ["请对方再说一遍时 🙏❔", "もう一度言ってもらえませんか。"],
+  ["想请对方帮忙拍照时 📸🙏❔", "写真をとってもらえませんか。"],
+  ["请对方帮忙时 🙏❔", "手伝ってもらえませんか。"],
+  ["不明白词语意思时 📖❔", "どういう意味ですか。"],
+  ["想问怎么去时 🚶‍♂️❔", "どうやって行ったらいいですか。"],
+  ["想问怎么买票时 🎫❔", "どうやって買ったらいいですか。"],
+  ["问推荐的店时 🏬👍❔", "よく行くお店はどこですか。"],
+  ["问推荐的歌时 🎵👍❔", "よく聞く歌はなんですか。"],
+  ["问哪里有卖便宜肉的店时 🥩🏪❔", "安い肉を売っているお店はどこにありますか。"],
+  ["问两个之中是哪一个时 👉🥛🥛❔", "どっちですか。"],
+  ["问两个之中哪个好时 👉🍨🍰❔", "どっちがいいですか。"],
+  ["问三个以上之中是哪一个时 👉🍶🧂🥫❔", "どれですか。"],
+  ["问是哪本书时 👉📗📘📙❔", "どの本ですか。"],
+  ["问三个以上之中哪个好时 👉🍧🍨🍰❔", "どれがいいですか。"],
 ];
 
 function openHome() {
@@ -2375,7 +2541,7 @@ function openHome() {
   tableVisible = false;
   stopMaskLoop();
   clearAllMasks();
-  document.body.classList.remove("home-mode", "menu-mode", "sheet-high", "table-start-lowered");
+  document.body.classList.remove("home-mode", "menu-mode", "sheet-high", "table-start-lowered", "position-vocab");
   document.body.classList.add("home-mode");
   document.getElementById("tableScreen").style.display = "none";
   document.getElementById("menuScreen").style.display = "none";
@@ -2387,7 +2553,7 @@ function openHome() {
 
 function openConjugationMenu() {
   currentSection = "conjugation";
-  document.body.classList.remove("home-mode", "sheet-high", "table-start-lowered");
+  document.body.classList.remove("home-mode", "sheet-high", "table-start-lowered", "position-vocab");
   document.body.classList.add("menu-mode");
   document.getElementById("homeScreen").style.display = "none";
   document.getElementById("tableScreen").style.display = "none";
@@ -2418,31 +2584,142 @@ function openConnectPage() {
 
 
 const vocabTableData = {
-  "位置詞": [
-    ["上", "うえ", true], ["下", "した"], ["前", "まえ"], ["後ろ", "うしろ"], ["中", "なか"], ["外", "そと"], ["右", "みぎ"], ["左", "ひだり"], ["となり", "となり"], ["近く", "ちかく", true]
-  ],
   "数字": [
-    ["一", "いち"], ["二", "に"], ["三", "さん"], ["四", "よん／し", true], ["五", "ご"], ["六", "ろく"], ["七", "なな／しち", true], ["八", "はち"], ["九", "きゅう／く", true], ["十", "じゅう"]
+    { tag: "🔢 1〜12" },
+    ["1", "いち"], ["2", "に"], ["3", "さん"], ["4", "よん／し", true], ["5", "ご"], ["6", "ろく"], ["7", "なな／しち", true], ["8", "はち"], ["9", "きゅう／く", true], ["10", "じゅう"], ["11", "じゅういち"], ["12", "じゅうに"],
+    { tag: "🔟 10のまとまり" },
+    ["20", "にじゅう"], ["30", "さんじゅう"],
+    { tag: "💯 100のまとまり" },
+    ["100", "ひゃく"], ["200", "にひゃく"], ["300", "さんびゃく", true], ["400", "よんひゃく"], ["500", "ごひゃく"], ["600", "ろっぴゃく", true], ["700", "ななひゃく"], ["800", "はっぴゃく", true], ["900", "きゅうひゃく"],
+    { tag: "🏯 1000のまとまり" },
+    ["1000", "せん"], ["2000", "にせん"], ["3000", "さんぜん", true], ["4000", "よんせん"], ["5000", "ごせん"], ["6000", "ろくせん"], ["7000", "ななせん"], ["8000", "はっせん", true], ["9000", "きゅうせん"], ["10000", "いちまん"]
   ],
-  "日付": [
-    ["一日", "ついたち", true], ["二日", "ふつか", true], ["三日", "みっか", true], ["四日", "よっか", true], ["五日", "いつか"], ["六日", "むいか"], ["七日", "なのか"], ["八日", "ようか", true], ["九日", "ここのか"], ["十日", "とおか", true], ["二十日", "はつか", true]
+  "数え方": [
+    { tag: "👤 人" },
+    ["1人", "ひとり", true], ["2人", "ふたり", true], ["3人", "さんにん"],
+    { tag: "🔵 つ" },
+    ["1つ", "ひとつ", true], ["2つ", "ふたつ", true], ["3つ", "みっつ", true], ["4つ", "よっつ", true], ["5つ", "いつつ", true], ["6つ", "むっつ", true], ["7つ", "ななつ"], ["8つ", "やっつ", true], ["9つ", "ここのつ", true],
+    { tag: "🏢 階" },
+    ["1階", "いっかい", true], ["2階", "にかい"], ["3階", "さんがい", true],
+    { tag: "✏️ 本" },
+    ["1本", "いっぽん", true], ["2本", "にほん"], ["3本", "さんぼん", true], ["4本", "よんほん"], ["5本", "ごほん"], ["6本", "ろっぽん", true], ["7本", "ななほん"], ["8本", "はっぽん", true],
+    { tag: "🎂 さい" },
+    ["11さい", "じゅういっさい", true], ["12さい", "じゅうにさい"], ["18さい", "じゅうはっさい", true], ["19さい", "じゅうきゅうさい"], ["20歳", "はたち", true],
+    { tag: "🔁 回" },
+    ["1回", "いっかい", true], ["2回", "にかい"], ["3回", "さんかい"],
+    { tag: "🐶 匹" },
+    ["1匹", "いっぴき", true], ["2匹", "にひき"], ["3匹", "さんびき", true],
+    { tag: "🚗 台" },
+    ["1台", "いちだい"], ["2台", "にだい"], ["3台", "さんだい"]
   ],
-  "曜日": [["月曜日", "げつようび"], ["火曜日", "かようび"], ["水曜日", "すいようび"], ["木曜日", "もくようび"], ["金曜日", "きんようび"], ["土曜日", "どようび"], ["日曜日", "にちようび"]],
-  "数え方": [["一人", "ひとり", true], ["二人", "ふたり", true], ["三人", "さんにん"], ["一つ", "ひとつ", true], ["二つ", "ふたつ", true], ["一枚", "いちまい"], ["一台", "いちだい"], ["一匹", "いっぴき", true], ["一冊", "いっさつ", true]],
-  "時間": [["一時", "いちじ"], ["四時", "よじ", true], ["七時", "しちじ", true], ["九時", "くじ", true], ["一分", "いっぷん", true], ["三分", "さんぷん", true], ["四分", "よんぷん", true], ["十分", "じゅっぷん", true], ["半", "はん"]],
-  "月": [["一月", "いちがつ"], ["二月", "にがつ"], ["三月", "さんがつ"], ["四月", "しがつ", true], ["五月", "ごがつ"], ["六月", "ろくがつ"], ["七月", "しちがつ", true], ["八月", "はちがつ"], ["九月", "くがつ", true], ["十月", "じゅうがつ"], ["十一月", "じゅういちがつ"], ["十二月", "じゅうにがつ"]],
-  "値段": [["100円", "ひゃくえん"], ["300円", "さんびゃくえん", true], ["600円", "ろっぴゃくえん", true], ["800円", "はっぴゃくえん", true], ["1000円", "せんえん"], ["3000円", "さんぜんえん", true], ["8000円", "はっせんえん", true], ["一万円", "いちまんえん"]]
+  "月・日付": [
+    { tag: "🗓️ 月" },
+    ["1月", "いちがつ"], ["2月", "にがつ"], ["3月", "さんがつ"], ["4月", "しがつ", true], ["5月", "ごがつ"], ["6月", "ろくがつ"], ["7月", "しちがつ", true], ["8月", "はちがつ"], ["9月", "くがつ", true], ["10月", "じゅうがつ"], ["11月", "じゅういちがつ"], ["12月", "じゅうにがつ"],
+    { tag: "📅 日" },
+    ["1日", "ついたち", true], ["2日", "ふつか", true], ["3日", "みっか", true], ["4日", "よっか", true], ["5日", "いつか", true], ["6日", "むいか", true], ["7日", "なのか", true], ["8日", "ようか", true], ["9日", "ここのか", true], ["10日", "とおか", true], ["11日", "じゅういちにち"], ["12日", "じゅうににち"], ["13日", "じゅうさんにち"], ["14日", "じゅうよっか", true], ["15日", "じゅうごにち"], ["16日", "じゅうろくにち"], ["17日", "じゅうしちにち", true], ["18日", "じゅうはちにち"], ["19日", "じゅうくにち", true], ["20日", "はつか", true], ["21日", "にじゅういちにち"], ["22日", "にじゅうににち"], ["23日", "にじゅうさんにち"], ["24日", "にじゅうよっか", true], ["25日", "にじゅうごにち"], ["26日", "にじゅうろくにち"], ["27日", "にじゅうしちにち", true], ["28日", "にじゅうはちにち"], ["29日", "にじゅうくにち", true], ["30日", "さんじゅうにち"], ["31日", "さんじゅういちにち"]
+  ],
+  "時間・分": [
+    { tag: "🕐 時間" },
+    ["1時", "いちじ"], ["2時", "にじ"], ["3時", "さんじ"], ["4時", "よじ", true], ["5時", "ごじ"], ["6時", "ろくじ"], ["7時", "しちじ", true], ["8時", "はちじ"], ["9時", "くじ", true], ["10時", "じゅうじ"], ["11時", "じゅういちじ"], ["12時", "じゅうにじ"],
+    { tag: "⏱️ 分" },
+    ["1分", "いっぷん", true], ["2分", "にふん"], ["3分", "さんぷん", true], ["4分", "よんぷん", true], ["5分", "ごふん"], ["6分", "ろっぷん", true], ["7分", "ななふん"], ["8分", "はっぷん", true], ["9分", "きゅうふん"], ["10分", "じゅっぷん", true], ["20分", "にじゅっぷん", true], ["30分", "さんじゅっぷん／はん", true], ["40分", "よんじゅっぷん", true], ["50分", "ごじゅっぷん", true]
+  ]
 };
 
 function makeVocabTable(type) {
+  if (type === "位置詞") {
+    makePositionVocabPractice();
+    return;
+  }
   const rows = vocabTableData[type] || [];
   let html = `<table class="listen-table vocab-table"><tr><th>ことば</th><th>読み方</th></tr>`;
-  rows.forEach(([word, reading, special]) => {
+  rows.forEach(row => {
+    if (row && !Array.isArray(row) && row.tag) {
+      html += `<tr class="group-row"><td colspan="2">${escapeHtml(row.tag)}</td></tr>`;
+      return;
+    }
+    const [word, reading, special] = row;
     html += `<tr${special ? ' class="vocab-special"' : ''}><td>${makeWordCell(escapeHtml(word))}</td><td><span class="answer-text">${escapeHtml(reading)}</span></td></tr>`;
   });
   html += `</table><div class="scroll-extra-y"></div>`;
   document.getElementById("tableArea").innerHTML = html;
 }
+
+function makePositionVocabPractice() {
+  document.body.classList.add("position-vocab");
+  const labels = [
+    ["机の前", "pos-front"],
+    ["机の後ろ", "pos-back"],
+    ["机の左", "pos-left"],
+    ["机の右", "pos-right"],
+    ["机の上", "pos-on"],
+    ["机の下", "pos-under"],
+    ["机の近く", "pos-near"],
+    ["机の中", "pos-inside"]
+  ];
+  document.getElementById("tableArea").innerHTML = `
+    <div class="position-practice" id="positionPractice">
+      <div class="position-stage" id="positionStage" aria-label="位置詞の練習">
+       ${labels.map(([text, cls]) => `<div class="position-label ${cls}">${escapeHtml(text)}</div>`).join("")}
+        <div class="magnifier" id="positionMagnifier" role="button" aria-label="虫眼鏡を動かして文字を見る"></div>
+      </div>
+    </div>`;
+  setupPositionMagnifier();
+}
+
+function setupPositionMagnifier() {
+  const stage = document.getElementById("positionStage");
+  const magnifier = document.getElementById("positionMagnifier");
+  if (!stage || !magnifier) return;
+
+  const revealLabels = () => {
+    const magRect = magnifier.getBoundingClientRect();
+    const magCenterX = magRect.left + magRect.width / 2;
+    const magCenterY = magRect.top + magRect.height / 2;
+    const radius = magRect.width * 0.58;
+    stage.querySelectorAll(".position-label").forEach(label => {
+      const rect = label.getBoundingClientRect();
+      const labelCenterX = rect.left + rect.width / 2;
+      const labelCenterY = rect.top + rect.height / 2;
+      const distance = Math.hypot(magCenterX - labelCenterX, magCenterY - labelCenterY);
+      label.classList.toggle("is-revealed", distance < radius + Math.min(rect.width, rect.height) / 2);
+    });
+  };
+
+  const moveTo = (clientX, clientY) => {
+    const stageRect = stage.getBoundingClientRect();
+    const magRect = magnifier.getBoundingClientRect();
+    const halfW = magRect.width / 2;
+    const halfH = magRect.height / 2;
+    const nextLeft = Math.max(0, Math.min(stageRect.width - magRect.width, clientX - stageRect.left - halfW));
+    const nextTop = Math.max(0, Math.min(stageRect.height - magRect.height, clientY - stageRect.top - halfH));
+    magnifier.style.left = `${nextLeft}px`;
+    magnifier.style.top = `${nextTop}px`;
+    revealLabels();
+  };
+
+  let dragging = false;
+  magnifier.addEventListener("pointerdown", event => {
+    dragging = true;
+    magnifier.setPointerCapture(event.pointerId);
+    magnifier.style.cursor = "grabbing";
+    moveTo(event.clientX, event.clientY);
+  });
+  magnifier.addEventListener("pointermove", event => {
+    if (!dragging) return;
+    moveTo(event.clientX, event.clientY);
+  });
+  magnifier.addEventListener("pointerup", () => {
+    dragging = false;
+    magnifier.style.cursor = "grab";
+  });
+  magnifier.addEventListener("pointercancel", () => {
+    dragging = false;
+    magnifier.style.cursor = "grab";
+  });
+  revealLabels();
+}
+
 
 function escapeHtml(value) {
   return String(value).replace(/[&<>'"]/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[char]));
@@ -2478,6 +2755,7 @@ function changeMenuPage(direction) {
   if (nextPage < 0 || nextPage >= menuPageNames.length) return;
   currentMenuPage = nextPage;
   updateMenuPage();
+  renderQuestionMemoLayer();
   window.scrollTo(0, 0);
 }
 
@@ -2993,7 +3271,8 @@ function normalizeQuestionItem(item) {
   const type = item.type || "";
   const key = item.key || `${type}::${leftText}::${rightText}`;
   const legacyKey = item.legacyKey || `${type}::${leftText}::${rightText}`;
-  return { key, legacyKey, type, leftHtml, rightHtml, leftText, rightText };
+  const homeLevel = Number.isInteger(item.homeLevel) ? item.homeLevel : null;
+  return { key, legacyKey, type, homeLevel, leftHtml, rightHtml, leftText, rightText };
 }
 
 function parseQuestionStoreValue(raw) {
@@ -3242,14 +3521,20 @@ function getQuestionInfo(button) {
 
   const type = currentTableType || document.getElementById("tableTitle")?.textContent || "";
   const rowIndex = getQuestionRowIndex(row);
+  const homeLevel = currentSection === "listen" || currentSection === "speak" || currentSection === "connect" || currentSection === "vocab" ? currentHomeLevel : null;
   const legacyKey = `${type}::${leftText}::${rightText}`;
-  const stableKey = rowIndex >= 0 ? makeStableQuestionKey(type, rowIndex) : legacyKey;
+  const stableKeyBase = rowIndex >= 0 ? makeStableQuestionKey(type, rowIndex) : legacyKey;
+  const stableKey = homeLevel === null ? stableKeyBase : `${type}::level:${homeLevel}::${rowIndex >= 0 ? `${QUESTION_ROW_KEY_PREFIX}:${rowIndex}` : `${leftText}::${rightText}`}`;
   const key = tableRandomized && button.dataset.questionKey ? button.dataset.questionKey : stableKey;
-  return { key, legacyKey, type, rowIndex, leftHtml, rightHtml, leftText, rightText };
+  return { key, legacyKey, type, homeLevel, rowIndex, leftHtml, rightHtml, leftText, rightText };
 }
 
 function questionItemMatchesInfo(item, info) {
   if (!item || !info) return false;
+  const itemHasLevel = Number.isInteger(item.homeLevel);
+  const infoHasLevel = Number.isInteger(info.homeLevel);
+  const sameLevel = !itemHasLevel || !infoHasLevel || item.homeLevel === info.homeLevel;
+  if (!sameLevel) return false;
   return item.key === info.key || item.key === info.legacyKey || item.legacyKey === info.key || item.legacyKey === info.legacyKey;
 }
 
@@ -3581,20 +3866,22 @@ function renderQuestionMemoLayer() {
   if (currentSection === "vocab") {
     items = getRandomQuestionMemoItems(allItems.filter(item => vocabCategories.includes(item.type)), memoLimit);
   } else if (isMenuMemo) {
-    items = getRandomQuestionMemoItems(allItems.filter(isConjugationQuestionItem), memoLimit);
+    items = getRandomQuestionMemoItems(allItems.filter(isCommonConjugationMemoItem), memoLimit);
   } else {
-    const nonConjugationLimit = Math.round(memoLimit * 0.7);
-    const conjugationLimit = memoLimit - nonConjugationLimit;
-    const nonConjugationSource = allItems.filter(item => !isConjugationQuestionItem(item));
-    const conjugationSource = allItems.filter(isConjugationQuestionItem);
-    const nonConjugationItems = getRandomQuestionMemoItems(nonConjugationSource, nonConjugationLimit);
+    const levelSpecificLimit = Math.round(memoLimit * 0.7);
+    const conjugationLimit = memoLimit - levelSpecificLimit;
+    const levelSpecificSource = allItems.filter(item => isHomeLevelMemoItem(item, currentHomeLevel));
+    const conjugationSource = allItems.filter(isCommonConjugationMemoItem);
+    const levelSpecificItems = getRandomQuestionMemoItems(levelSpecificSource, levelSpecificLimit);
     const conjugationItems = getRandomQuestionMemoItems(conjugationSource, conjugationLimit);
-    const selectedItems = [...nonConjugationItems, ...conjugationItems];
+    const selectedItems = [...levelSpecificItems, ...conjugationItems];
     const selectedKeys = new Set(selectedItems.map(item => item.key));
     const fillLimit = memoLimit - selectedItems.length;
-    const fillItems = fillLimit > 0
-      ? getRandomQuestionMemoItems(allItems.filter(item => !selectedKeys.has(item.key)), fillLimit)
-      : [];
+    const fillSource = [
+      ...levelSpecificSource.filter(item => !selectedKeys.has(item.key)),
+      ...conjugationSource.filter(item => !selectedKeys.has(item.key))
+    ];
+    const fillItems = fillLimit > 0 ? getRandomQuestionMemoItems(fillSource, fillLimit) : [];
     items = [...selectedItems, ...fillItems];
   }
   layer.innerHTML = "";
@@ -3747,10 +4034,26 @@ function toggleRandomOrder() {
 }
 
 
+function formatListenPrompt(prompt) {
+  const value = String(prompt || "");
+  const separatorIndex = value.lastIndexOf(" ");
+  if (separatorIndex < 0) return escapeHtml(value);
+
+  const text = value.slice(0, separatorIndex);
+  const emoji = value.slice(separatorIndex + 1);
+  return `
+    <span class="listen-prompt">
+      <span class="listen-prompt-text">${escapeHtml(text)}</span>
+      <span class="listen-prompt-emoji">${escapeHtml(emoji)}</span>
+    </span>
+  `;
+}
+
 function makeListenTable() {
-  const rows = listenPracticeData.map(([prompt, answer]) => `
+  const sourceData = currentHomeLevel === 0 ? basicListenPracticeData : listenPracticeData;
+  const rows = sourceData.map(([prompt, answer]) => `
     <tr>
-      <td>${makeWordCell(escapeHtml(prompt))}</td>
+      <td>${makeWordCell(formatListenPrompt(prompt))}</td>
       <td><span class="answer-text">${addFurigana(escapeHtml(answer))}</span></td>
     </tr>
   `).join("");
@@ -3764,7 +4067,8 @@ function makeListenTable() {
 }
 
 function makeSpeakTable() {
-  const rows = speakPracticeData.map(([prompt, answer]) => `
+  const sourceData = currentHomeLevel === 0 ? basicSpeakPracticeData : speakPracticeData;
+  const rows = sourceData.map(([prompt, answer]) => `
     <tr>
       <td>${makeWordCell(prompt)}</td>
       <td><span class="answer-text">${answer}</span></td>
@@ -3805,12 +4109,16 @@ const rubyTextMap = {
   "何": "<ruby>何<rt>なに</rt></ruby>",
   "兄": "<ruby>兄<rt>にい</rt></ruby>",
   "入れ": "<ruby>入<rt>い</rt></ruby>れ",
+  "風呂": "<ruby>風呂<rt>ふろ</rt></ruby>",
   "入": "<ruby>入<rt>はい</rt></ruby>",
   "写真": "<ruby>写真<rt>しゃしん</rt></ruby>",
   "前": "<ruby>前<rt>まえ</rt></ruby>",
   "勉強": "<ruby>勉強<rt>べんきょう</rt></ruby>",
   "合格": "<ruby>合格<rt>ごうかく</rt></ruby>",
   "多": "<ruby>多<rt>おお</rt></ruby>",
+  "残念": "<ruby>残念<rt>ざんねん</rt></ruby>",
+  "悲": "<ruby>悲<rt>かな</rt></ruby>",
+  "仕事": "<ruby>仕事<rt>しごと</rt></ruby>",
   "大変": "<ruby>大変<rt>たいへん</rt></ruby>",
   "安": "<ruby>安<rt>やす</rt></ruby>",
   "宿題": "<ruby>宿題<rt>しゅくだい</rt></ruby>",
@@ -3859,6 +4167,7 @@ const rubyTextMap = {
   "見": "<ruby>見<rt>み</rt></ruby>",
   "言": "<ruby>言<rt>い</rt></ruby>",
   "調": "<ruby>調<rt>しら</rt></ruby>",
+  "買い物": "<ruby>買<rt>か</rt></ruby>い<ruby>物<rt>もの</rt></ruby>",
   "買": "<ruby>買<rt>か</rt></ruby>",
   "起": "<ruby>起<rt>お</rt></ruby>",
   "足": "<ruby>足<rt>た</rt></ruby>",
@@ -3937,6 +4246,7 @@ function makeConnectSeparator(groupTitle, rowIndex = 0) {
   if (groupTitle === "Vて") return `<span class="connect-separator connect-separator-square connect-separator-fast connect-separator-soft-blue"><span>▶</span><span>▶</span></span>`;
   if (groupTitle === "～で") return `<span class="connect-separator connect-separator-square connect-separator-fast"><span>▶</span><span>▶</span></span>`;
   if (groupTitle === "ですけど・ですが") return `<span class="connect-separator connect-separator-square connect-separator-contrast"><span class="bidi-arrow"><span class="bidi-arrow-left"></span><span class="bidi-arrow-right"></span></span></span>`;
+  if (groupTitle === "➡") return `<span class="connect-separator connect-separator-bold-arrow">➡</span>`;
   if (groupTitle === "理由") return `<span class="connect-separator connect-separator-square connect-separator-fast connect-separator-soft-blue"><span>▶</span><span>▶</span></span>`;
   if (groupTitle === "前に・てから") {
     const isBefore = rowIndex < 2;
@@ -4032,7 +4342,7 @@ function makeConnectTable() {
 
 function showPlaceholderTable(title, message, returnSection = "home") {
   currentSection = returnSection;
-  document.body.classList.remove("home-mode", "menu-mode", "sheet-high", "table-start-lowered");
+  document.body.classList.remove("home-mode", "menu-mode", "sheet-high", "table-start-lowered", "position-vocab");
   document.body.classList.add("table-start-lowered");
   document.getElementById("homeScreen").style.display = "none";
   document.getElementById("menuScreen").style.display = "none";
@@ -4046,7 +4356,7 @@ function showPlaceholderTable(title, message, returnSection = "home") {
 }
 
 function showTable(type, focusKey = "") {
-  document.body.classList.remove("home-mode", "menu-mode", "sheet-high", "table-start-lowered");
+  document.body.classList.remove("home-mode", "menu-mode", "sheet-high", "table-start-lowered", "position-vocab");
   if (type === "Vて" || type === "Vた" || type === "聞く" || type === "話す" || type === "つなぐ" || vocabCategories.includes(type)) {
     document.body.classList.add("table-start-lowered");
   }
@@ -4054,6 +4364,7 @@ function showTable(type, focusKey = "") {
   document.getElementById("menuScreen").style.display = "none";
   document.getElementById("tableScreen").style.display = "block";
   document.getElementById("tableTitle").textContent = type;
+  document.body.classList.toggle("position-vocab", type === "位置詞");
   currentTableType = type;
   tableRandomized = false;
   sequentialTableHtml = "";
@@ -4185,7 +4496,7 @@ function scrollToQuestionKey(key) {
 }
 
 function backMenu() {
-  document.body.classList.remove("sheet-high", "table-start-lowered");
+  document.body.classList.remove("sheet-high", "table-start-lowered", "position-vocab");
   tableVisible = false;
   stopMaskLoop();
   clearAllMasks();
