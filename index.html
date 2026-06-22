@@ -74,6 +74,14 @@
     margin-bottom: 4px;
   }
 
+  .home-title-subtitle {
+    display: block;
+    margin-top: 4px;
+    color: #777;
+    font-size: 17px;
+    font-weight: 900;
+  }
+
   .home-actions {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1906,10 +1914,10 @@
   <div id="questionMemoLayer" aria-hidden="true"></div>
   <div class="menu-title-row">
     <button class="back-btn menu-back-btn" type="button" onclick="openHome()" aria-label="戻る"><span class="back-arrow-icon" aria-hidden="true">➜</span></button>
-    <div class="page-title"><span class="title-emoji left">🐢</span> 活用れんしゅう <span class="title-emoji right">🐢</span></div>
+    <div id="menuTitle" class="page-title"><span class="title-emoji left">🐢</span> 活用れんしゅう <span class="title-emoji right">🐢</span></div>
   </div>
 
-  <div class="button-grid">
+  <div id="menuButtonGrid" class="button-grid">
     <div class="menu-page active" data-page="0">
       <button class="menu-btn basic-verb-btn" onclick="showTable('Vます')">Vます</button>
       <button class="menu-btn basic-verb-btn" onclick="showTable('Vて')">Vて</button>
@@ -1993,9 +2001,11 @@ function closeStartNotice() {
 
 
 
-const TOP_MEMO_DISPLAY_LIMIT = 12;
+const TOP_MEMO_DISPLAY_LIMIT = 4;
+const MENU_MEMO_DISPLAY_LIMIT = 12;
 const nonConjugationQuestionTypes = new Set(["聞く", "話す", "つなぐ"]);
 let currentSection = "home";
+const conjugationMenuHtml = document.getElementById("menuButtonGrid")?.innerHTML || "";
 
 let currentHomeLevel = 1;
 let currentHomeMenu = "main";
@@ -2034,7 +2044,7 @@ function setHomeMenu(menuName = "main") {
     actions.innerHTML = vocabCategories.map(category => `<button class="home-btn connect-btn" type="button" onclick="openVocabTable('${category}')">${category}</button>`).join("");
   } else {
     const menu = homeMenus[currentHomeLevel] || homeMenus[1];
-    title.innerHTML = `<span class="title-emoji left">🐢</span> ${menu.title} <span class="title-emoji right">🐢</span>`;
+    title.innerHTML = `<span class="title-emoji left">🐢</span> 日本語れんしゅう <span class="title-emoji right">🐢</span><span class="home-title-subtitle">（${menu.title}）</span>`;
     actions.innerHTML = menu.buttons.map(button => `<button class="home-btn ${button.className}" type="button" onclick="${button.action}">${button.label}</button>`).join("");
   }
   updateHomeNav();
@@ -2049,7 +2059,7 @@ function updateHomeNav() {
 
   const onVocab = currentHomeMenu === "vocab";
   leftNav.classList.toggle("disabled", onVocab || currentHomeLevel <= 0);
-  rightNav.classList.add("disabled");
+  rightNav.classList.toggle("disabled", onVocab || currentHomeLevel >= 1);
   leftLabel.textContent = onVocab ? "" : (currentHomeLevel === 1 ? "基礎" : "");
   rightLabel.textContent = onVocab ? "" : (currentHomeLevel === 0 ? "初級1" : "初級2");
 }
@@ -2063,8 +2073,17 @@ function changeHomeLevel(direction) {
 
 function openVocabMenu() {
   currentSection = "vocab";
-  currentHomeLevel = 0;
-  setHomeMenu("vocab");
+  document.body.classList.remove("home-mode", "sheet-high", "table-start-lowered");
+  document.body.classList.add("menu-mode");
+  document.getElementById("homeScreen").style.display = "none";
+  document.getElementById("tableScreen").style.display = "none";
+  document.getElementById("menuScreen").style.display = "block";
+  document.getElementById("menuTitle").innerHTML = `<span class="title-emoji left">🐢</span> 語彙 <span class="title-emoji right">🐢</span>`;
+  document.getElementById("menuButtonGrid").innerHTML = `<div class="menu-page active" data-page="0">${vocabCategories.map(category => `<button class="menu-btn" type="button" onclick="openVocabTable('${category}')">${category}</button>`).join("")}</div>`;
+  document.getElementById("leftPageNav").style.display = "none";
+  document.getElementById("rightPageNav").style.display = "none";
+  requestAnimationFrame(renderQuestionMemoLayer);
+  window.scrollTo(0, 0);
 }
 
 function openVocabTable(type) {
@@ -2313,6 +2332,10 @@ function openConjugationMenu() {
   document.getElementById("homeScreen").style.display = "none";
   document.getElementById("tableScreen").style.display = "none";
   document.getElementById("menuScreen").style.display = "block";
+  document.getElementById("menuTitle").innerHTML = `<span class="title-emoji left">🐢</span> 活用れんしゅう <span class="title-emoji right">🐢</span>`;
+  document.getElementById("menuButtonGrid").innerHTML = conjugationMenuHtml;
+  document.getElementById("leftPageNav").style.display = "flex";
+  document.getElementById("rightPageNav").style.display = "flex";
   updateMenuPage();
   requestAnimationFrame(renderQuestionMemoLayer);
   window.scrollTo(0, 0);
@@ -3357,18 +3380,20 @@ function arrangeMemoRow(rowItems) {
   return [smallFirst[0], sorted[0], smallFirst[1]];
 }
 
-function getMemoLayout(items) {
+function getMemoLayout(items, options = {}) {
   items = Array.isArray(items) ? items.filter(isValidQuestionItem) : [];
   if (!items.length) return [];
-  if (items.length > QUESTION_MEMO_DISPLAY_LIMIT) return null;
+  const displayLimit = options.displayLimit || QUESTION_MEMO_DISPLAY_LIMIT;
+  const zoneLimit = options.zoneLimit || QUESTION_MEMO_ZONE_LIMIT;
+  if (items.length > displayLimit) return null;
 
   const vw = window.innerWidth;
   const vh = window.innerHeight;
   const isSmall = vw <= 420;
   const margin = isSmall ? 5 : 8;
   const gap = isSmall ? 4 : 6;
-  const columns = 2;
-  const rowsPerZone = Math.ceil(QUESTION_MEMO_ZONE_LIMIT / columns);
+  const columns = options.columns || 2;
+  const rowsPerZone = Math.ceil(zoneLimit / columns);
   const baseCardW = Math.floor((vw - margin * 2 - gap * (columns - 1)) / columns);
   // 横長カードを行いっぱいに広げると、隣の？記録の上に白いカード背景が被るため、
   // 各カードは自分の列幅内に収め、文字側を縮小して見切れを防ぐ。
@@ -3391,7 +3416,7 @@ function getMemoLayout(items) {
       height: cardH,
       isWide: width > baseCardW + 1,
       isRoomy,
-      rotation: Math.random() < 0.5 ? -2 : 2
+      rotation: Math.random() < 0.5 ? -1 : 1
     };
   });
 
@@ -3445,8 +3470,8 @@ function getMemoLayout(items) {
     });
   };
 
-  placeZone(layoutItems.slice(0, QUESTION_MEMO_ZONE_LIMIT), topY);
-  placeZone(layoutItems.slice(QUESTION_MEMO_ZONE_LIMIT), bottomY);
+  placeZone(layoutItems.slice(0, zoneLimit), topY);
+  placeZone(layoutItems.slice(zoneLimit), bottomY);
 
   return positions;
 }
@@ -3467,25 +3492,26 @@ function getRandomQuestionMemoItems(items, limit) {
 }
 
 function renderQuestionMemoLayer() {
-  const isConjugationMenu = currentSection === "conjugation";
-  const screen = document.getElementById(isConjugationMenu ? "menuScreen" : "homeScreen");
-  const layer = document.getElementById(isConjugationMenu ? "questionMemoLayer" : "homeQuestionMemoLayer");
+  const isMenuMemo = currentSection === "conjugation" || currentSection === "vocab";
+  const memoLimit = isMenuMemo ? MENU_MEMO_DISPLAY_LIMIT : TOP_MEMO_DISPLAY_LIMIT;
+  const screen = document.getElementById(isMenuMemo ? "menuScreen" : "homeScreen");
+  const layer = document.getElementById(isMenuMemo ? "questionMemoLayer" : "homeQuestionMemoLayer");
   if (!layer || !screen || screen.style.display === "none") return;
 
   const allItems = safeParseQuestionStore();
   let items;
-  if (isConjugationMenu) {
-    items = getRandomQuestionMemoItems(allItems.filter(isConjugationQuestionItem), TOP_MEMO_DISPLAY_LIMIT);
+  if (isMenuMemo) {
+    items = getRandomQuestionMemoItems(allItems.filter(isConjugationQuestionItem), memoLimit);
   } else {
-    const nonConjugationLimit = Math.round(TOP_MEMO_DISPLAY_LIMIT * 0.7);
-    const conjugationLimit = TOP_MEMO_DISPLAY_LIMIT - nonConjugationLimit;
+    const nonConjugationLimit = Math.round(memoLimit * 0.7);
+    const conjugationLimit = memoLimit - nonConjugationLimit;
     const nonConjugationSource = allItems.filter(item => !isConjugationQuestionItem(item));
     const conjugationSource = allItems.filter(isConjugationQuestionItem);
     const nonConjugationItems = getRandomQuestionMemoItems(nonConjugationSource, nonConjugationLimit);
     const conjugationItems = getRandomQuestionMemoItems(conjugationSource, conjugationLimit);
     const selectedItems = [...nonConjugationItems, ...conjugationItems];
     const selectedKeys = new Set(selectedItems.map(item => item.key));
-    const fillLimit = TOP_MEMO_DISPLAY_LIMIT - selectedItems.length;
+    const fillLimit = memoLimit - selectedItems.length;
     const fillItems = fillLimit > 0
       ? getRandomQuestionMemoItems(allItems.filter(item => !selectedKeys.has(item.key)), fillLimit)
       : [];
@@ -3494,7 +3520,7 @@ function renderQuestionMemoLayer() {
   layer.innerHTML = "";
   if (!items.length) return;
 
-  const positions = getMemoLayout(items);
+  const positions = getMemoLayout(items, isMenuMemo ? { displayLimit: MENU_MEMO_DISPLAY_LIMIT, zoneLimit: 6, columns: 3 } : { displayLimit: TOP_MEMO_DISPLAY_LIMIT, zoneLimit: 2, columns: 2 });
   if (!positions) {
     // 画面サイズ変更などで全部は置けない場合でも、保存データは壊さない。
     // 次に？を押した時に「0個扱い」にならないよう、ここではトーストも出さない。
@@ -4058,10 +4084,7 @@ function backMenu() {
 
   document.getElementById("tableScreen").style.display = "none";
   if (currentSection === "vocab") {
-    openHome();
-    currentHomeLevel = 0;
-    currentSection = "home";
-    setHomeMenu("vocab");
+    openVocabMenu();
     return;
   } else if (currentSection === "conjugation") {
     document.getElementById("homeScreen").style.display = "none";
