@@ -1490,14 +1490,6 @@
     line-height: 1;
   }
 
-  #tableArea .connect-comma-break {
-    display: none;
-  }
-
-  #tableArea .answer-text.connect-answer-size-min .connect-comma-break {
-    display: block;
-  }
-
   #tableArea th,
   #tableArea td {
     overflow: visible;
@@ -3491,10 +3483,6 @@ function addReasonKaraNote(html) {
   return String(html || "").replace("から", `<span class="reason-kara-wrap">から<span class="reason-kara-note">（ので）</span></span>`);
 }
 
-function addConnectCommaBreaks(html) {
-  return String(html || "").replace(/、/g, `、<br class="connect-comma-break">`);
-}
-
 function makeConnectTable() {
   let html = `
     <table class="listen-table tara-table connect-table">
@@ -3510,13 +3498,12 @@ function makeConnectTable() {
 
     group.rows.forEach(([prompt, answer], rowIndex) => {
       const answerHtml = addFurigana(compactJapanese(escapeHtml(answer)));
-      const answerWithNotes = group.title === "理由" ? addReasonKaraNote(answerHtml) : answerHtml;
-      const displayedAnswer = addConnectCommaBreaks(answerWithNotes);
+      const displayedAnswer = group.title === "理由" ? addReasonKaraNote(answerHtml) : answerHtml;
 
       html += `
         <tr>
           <td>${makeWordCell(addFurigana(makeConnectHint(prompt, group.title, rowIndex)))}</td>
-          <td><span class="answer-text connect-answer-size-max${group.title === "理由" ? " reason-note-answer" : ""}">${displayedAnswer}</span></td>
+          <td><span class="answer-text${group.title === "理由" ? " reason-note-answer" : ""}">${displayedAnswer}</span></td>
         </tr>
       `;
     });
@@ -5580,8 +5567,6 @@ function resetTableTextTransforms(table) {
 }
 
 function squeezeRightColumnToOneLine(table) {
-  if (table.classList.contains("connect-table")) return;
-
   const minRightFont = 8;
 
   table.querySelectorAll("td:last-child .answer-text").forEach(el => {
@@ -5650,26 +5635,6 @@ function fitTaraHintLines(table) {
         wordText.style.setProperty("font-size", `${fittedSize}px`, "important");
       }
     }
-  });
-}
-
-function fitConnectRightColumnToPresetSizes(table) {
-  if (!table.classList.contains("connect-table")) return;
-
-  const sizeRules = [
-    { maxLength: 16, size: 18, className: "connect-answer-size-max" },
-    { maxLength: 24, size: 16, className: "connect-answer-size-mid" },
-    { maxLength: Infinity, size: 14, className: "connect-answer-size-min" }
-  ];
-  const sizeClasses = sizeRules.map(rule => rule.className);
-
-  table.querySelectorAll("td:last-child .answer-text").forEach(el => {
-    const visibleLength = getVisibleTextLength(el);
-    const rule = sizeRules.find(candidate => visibleLength <= candidate.maxLength) || sizeRules[sizeRules.length - 1];
-
-    el.classList.remove(...sizeClasses);
-    el.classList.add(rule.className);
-    el.style.setProperty("font-size", `${rule.size}px`, "important");
   });
 }
 
@@ -5752,7 +5717,6 @@ function fitTableTextOneLine() {
   unifyLeftColumnFontSize(table);
   fitTaraHintLines(table);
   squeezeRightColumnToOneLine(table);
-  fitConnectRightColumnToPresetSizes(table);
 
   table.dataset.fittedFontSize = String(size);
   table.classList.remove("fitting-table");
