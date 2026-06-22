@@ -41,7 +41,8 @@
   }
 
   body.home-mode #homeScreen,
-  body.menu-mode #menuScreen {
+  body.menu-mode #menuScreen,
+  body.menu-mode #vocabularyMenuScreen {
     height: 100vh;
     height: 100svh;
     overflow: hidden;
@@ -52,7 +53,8 @@
     display: block;
   }
 
-  #menuScreen {
+  #menuScreen,
+  #vocabularyMenuScreen {
     display: none;
   }
 
@@ -114,7 +116,8 @@
     box-shadow: 0 7px 0 #eee2a4, 0 12px 20px rgba(0,0,0,0.10);
   }
 
-  .home-btn.connect-btn {
+  .home-btn.connect-btn,
+  .home-btn.vocabulary-btn {
     background: #f0faeb;
     box-shadow: 0 7px 0 #d1e5ca, 0 12px 20px rgba(0,0,0,0.10);
   }
@@ -281,6 +284,10 @@
   .page-nav.disabled .page-arrow {
     background: rgba(0,0,0,0.45);
     box-shadow: none;
+  }
+
+  .page-nav.disabled .page-nav-label {
+    color: rgba(34, 34, 34, 0.45);
   }
 
   .page-nav-label {
@@ -710,6 +717,15 @@
     --table-font-size: 15px;
   }
 
+  #tableArea tr.vocabulary-special-row td {
+    background: #fffbe3 !important;
+  }
+
+  #tableArea tr.vocabulary-special-row .question-box {
+    background: #fffbe3 !important;
+    border-color: #e6dca4 !important;
+  }
+
   #tableArea table th:first-child,
   #tableArea table td:first-child {
     width: 45%;
@@ -956,7 +972,8 @@
 
   /* ===== メニュー：そのページに存在するボタン群を画面中央に配置 ===== */
   body.home-mode #homeScreen,
-  body.menu-mode #menuScreen {
+  body.menu-mode #menuScreen,
+  body.menu-mode #vocabularyMenuScreen {
     position: relative;
     height: 100vh;
     height: 100svh;
@@ -1655,8 +1672,38 @@
     <div class="home-actions" aria-label="練習メニュー">
       <button class="home-btn listen-btn" type="button" onclick="openListenPage()">聞く</button>
       <button class="home-btn speak-btn" type="button" onclick="openSpeakPage()">話す</button>
-      <button class="home-btn connect-btn" type="button" onclick="openConnectPage()">つなぐ</button>
+      <button class="home-btn vocabulary-btn" type="button" onclick="openVocabularyMenu()">語彙</button>
       <button class="home-btn conjugation-btn" type="button" onclick="openConjugationMenu()">活用</button>
+    </div>
+  </div>
+
+  <div id="homeLeftPageNav" class="page-nav left-nav">
+    <button class="page-arrow" type="button" aria-label="基礎">◀</button>
+    <div class="page-nav-label">基礎</div>
+  </div>
+
+  <div id="homeRightPageNav" class="page-nav right-nav disabled">
+    <button class="page-arrow" type="button" aria-label="初級2" disabled>▶</button>
+    <div class="page-nav-label">初級2</div>
+  </div>
+</div>
+
+<div id="vocabularyMenuScreen" class="screen">
+  <div class="menu-title-row">
+    <button class="back-btn menu-back-btn" type="button" onclick="openHome()" aria-label="戻る"><span class="back-arrow-icon" aria-hidden="true">➜</span></button>
+    <div class="page-title"><span class="title-emoji left">🐢</span> 語彙れんしゅう <span class="title-emoji right">🐢</span></div>
+  </div>
+
+  <div class="button-grid">
+    <div class="menu-page active">
+      <button class="menu-btn" onclick="showTable('位置詞')">位置詞</button>
+      <button class="menu-btn basic-verb-btn" onclick="showTable('数字')">数字</button>
+      <button class="menu-btn basic-adjective-btn" onclick="showTable('日付')">日付</button>
+      <button class="menu-btn" onclick="showTable('曜日')">曜日</button>
+      <button class="menu-btn basic-verb-btn" onclick="showTable('数え方')">数え方</button>
+      <button class="menu-btn basic-adjective-btn" onclick="showTable('時間')">時間</button>
+      <button class="menu-btn" onclick="showTable('月')">月</button>
+      <button class="menu-btn basic-verb-btn" onclick="showTable('値段')">値段</button>
     </div>
   </div>
 </div>
@@ -1754,7 +1801,7 @@ function closeStartNotice() {
 
 const TOP_MEMO_DISPLAY_LIMIT = 12;
 const HOME_MEMO_DISPLAY_LIMIT = 6;
-const nonConjugationQuestionTypes = new Set(["聞く", "話す", "つなぐ"]);
+const nonConjugationQuestionTypes = new Set(["聞く", "話す", "つなぐ", "位置詞", "数字", "日付", "曜日", "数え方", "時間", "月", "値段"]);
 let currentSection = "home";
 
 function isConjugationQuestionItem(item) {
@@ -1985,6 +2032,7 @@ function openHome() {
   document.body.classList.add("home-mode");
   document.getElementById("tableScreen").style.display = "none";
   document.getElementById("menuScreen").style.display = "none";
+  document.getElementById("vocabularyMenuScreen").style.display = "none";
   document.getElementById("homeScreen").style.display = "block";
   requestAnimationFrame(renderQuestionMemoLayer);
   window.scrollTo(0, 0);
@@ -1995,10 +2043,22 @@ function openConjugationMenu() {
   document.body.classList.remove("home-mode", "sheet-high", "table-start-lowered");
   document.body.classList.add("menu-mode");
   document.getElementById("homeScreen").style.display = "none";
+  document.getElementById("vocabularyMenuScreen").style.display = "none";
   document.getElementById("tableScreen").style.display = "none";
   document.getElementById("menuScreen").style.display = "block";
   updateMenuPage();
   requestAnimationFrame(renderQuestionMemoLayer);
+  window.scrollTo(0, 0);
+}
+
+function openVocabularyMenu() {
+  currentSection = "vocabulary";
+  document.body.classList.remove("home-mode", "sheet-high", "table-start-lowered");
+  document.body.classList.add("menu-mode");
+  document.getElementById("homeScreen").style.display = "none";
+  document.getElementById("menuScreen").style.display = "none";
+  document.getElementById("tableScreen").style.display = "none";
+  document.getElementById("vocabularyMenuScreen").style.display = "block";
   window.scrollTo(0, 0);
 }
 
@@ -3322,6 +3382,57 @@ function makeSpeakTable() {
   `;
 }
 
+const vocabularyPracticeData = {
+  "位置詞": [
+    ["上", "うえ"], ["下", "した"], ["前", "まえ"], ["後ろ", "うしろ"],
+    ["右", "みぎ"], ["左", "ひだり"], ["中", "なか"], ["外", "そと"], ["隣", "となり"], ["間", "あいだ", true]
+  ],
+  "数字": [
+    ["0", "ゼロ／れい"], ["1", "いち"], ["2", "に"], ["3", "さん"], ["4", "よん／し", true],
+    ["5", "ご"], ["6", "ろく"], ["7", "なな／しち", true], ["8", "はち"], ["9", "きゅう／く", true], ["10", "じゅう"]
+  ],
+  "日付": [
+    ["1日", "ついたち", true], ["2日", "ふつか", true], ["3日", "みっか", true], ["4日", "よっか", true],
+    ["5日", "いつか", true], ["6日", "むいか", true], ["7日", "なのか", true], ["8日", "ようか", true],
+    ["9日", "ここのか", true], ["10日", "とおか", true], ["14日", "じゅうよっか", true], ["20日", "はつか", true], ["24日", "にじゅうよっか", true]
+  ],
+  "曜日": [
+    ["月曜日", "げつようび"], ["火曜日", "かようび"], ["水曜日", "すいようび"], ["木曜日", "もくようび"],
+    ["金曜日", "きんようび"], ["土曜日", "どようび"], ["日曜日", "にちようび"]
+  ],
+  "数え方": [
+    ["1つ", "ひとつ", true], ["2つ", "ふたつ", true], ["3つ", "みっつ", true], ["4つ", "よっつ", true],
+    ["5つ", "いつつ", true], ["6つ", "むっつ", true], ["7つ", "ななつ"], ["8つ", "やっつ", true], ["9つ", "ここのつ", true], ["10", "とお", true]
+  ],
+  "時間": [
+    ["1時", "いちじ"], ["2時", "にじ"], ["3時", "さんじ"], ["4時", "よじ", true], ["5時", "ごじ"],
+    ["6時", "ろくじ"], ["7時", "しちじ", true], ["8時", "はちじ"], ["9時", "くじ", true], ["10時", "じゅうじ"], ["30分", "さんじゅっぷん／はん", true]
+  ],
+  "月": [
+    ["1月", "いちがつ"], ["2月", "にがつ"], ["3月", "さんがつ"], ["4月", "しがつ", true], ["5月", "ごがつ"], ["6月", "ろくがつ"],
+    ["7月", "しちがつ", true], ["8月", "はちがつ"], ["9月", "くがつ", true], ["10月", "じゅうがつ"], ["11月", "じゅういちがつ"], ["12月", "じゅうにがつ"]
+  ],
+  "値段": [
+    ["100円", "ひゃくえん"], ["300円", "さんびゃくえん", true], ["600円", "ろっぴゃくえん", true], ["800円", "はっぴゃくえん", true],
+    ["1,000円", "せんえん"], ["3,000円", "さんぜんえん", true], ["8,000円", "はっせんえん", true], ["10,000円", "いちまんえん"]
+  ]
+};
+
+function makeVocabularyTable(type) {
+  const rows = vocabularyPracticeData[type].map(([prompt, answer, isSpecial]) => `
+    <tr${isSpecial ? ' class="vocabulary-special-row"' : ''}>
+      <td>${makeWordCell(escapeHtml(prompt))}</td>
+      <td><span class="answer-text">${addFurigana(escapeHtml(answer))}</span></td>
+    </tr>
+  `).join("");
+  document.getElementById("tableArea").innerHTML = `
+    <table class="listen-table vocabulary-table">
+      <tr><th>語彙</th><th>読み方</th></tr>
+      ${rows}
+    </table>
+    <div class="scroll-extra-y"></div>
+  `;
+}
 
 function compactJapanese(html) {
   return String(html || "").replace(/[\s　]+/g, "");
@@ -3553,6 +3664,7 @@ function showPlaceholderTable(title, message, returnSection = "home") {
   document.body.classList.add("table-start-lowered");
   document.getElementById("homeScreen").style.display = "none";
   document.getElementById("menuScreen").style.display = "none";
+  document.getElementById("vocabularyMenuScreen").style.display = "none";
   document.getElementById("tableScreen").style.display = "block";
   document.getElementById("tableTitle").textContent = title;
   document.getElementById("tableArea").innerHTML = `<div class="placeholder">${escapeHtml(message)}</div>`;
@@ -3563,12 +3675,16 @@ function showPlaceholderTable(title, message, returnSection = "home") {
 }
 
 function showTable(type, focusKey = "") {
+  if (vocabularyPracticeData[type]) {
+    currentSection = "vocabulary";
+  }
   document.body.classList.remove("home-mode", "menu-mode", "sheet-high", "table-start-lowered");
-  if (type === "Vて" || type === "Vた" || type === "聞く" || type === "話す" || type === "つなぐ") {
+  if (type === "Vて" || type === "Vた" || type === "聞く" || type === "話す" || type === "つなぐ" || vocabularyPracticeData[type]) {
     document.body.classList.add("table-start-lowered");
   }
   document.getElementById("homeScreen").style.display = "none";
   document.getElementById("menuScreen").style.display = "none";
+  document.getElementById("vocabularyMenuScreen").style.display = "none";
   document.getElementById("tableScreen").style.display = "block";
   document.getElementById("tableTitle").textContent = type;
   currentTableType = type;
@@ -3584,6 +3700,8 @@ function showTable(type, focusKey = "") {
     makeSpeakTable();
   } else if (type === "つなぐ") {
     makeConnectTable();
+  } else if (vocabularyPracticeData[type]) {
+    makeVocabularyTable(type);
   } else if (type === "Vます") {
     masuSwapped = false;
     makeMasuTable();
@@ -3708,10 +3826,17 @@ function backMenu() {
   document.getElementById("tableScreen").style.display = "none";
   if (currentSection === "conjugation") {
     document.getElementById("homeScreen").style.display = "none";
+    document.getElementById("vocabularyMenuScreen").style.display = "none";
     document.getElementById("menuScreen").style.display = "block";
     document.body.classList.remove("home-mode");
     document.body.classList.add("menu-mode");
     requestAnimationFrame(renderQuestionMemoLayer);
+  } else if (currentSection === "vocabulary") {
+    document.getElementById("homeScreen").style.display = "none";
+    document.getElementById("menuScreen").style.display = "none";
+    document.getElementById("vocabularyMenuScreen").style.display = "block";
+    document.body.classList.remove("home-mode");
+    document.body.classList.add("menu-mode");
   } else {
     openHome();
     return;
