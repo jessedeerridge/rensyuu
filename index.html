@@ -1587,7 +1587,7 @@
   }
 
   #tableArea table.connect-table td:last-child {
-    padding-left: 4px;
+    padding-left: 6px;
     padding-right: 0.01px;
   }
 
@@ -5584,6 +5584,22 @@ function squeezeRightColumnToOneLine(table) {
   const rightAnswers = Array.from(table.querySelectorAll("td:last-child .answer-text"))
     .filter(el => el.offsetParent !== null);
 
+  if (table.classList.contains("connect-table")) {
+    const maxRightFont = 18;
+
+    rightAnswers.forEach(el => {
+      el.style.removeProperty("transform");
+      el.style.setProperty("font-size", `${maxRightFont}px`, "important");
+
+      if (el.scrollWidth <= el.clientWidth + 0.5 || el.clientWidth <= 0 || el.scrollWidth <= 0) return;
+
+      const fittedSize = Math.max(1, (maxRightFont * el.clientWidth) / el.scrollWidth - 0.5);
+      el.style.setProperty("font-size", `${fittedSize}px`, "important");
+    });
+
+    return;
+  }
+
   rightAnswers.forEach(el => {
     el.style.removeProperty("transform");
 
@@ -5599,18 +5615,6 @@ function squeezeRightColumnToOneLine(table) {
       const fittedSize = Math.max(1, (fontSize * el.clientWidth) / el.scrollWidth - 0.5);
       el.style.setProperty("font-size", `${fittedSize}px`, "important");
     }
-  });
-
-  if (!table.classList.contains("connect-table") || !rightAnswers.length) return;
-
-  const smallestRightSize = rightAnswers.reduce((smallest, el) => {
-    const size = parseFloat(getComputedStyle(el).fontSize);
-    return Number.isFinite(size) ? Math.min(smallest, size) : smallest;
-  }, Infinity);
-
-  if (!Number.isFinite(smallestRightSize)) return;
-  rightAnswers.forEach(el => {
-    el.style.setProperty("font-size", `${smallestRightSize}px`, "important");
   });
 }
 
@@ -5697,7 +5701,11 @@ function fitTableTextOneLine() {
     "th, td, .word-text, .answer-text, .group-row td"
   )).filter(el => el.offsetParent !== null);
 
+  const isConnectRightAnswer = el => table.classList.contains("connect-table") && el.matches("td:last-child .answer-text");
+
   const elementOverflows = (el) => {
+    if (isConnectRightAnswer(el)) return false;
+
     const rect = el.getBoundingClientRect();
     if (rect.width <= 0 || rect.height <= 0) return false;
 
@@ -5731,6 +5739,8 @@ function fitTableTextOneLine() {
 
   let hasCellShrink = false;
   shrinkTargets().forEach(el => {
+    if (isConnectRightAnswer(el)) return;
+
     let cellSize = size;
     const needsShrink = () => elementOverflows(el) || (el.matches(".word-text") && leftTextUsesMoreThanTwoLines(el));
     const minFont = el.matches(".word-text") ? minLeftFont : (el.matches(".answer-text") ? minRightFont : minCellFont);
