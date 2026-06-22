@@ -3399,7 +3399,7 @@ function getMemoDisplayItem(item) {
   }
 
   if (type === "つなぐ" && rightText.includes("から")) {
-    rightHtml = addReasonKaraNote(rightHtml);
+    rightHtml = shouldAnnotateReasonKara(rightText) ? addReasonKaraNote(rightHtml) : removeReasonKaraNote(rightHtml);
   }
 
   return { type, leftHtml, rightHtml, leftText, rightText };
@@ -3941,8 +3941,31 @@ function makeConnectHint(prompt, groupTitle, rowIndex) {
   `;
 }
 
+function removeReasonKaraNote(html) {
+  const tmp = document.createElement("div");
+  tmp.innerHTML = html || "";
+  tmp.querySelectorAll(".reason-kara-wrap").forEach(wrap => {
+    wrap.replaceWith(document.createTextNode(wrap.childNodes[0]?.textContent || "から"));
+  });
+  return tmp.innerHTML;
+}
+
+function shouldAnnotateReasonKara(text) {
+  const source = String(text || "");
+  const index = source.indexOf("から");
+  if (index < 0) return false;
+  const previousChar = source[index - 1] || "";
+  return previousChar !== "て" && previousChar !== "で";
+}
+
 function addReasonKaraNote(html) {
-  return String(html || "").replace("から", `<span class="reason-kara-wrap">から<span class="reason-kara-note">（ので）</span></span>`);
+  const source = String(html || "");
+  const text = stripHtmlForKey(source);
+  if (!shouldAnnotateReasonKara(text)) return removeReasonKaraNote(source);
+
+  const karaIndex = source.indexOf("から");
+  if (karaIndex < 0) return source;
+  return `${source.slice(0, karaIndex)}<span class="reason-kara-wrap">から<span class="reason-kara-note">（ので）</span></span>${source.slice(karaIndex + "から".length)}`;
 }
 
 function makeConnectTable() {
