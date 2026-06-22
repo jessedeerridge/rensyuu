@@ -1139,6 +1139,13 @@
     font-weight: 900;
   }
 
+  #tableArea .connect-separator-bold-arrow {
+    color: #111;
+    font-size: 1.28em;
+    font-weight: 1000;
+    transform: scaleX(1.22);
+  }
+
   #tableArea .connect-separator-fast span + span {
     margin-left: calc(-0.28em - 1px);
   }
@@ -1418,6 +1425,13 @@
     color: #fff;
     font-size: 7px;
     font-weight: 900;
+  }
+
+  .question-memo-card .connect-separator-bold-arrow {
+    color: #111;
+    font-size: 1.28em;
+    font-weight: 1000;
+    transform: scaleX(1.22);
   }
 
   .question-memo-card .connect-separator-fast span + span {
@@ -2340,6 +2354,14 @@ const connectPracticeData = [
     ]
   },
   {
+    title: "➡",
+    rows: [
+      ["お風呂に入る・寝ます。", "お風呂に入って、寝ます。"],
+      ["買い物をする・カフェに行きました。", "買い物をして、カフェに行きました。"],
+      ["家に帰る・宿題をしました。", "家に帰って、宿題をしました。"]
+    ]
+  },
+  {
     title: "～で",
     rows: [
       ["風邪・学校を休みました。", "風邪で、学校を休みました。"],
@@ -2353,7 +2375,10 @@ const connectPracticeData = [
       ["合格できた・うれしかったです。", "合格できて、うれしかったです。"],
       ["友だちに会えた・うれしいです。", "友だちに会えて、うれしいです。"],
       ["たくさん食べられた・うれしかったです。", "たくさん食べられて、うれしかったです。"],
-      ["間に合った・よかったです。", "間に合って、よかったです。"]
+      ["間に合った・よかったです。", "間に合って、よかったです。"],
+      ["雨が降る・残念です。", "雨が降って、残念です。"],
+      ["会えない・悲しいです。", "会えなくて、悲しいです。"],
+      ["仕事が多い・大変です。", "仕事が多くて、大変です。"]
     ]
   },
   {
@@ -4044,12 +4069,16 @@ const rubyTextMap = {
   "何": "<ruby>何<rt>なに</rt></ruby>",
   "兄": "<ruby>兄<rt>にい</rt></ruby>",
   "入れ": "<ruby>入<rt>い</rt></ruby>れ",
+  "風呂": "<ruby>風呂<rt>ふろ</rt></ruby>",
   "入": "<ruby>入<rt>はい</rt></ruby>",
   "写真": "<ruby>写真<rt>しゃしん</rt></ruby>",
   "前": "<ruby>前<rt>まえ</rt></ruby>",
   "勉強": "<ruby>勉強<rt>べんきょう</rt></ruby>",
   "合格": "<ruby>合格<rt>ごうかく</rt></ruby>",
   "多": "<ruby>多<rt>おお</rt></ruby>",
+  "残念": "<ruby>残念<rt>ざんねん</rt></ruby>",
+  "悲": "<ruby>悲<rt>かな</rt></ruby>",
+  "仕事": "<ruby>仕事<rt>しごと</rt></ruby>",
   "大変": "<ruby>大変<rt>たいへん</rt></ruby>",
   "安": "<ruby>安<rt>やす</rt></ruby>",
   "宿題": "<ruby>宿題<rt>しゅくだい</rt></ruby>",
@@ -4098,6 +4127,7 @@ const rubyTextMap = {
   "見": "<ruby>見<rt>み</rt></ruby>",
   "言": "<ruby>言<rt>い</rt></ruby>",
   "調": "<ruby>調<rt>しら</rt></ruby>",
+  "買い物": "<ruby>買<rt>か</rt></ruby>い<ruby>物<rt>もの</rt></ruby>",
   "買": "<ruby>買<rt>か</rt></ruby>",
   "起": "<ruby>起<rt>お</rt></ruby>",
   "足": "<ruby>足<rt>た</rt></ruby>",
@@ -4176,6 +4206,7 @@ function makeConnectSeparator(groupTitle, rowIndex = 0) {
   if (groupTitle === "Vて") return `<span class="connect-separator connect-separator-square connect-separator-fast connect-separator-soft-blue"><span>▶</span><span>▶</span></span>`;
   if (groupTitle === "～で") return `<span class="connect-separator connect-separator-square connect-separator-fast"><span>▶</span><span>▶</span></span>`;
   if (groupTitle === "ですけど・ですが") return `<span class="connect-separator connect-separator-square connect-separator-contrast"><span class="bidi-arrow"><span class="bidi-arrow-left"></span><span class="bidi-arrow-right"></span></span></span>`;
+  if (groupTitle === "➡") return `<span class="connect-separator connect-separator-bold-arrow">➡</span>`;
   if (groupTitle === "理由") return `<span class="connect-separator connect-separator-square connect-separator-fast connect-separator-soft-blue"><span>▶</span><span>▶</span></span>`;
   if (groupTitle === "前に・てから") {
     const isBefore = rowIndex < 2;
