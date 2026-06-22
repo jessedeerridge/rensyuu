@@ -1785,28 +1785,49 @@
     position: absolute;
     left: 50%;
     top: 50%;
-    width: 148px;
-    height: 96px;
-    transform: translate(-50%, -50%);
-    border-radius: 18px 18px 12px 12px;
-    background: linear-gradient(180deg, #d7a15f, #b87834);
-    border: 5px solid #8f5a25;
-    box-shadow: 0 12px 0 #70461d, 0 18px 24px rgba(0,0,0,0.12);
+    width: 180px;
+    height: 118px;
+    transform: translate(-50%, -54%) rotateX(58deg) rotateZ(-28deg);
+    transform-style: preserve-3d;
+    border-radius: 22px 16px 20px 16px;
+    background:
+      radial-gradient(circle at 28% 22%, rgba(255,255,255,0.36), transparent 28%),
+      linear-gradient(135deg, #f0c27a 0%, #cf8540 58%, #a9652f 100%);
+    border: 5px solid #8f5724;
+    clip-path: polygon(12% 0, 100% 18%, 88% 100%, 0 82%);
+    box-shadow:
+      10px 14px 0 #8a4f20,
+      18px 24px 22px rgba(72, 42, 17, 0.26);
   }
 
-  .desk-drawing::before,
+  .desk-drawing::before {
+    content: "";
+    position: absolute;
+    left: 9%;
+    right: -1%;
+    bottom: -34px;
+    height: 40px;
+    background: linear-gradient(135deg, #9a5b27, #6f3f1b);
+    clip-path: polygon(0 0, 100% 15%, 91% 100%, 8% 83%);
+    transform: translateZ(-2px);
+    box-shadow: inset 0 8px 12px rgba(255,255,255,0.10);
+  }
+
   .desk-drawing::after {
     content: "";
     position: absolute;
-    bottom: -58px;
-    width: 24px;
-    height: 58px;
-    border-radius: 0 0 10px 10px;
-    background: #8f5a25;
+    left: 22px;
+    bottom: -74px;
+    width: 18px;
+    height: 56px;
+    border-radius: 0 0 8px 8px;
+    background: linear-gradient(180deg, #86501f, #4f2d13);
+    box-shadow:
+      82px 18px 0 #5f3617,
+      132px 4px 0 #6d3e19,
+      46px -14px 0 #7a471c;
+    transform: translateZ(-10px) skewX(-8deg);
   }
-
-  .desk-drawing::before { left: 22px; }
-  .desk-drawing::after { right: 22px; }
 
   .position-label {
     position: absolute;
