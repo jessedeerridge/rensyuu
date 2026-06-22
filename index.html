@@ -573,12 +573,12 @@
   }
 
   #tableArea tr.vocab-special td {
-    background: #fff4cc !important;
+    background: #dff8ff !important;
   }
 
   #tableArea tr.vocab-special .question-box {
-    background: #fff4cc !important;
-    border-color: #e6c867 !important;
+    background: #dff8ff !important;
+    border-color: #8ed8ea !important;
   }
 
   ruby {
@@ -1751,6 +1751,118 @@
   }
 
 
+  /* ===== 位置詞：机と虫眼鏡で読む練習 ===== */
+  body.position-vocab .red-sheet,
+  body.position-vocab .random-order-btn {
+    display: none;
+  }
+
+  .position-practice {
+    position: relative;
+    min-height: calc(100vh - 150px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 10px 90px;
+    overflow: hidden;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .position-stage {
+    position: relative;
+    width: min(92vw, 560px);
+    height: min(72vh, 560px);
+    min-height: 420px;
+    border-radius: 28px;
+    background: rgba(255,255,255,0.58);
+    border: 3px dashed rgba(255, 179, 213, 0.75);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  }
+
+  .desk-drawing {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 148px;
+    height: 96px;
+    transform: translate(-50%, -50%);
+    border-radius: 18px 18px 12px 12px;
+    background: linear-gradient(180deg, #d7a15f, #b87834);
+    border: 5px solid #8f5a25;
+    box-shadow: 0 12px 0 #70461d, 0 18px 24px rgba(0,0,0,0.12);
+  }
+
+  .desk-drawing::before,
+  .desk-drawing::after {
+    content: "";
+    position: absolute;
+    bottom: -58px;
+    width: 24px;
+    height: 58px;
+    border-radius: 0 0 10px 10px;
+    background: #8f5a25;
+  }
+
+  .desk-drawing::before { left: 22px; }
+  .desk-drawing::after { right: 22px; }
+
+  .position-label {
+    position: absolute;
+    padding: 7px 11px;
+    border-radius: 999px;
+    background: #aeb4bd;
+    color: transparent;
+    font-size: clamp(16px, 4.5vw, 24px);
+    font-weight: 900;
+    white-space: nowrap;
+    box-shadow: inset 0 -3px 0 rgba(0,0,0,0.10), 0 3px 10px rgba(0,0,0,0.08);
+  }
+
+  .position-label.is-revealed {
+    color: #333;
+    background: #fff;
+  }
+
+  .position-label.pos-front { left: 50%; top: 15%; transform: translateX(-50%); }
+  .position-label.pos-back { left: 50%; bottom: 14%; transform: translateX(-50%); }
+  .position-label.pos-left { right: 68%; top: 50%; transform: translateY(-50%); }
+  .position-label.pos-right { left: 68%; top: 50%; transform: translateY(-50%); }
+  .position-label.pos-on { left: 50%; top: 39%; transform: translate(-50%, -50%); }
+  .position-label.pos-under { left: 50%; top: 63%; transform: translate(-50%, -50%); }
+  .position-label.pos-near { left: 8%; top: 15%; }
+  .position-label.pos-inside { right: 7%; top: 15%; }
+
+  .magnifier {
+    position: absolute;
+    left: calc(50% - 42px);
+    top: calc(50% + 118px);
+    z-index: 8;
+    width: 86px;
+    height: 86px;
+    border: 7px solid #333;
+    border-radius: 50%;
+    background: rgba(223,248,255,0.38);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.18), inset 0 0 0 3px rgba(255,255,255,0.62);
+    cursor: grab;
+    touch-action: none;
+  }
+
+  .magnifier::after {
+    content: "";
+    position: absolute;
+    width: 48px;
+    height: 13px;
+    right: -36px;
+    bottom: -18px;
+    border-radius: 999px;
+    background: #333;
+    transform: rotate(45deg);
+    transform-origin: left center;
+  }
+
+
   /* ===== 起動時の説明パネル ===== */
   .start-notice-overlay {
     position: fixed;
@@ -2088,7 +2200,7 @@ const homeMenus = {
   }
 };
 
-const vocabCategories = ["位置詞", "数字", "日付", "曜日", "数え方", "時間", "月", "値段"];
+const vocabCategories = ["数字", "数え方", "月・日付", "時間・分", "位置詞"];
 
 function setHomeMenu(menuName = "main") {
   currentHomeMenu = menuName;
@@ -2133,7 +2245,7 @@ function changeHomeLevel(direction) {
 
 function openVocabMenu() {
   currentSection = "vocab";
-  document.body.classList.remove("home-mode", "sheet-high", "table-start-lowered");
+  document.body.classList.remove("home-mode", "sheet-high", "table-start-lowered", "position-vocab");
   document.body.classList.add("menu-mode");
   document.getElementById("homeScreen").style.display = "none";
   document.getElementById("tableScreen").style.display = "none";
@@ -2375,7 +2487,7 @@ function openHome() {
   tableVisible = false;
   stopMaskLoop();
   clearAllMasks();
-  document.body.classList.remove("home-mode", "menu-mode", "sheet-high", "table-start-lowered");
+  document.body.classList.remove("home-mode", "menu-mode", "sheet-high", "table-start-lowered", "position-vocab");
   document.body.classList.add("home-mode");
   document.getElementById("tableScreen").style.display = "none";
   document.getElementById("menuScreen").style.display = "none";
@@ -2387,7 +2499,7 @@ function openHome() {
 
 function openConjugationMenu() {
   currentSection = "conjugation";
-  document.body.classList.remove("home-mode", "sheet-high", "table-start-lowered");
+  document.body.classList.remove("home-mode", "sheet-high", "table-start-lowered", "position-vocab");
   document.body.classList.add("menu-mode");
   document.getElementById("homeScreen").style.display = "none";
   document.getElementById("tableScreen").style.display = "none";
@@ -2418,23 +2530,31 @@ function openConnectPage() {
 
 
 const vocabTableData = {
-  "位置詞": [
-    ["上", "うえ", true], ["下", "した"], ["前", "まえ"], ["後ろ", "うしろ"], ["中", "なか"], ["外", "そと"], ["右", "みぎ"], ["左", "ひだり"], ["となり", "となり"], ["近く", "ちかく", true]
-  ],
   "数字": [
-    ["一", "いち"], ["二", "に"], ["三", "さん"], ["四", "よん／し", true], ["五", "ご"], ["六", "ろく"], ["七", "なな／しち", true], ["八", "はち"], ["九", "きゅう／く", true], ["十", "じゅう"]
+    ["1", "いち"], ["2", "に"], ["3", "さん"], ["4", "よん／し", true], ["5", "ご"], ["6", "ろく"], ["7", "なな／しち", true], ["8", "はち"], ["9", "きゅう／く", true], ["10", "じゅう"], ["11", "じゅういち"], ["12", "じゅうに"],
+    ["20", "にじゅう"], ["30", "さんじゅう"], ["100", "ひゃく"], ["200", "にひゃく"], ["300", "さんびゃく", true], ["400", "よんひゃく"], ["500", "ごひゃく"], ["600", "ろっぴゃく", true], ["700", "ななひゃく"], ["800", "はっぴゃく", true], ["900", "きゅうひゃく"],
+    ["1000", "せん"], ["2000", "にせん"], ["3000", "さんぜん", true], ["4000", "よんせん"], ["5000", "ごせん"], ["6000", "ろくせん"], ["7000", "ななせん"], ["8000", "はっせん", true], ["9000", "きゅうせん"], ["10000", "いちまん"]
   ],
-  "日付": [
-    ["一日", "ついたち", true], ["二日", "ふつか", true], ["三日", "みっか", true], ["四日", "よっか", true], ["五日", "いつか"], ["六日", "むいか"], ["七日", "なのか"], ["八日", "ようか", true], ["九日", "ここのか"], ["十日", "とおか", true], ["二十日", "はつか", true]
+  "数え方": [
+    ["1人", "ひとり", true], ["2人", "ふたり", true], ["3人", "さんにん"], ["1つ", "ひとつ", true], ["2つ", "ふたつ", true], ["3つ", "みっつ", true], ["4つ", "よっつ", true], ["5つ", "いつつ", true], ["6つ", "むっつ", true], ["7つ", "ななつ"], ["8つ", "やっつ", true], ["9つ", "ここのつ", true],
+    ["一階", "いっかい", true], ["2階", "にかい"], ["3階", "さんがい", true], ["一本", "いっぽん", true], ["二本", "にほん"], ["三本", "さんぼん", true], ["4本", "よんほん"], ["5本", "ごほん"], ["6本", "ろっぽん", true], ["7本", "ななほん"], ["8本", "はっぽん", true],
+    ["11さい", "じゅういっさい", true], ["12さい", "じゅうにさい"], ["18さい", "じゅうはっさい", true], ["19さい", "じゅうきゅうさい"], ["二十歳", "はたち", true], ["一回", "いっかい", true], ["二回", "にかい"], ["三回", "さんかい"], ["一匹", "いっぴき", true], ["二匹", "にひき"], ["三匹", "さんびき", true], ["一台", "いちだい"], ["2台", "にだい"], ["三台", "さんだい"]
   ],
-  "曜日": [["月曜日", "げつようび"], ["火曜日", "かようび"], ["水曜日", "すいようび"], ["木曜日", "もくようび"], ["金曜日", "きんようび"], ["土曜日", "どようび"], ["日曜日", "にちようび"]],
-  "数え方": [["一人", "ひとり", true], ["二人", "ふたり", true], ["三人", "さんにん"], ["一つ", "ひとつ", true], ["二つ", "ふたつ", true], ["一枚", "いちまい"], ["一台", "いちだい"], ["一匹", "いっぴき", true], ["一冊", "いっさつ", true]],
-  "時間": [["一時", "いちじ"], ["四時", "よじ", true], ["七時", "しちじ", true], ["九時", "くじ", true], ["一分", "いっぷん", true], ["三分", "さんぷん", true], ["四分", "よんぷん", true], ["十分", "じゅっぷん", true], ["半", "はん"]],
-  "月": [["一月", "いちがつ"], ["二月", "にがつ"], ["三月", "さんがつ"], ["四月", "しがつ", true], ["五月", "ごがつ"], ["六月", "ろくがつ"], ["七月", "しちがつ", true], ["八月", "はちがつ"], ["九月", "くがつ", true], ["十月", "じゅうがつ"], ["十一月", "じゅういちがつ"], ["十二月", "じゅうにがつ"]],
-  "値段": [["100円", "ひゃくえん"], ["300円", "さんびゃくえん", true], ["600円", "ろっぴゃくえん", true], ["800円", "はっぴゃくえん", true], ["1000円", "せんえん"], ["3000円", "さんぜんえん", true], ["8000円", "はっせんえん", true], ["一万円", "いちまんえん"]]
+  "月・日付": [
+    ["1月", "いちがつ"], ["2月", "にがつ"], ["3月", "さんがつ"], ["4月", "しがつ", true], ["5月", "ごがつ"], ["6月", "ろくがつ"], ["7月", "しちがつ", true], ["8月", "はちがつ"], ["9月", "くがつ", true], ["10月", "じゅうがつ"], ["11月", "じゅういちがつ"], ["12月", "じゅうにがつ"],
+    ["1日", "ついたち", true], ["2日", "ふつか", true], ["3日", "みっか", true], ["4日", "よっか", true], ["5日", "いつか", true], ["6日", "むいか", true], ["7日", "なのか", true], ["8日", "ようか", true], ["9日", "ここのか", true], ["10日", "とおか", true], ["11日", "じゅういちにち"], ["12日", "じゅうににち"], ["13日", "じゅうさんにち"], ["14日", "じゅうよっか", true], ["15日", "じゅうごにち"], ["16日", "じゅうろくにち"], ["17日", "じゅうしちにち", true], ["18日", "じゅうはちにち"], ["19日", "じゅうくにち", true], ["20日", "はつか", true], ["21日", "にじゅういちにち"], ["22日", "にじゅうににち"], ["23日", "にじゅうさんにち"], ["24日", "にじゅうよっか", true], ["25日", "にじゅうごにち"], ["26日", "にじゅうろくにち"], ["27日", "にじゅうしちにち", true], ["28日", "にじゅうはちにち"], ["29日", "にじゅうくにち", true], ["30日", "さんじゅうにち"], ["31日", "さんじゅういちにち"]
+  ],
+  "時間・分": [
+    ["1時", "いちじ"], ["2時", "にじ"], ["3時", "さんじ"], ["4時", "よじ", true], ["5時", "ごじ"], ["6時", "ろくじ"], ["7時", "しちじ", true], ["8時", "はちじ"], ["9時", "くじ", true], ["10時", "じゅうじ"], ["11時", "じゅういちじ"], ["12時", "じゅうにじ"],
+    ["1分", "いっぷん", true], ["2分", "にふん"], ["3分", "さんぷん", true], ["4分", "よんぷん", true], ["5分", "ごふん"], ["6分", "ろっぷん", true], ["7分", "ななふん"], ["8分", "はっぷん", true], ["9分", "きゅうふん"], ["10分", "じゅっぷん", true], ["20分", "にじゅっぷん", true], ["30分", "さんじゅっぷん／はん", true], ["40分", "よんじゅっぷん", true], ["50分", "ごじゅっぷん", true]
+  ]
 };
 
 function makeVocabTable(type) {
+  if (type === "位置詞") {
+    makePositionVocabPractice();
+    return;
+  }
   const rows = vocabTableData[type] || [];
   let html = `<table class="listen-table vocab-table"><tr><th>ことば</th><th>読み方</th></tr>`;
   rows.forEach(([word, reading, special]) => {
@@ -2443,6 +2563,83 @@ function makeVocabTable(type) {
   html += `</table><div class="scroll-extra-y"></div>`;
   document.getElementById("tableArea").innerHTML = html;
 }
+
+function makePositionVocabPractice() {
+  document.body.classList.add("position-vocab");
+  const labels = [
+    ["机の前", "pos-front"],
+    ["机の後ろ", "pos-back"],
+    ["机の左", "pos-left"],
+    ["机の右", "pos-right"],
+    ["机の上", "pos-on"],
+    ["机の下", "pos-under"],
+    ["机の近く", "pos-near"],
+    ["机の中", "pos-inside"]
+  ];
+  document.getElementById("tableArea").innerHTML = `
+    <div class="position-practice" id="positionPractice">
+      <div class="position-stage" id="positionStage" aria-label="位置詞の練習">
+        <div class="desk-drawing" aria-label="机"></div>
+        ${labels.map(([text, cls]) => `<div class="position-label ${cls}">${escapeHtml(text)}</div>`).join("")}
+        <div class="magnifier" id="positionMagnifier" role="button" aria-label="虫眼鏡を動かして文字を見る"></div>
+      </div>
+    </div>`;
+  setupPositionMagnifier();
+}
+
+function setupPositionMagnifier() {
+  const stage = document.getElementById("positionStage");
+  const magnifier = document.getElementById("positionMagnifier");
+  if (!stage || !magnifier) return;
+
+  const revealLabels = () => {
+    const magRect = magnifier.getBoundingClientRect();
+    const magCenterX = magRect.left + magRect.width / 2;
+    const magCenterY = magRect.top + magRect.height / 2;
+    const radius = magRect.width * 0.58;
+    stage.querySelectorAll(".position-label").forEach(label => {
+      const rect = label.getBoundingClientRect();
+      const labelCenterX = rect.left + rect.width / 2;
+      const labelCenterY = rect.top + rect.height / 2;
+      const distance = Math.hypot(magCenterX - labelCenterX, magCenterY - labelCenterY);
+      label.classList.toggle("is-revealed", distance < radius + Math.min(rect.width, rect.height) / 2);
+    });
+  };
+
+  const moveTo = (clientX, clientY) => {
+    const stageRect = stage.getBoundingClientRect();
+    const magRect = magnifier.getBoundingClientRect();
+    const halfW = magRect.width / 2;
+    const halfH = magRect.height / 2;
+    const nextLeft = Math.max(0, Math.min(stageRect.width - magRect.width, clientX - stageRect.left - halfW));
+    const nextTop = Math.max(0, Math.min(stageRect.height - magRect.height, clientY - stageRect.top - halfH));
+    magnifier.style.left = `${nextLeft}px`;
+    magnifier.style.top = `${nextTop}px`;
+    revealLabels();
+  };
+
+  let dragging = false;
+  magnifier.addEventListener("pointerdown", event => {
+    dragging = true;
+    magnifier.setPointerCapture(event.pointerId);
+    magnifier.style.cursor = "grabbing";
+    moveTo(event.clientX, event.clientY);
+  });
+  magnifier.addEventListener("pointermove", event => {
+    if (!dragging) return;
+    moveTo(event.clientX, event.clientY);
+  });
+  magnifier.addEventListener("pointerup", () => {
+    dragging = false;
+    magnifier.style.cursor = "grab";
+  });
+  magnifier.addEventListener("pointercancel", () => {
+    dragging = false;
+    magnifier.style.cursor = "grab";
+  });
+  revealLabels();
+}
+
 
 function escapeHtml(value) {
   return String(value).replace(/[&<>'"]/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[char]));
@@ -4032,7 +4229,7 @@ function makeConnectTable() {
 
 function showPlaceholderTable(title, message, returnSection = "home") {
   currentSection = returnSection;
-  document.body.classList.remove("home-mode", "menu-mode", "sheet-high", "table-start-lowered");
+  document.body.classList.remove("home-mode", "menu-mode", "sheet-high", "table-start-lowered", "position-vocab");
   document.body.classList.add("table-start-lowered");
   document.getElementById("homeScreen").style.display = "none";
   document.getElementById("menuScreen").style.display = "none";
@@ -4046,7 +4243,7 @@ function showPlaceholderTable(title, message, returnSection = "home") {
 }
 
 function showTable(type, focusKey = "") {
-  document.body.classList.remove("home-mode", "menu-mode", "sheet-high", "table-start-lowered");
+  document.body.classList.remove("home-mode", "menu-mode", "sheet-high", "table-start-lowered", "position-vocab");
   if (type === "Vて" || type === "Vた" || type === "聞く" || type === "話す" || type === "つなぐ" || vocabCategories.includes(type)) {
     document.body.classList.add("table-start-lowered");
   }
@@ -4054,6 +4251,7 @@ function showTable(type, focusKey = "") {
   document.getElementById("menuScreen").style.display = "none";
   document.getElementById("tableScreen").style.display = "block";
   document.getElementById("tableTitle").textContent = type;
+  document.body.classList.toggle("position-vocab", type === "位置詞");
   currentTableType = type;
   tableRandomized = false;
   sequentialTableHtml = "";
@@ -4185,7 +4383,7 @@ function scrollToQuestionKey(key) {
 }
 
 function backMenu() {
-  document.body.classList.remove("sheet-high", "table-start-lowered");
+  document.body.classList.remove("sheet-high", "table-start-lowered", "position-vocab");
   tableVisible = false;
   stopMaskLoop();
   clearAllMasks();
