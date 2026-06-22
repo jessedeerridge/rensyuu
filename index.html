@@ -750,7 +750,7 @@
 
   #tableArea .listen-prompt-text {
     display: inline;
-    font-size: 0.82em !important;
+    font-size: 1em !important;
     white-space: normal !important;
     overflow-wrap: anywhere;
   }
@@ -781,14 +781,27 @@
     border-radius: 0.12em;
     background: #ff8ac2;
     color: #fff;
-    font-size: 0.72em;
+    font-size: 1em;
     font-weight: 900;
     line-height: 1.1;
     vertical-align: middle;
   }
 
+  #tableArea .listen-prompt-question {
+    display: inline-block;
+    color: #ff9fca;
+    font-size: 1em;
+    font-weight: 900;
+    line-height: 1;
+    text-shadow:
+      0.03em 0 currentColor,
+      -0.03em 0 currentColor,
+      0 0.03em currentColor,
+      0 -0.03em currentColor;
+  }
+
   #tableArea .listen-prompt-emoji {
-    font-size: 1.26em !important;
+    font-size: 1em !important;
     line-height: 1;
   }
 
@@ -4097,6 +4110,11 @@ function formatListenPromptEmoji(emoji) {
     const char = chars[i];
     if (char === "👀") {
       parts.push(`<span class="listen-prompt-eye">${escapeHtml(char)}</span>`);
+      continue;
+    }
+
+    if (char === "❔") {
+      parts.push(`<span class="listen-prompt-question">？</span>`);
       continue;
     }
 
