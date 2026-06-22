@@ -5586,14 +5586,38 @@ function squeezeRightColumnToOneLine(table) {
 
   if (table.classList.contains("connect-table")) {
     const maxRightFont = 18;
+    const measureAtMaxFont = (el, cell) => {
+      const clone = el.cloneNode(true);
+      clone.querySelectorAll(".answer-mask-cover").forEach(node => node.remove());
+      clone.style.position = "absolute";
+      clone.style.visibility = "hidden";
+      clone.style.pointerEvents = "none";
+      clone.style.left = "0";
+      clone.style.top = "0";
+      clone.style.width = "max-content";
+      clone.style.maxWidth = "none";
+      clone.style.fontSize = `${maxRightFont}px`;
+      clone.style.whiteSpace = "nowrap";
+      clone.style.transform = "none";
+      cell.appendChild(clone);
+      const width = clone.getBoundingClientRect().width;
+      clone.remove();
+      return width;
+    };
 
     rightAnswers.forEach(el => {
+      const cell = el.closest("td");
+      if (!cell || cell.clientWidth <= 0) return;
+
       el.style.removeProperty("transform");
-      el.style.setProperty("font-size", `${maxRightFont}px`, "important");
 
-      if (el.scrollWidth <= el.clientWidth + 0.5 || el.clientWidth <= 0 || el.scrollWidth <= 0) return;
+      const naturalWidth = measureAtMaxFont(el, cell);
+      if (!Number.isFinite(naturalWidth) || naturalWidth <= 0) return;
 
-      const fittedSize = Math.max(1, (maxRightFont * el.clientWidth) / el.scrollWidth - 0.5);
+      const rawSize = naturalWidth <= cell.clientWidth
+        ? maxRightFont
+        : (maxRightFont * cell.clientWidth) / naturalWidth;
+      const fittedSize = Math.max(1, Math.min(maxRightFont, Math.floor((rawSize - 0.05) * 10) / 10));
       el.style.setProperty("font-size", `${fittedSize}px`, "important");
     });
 
