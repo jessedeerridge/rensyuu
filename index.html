@@ -3102,15 +3102,15 @@ function escapeForAttr(value) {
   return String(value || "").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
-function getStableQuestionMemoItems(items, limit) {
+function getRandomQuestionMemoItems(items, limit) {
   const list = Array.isArray(items) ? items.slice() : [];
-  const withOrder = list.map((item, index) => {
-    const seed = `${item.key || ""}|${item.legacyKey || ""}|${item.leftText || ""}|${item.rightText || ""}`;
-    return { item, index, order: seededRandom(seed)() };
-  });
 
-  withOrder.sort((a, b) => a.order - b.order || a.index - b.index);
-  return withOrder.slice(0, limit).map(entry => entry.item);
+  for (let i = list.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [list[i], list[j]] = [list[j], list[i]];
+  }
+
+  return list.slice(0, limit);
 }
 
 function renderQuestionMemoLayer() {
@@ -3122,17 +3122,21 @@ function renderQuestionMemoLayer() {
   const allItems = safeParseQuestionStore();
   let items;
   if (isConjugationMenu) {
-    items = getStableQuestionMemoItems(allItems.filter(isConjugationQuestionItem), TOP_MEMO_DISPLAY_LIMIT);
+    items = getRandomQuestionMemoItems(allItems.filter(isConjugationQuestionItem), TOP_MEMO_DISPLAY_LIMIT);
   } else {
     const nonConjugationLimit = Math.round(TOP_MEMO_DISPLAY_LIMIT * 0.7);
     const conjugationLimit = TOP_MEMO_DISPLAY_LIMIT - nonConjugationLimit;
     const nonConjugationSource = allItems.filter(item => !isConjugationQuestionItem(item));
     const conjugationSource = allItems.filter(isConjugationQuestionItem);
-    const nonConjugationItems = getStableQuestionMemoItems(nonConjugationSource, nonConjugationLimit);
-    const conjugationItems = getStableQuestionMemoItems(conjugationSource, conjugationLimit);
-    const selectedKeys = new Set([...nonConjugationItems, ...conjugationItems].map(item => item.key));
-    const fillItems = getStableQuestionMemoItems(allItems.filter(item => !selectedKeys.has(item.key)), TOP_MEMO_DISPLAY_LIMIT);
-    items = getStableQuestionMemoItems([...nonConjugationItems, ...conjugationItems, ...fillItems], TOP_MEMO_DISPLAY_LIMIT);
+    const nonConjugationItems = getRandomQuestionMemoItems(nonConjugationSource, nonConjugationLimit);
+    const conjugationItems = getRandomQuestionMemoItems(conjugationSource, conjugationLimit);
+    const selectedItems = [...nonConjugationItems, ...conjugationItems];
+    const selectedKeys = new Set(selectedItems.map(item => item.key));
+    const fillLimit = TOP_MEMO_DISPLAY_LIMIT - selectedItems.length;
+    const fillItems = fillLimit > 0
+      ? getRandomQuestionMemoItems(allItems.filter(item => !selectedKeys.has(item.key)), fillLimit)
+      : [];
+    items = [...selectedItems, ...fillItems];
   }
   layer.innerHTML = "";
   if (!items.length) return;
