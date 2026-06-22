@@ -5567,7 +5567,7 @@ function resetTableTextTransforms(table) {
 }
 
 function squeezeRightColumnToOneLine(table) {
-  const minRightFont = 8;
+  const minRightFont = 15;
 
   table.querySelectorAll("td:last-child .answer-text").forEach(el => {
     el.style.removeProperty("transform");
@@ -5581,37 +5581,8 @@ function squeezeRightColumnToOneLine(table) {
     }
 
     if (el.scrollWidth > el.clientWidth + 0.5 && el.clientWidth > 0 && el.scrollWidth > 0) {
-      const fittedSize = Math.max(1, (fontSize * el.clientWidth) / el.scrollWidth - 0.5);
+      const fittedSize = Math.max(minRightFont, (fontSize * el.clientWidth) / el.scrollWidth - 0.5);
       el.style.setProperty("font-size", `${fittedSize}px`, "important");
-    }
-  });
-}
-
-function expandRightColumnToAvailableSpace(table, maxRightFont) {
-  table.querySelectorAll("td:last-child .answer-text").forEach(el => {
-    const cell = el.closest("td");
-    if (!cell) return;
-
-    let fontSize = parseFloat(getComputedStyle(el).fontSize);
-    if (!Number.isFinite(fontSize) || fontSize >= maxRightFont) return;
-
-    const fits = () => {
-      const rect = el.getBoundingClientRect();
-      const cellRect = cell.getBoundingClientRect();
-      return el.scrollWidth <= el.clientWidth + 0.5 && rect.right <= cellRect.right + 0.5;
-    };
-
-    let bestSize = fontSize;
-    while (fontSize < maxRightFont) {
-      fontSize = Math.min(maxRightFont, fontSize + 0.5);
-      el.style.setProperty("font-size", `${fontSize}px`, "important");
-
-      if (!fits()) {
-        el.style.setProperty("font-size", `${bestSize}px`, "important");
-        break;
-      }
-
-      bestSize = fontSize;
     }
   });
 }
@@ -5650,7 +5621,9 @@ function fitTaraHintLines(table) {
 
     const hasOverflow = () => lines.some(line => line.scrollWidth > line.clientWidth + 0.5);
 
-    while (fontSize > 8 && hasOverflow()) {
+    const minTaraHintFont = 15;
+
+    while (fontSize > minTaraHintFont && hasOverflow()) {
       fontSize -= 1;
       wordText.style.setProperty("font-size", `${fontSize}px`, "important");
     }
@@ -5660,7 +5633,7 @@ function fitTaraHintLines(table) {
         .filter(line => line.clientWidth > 0 && line.scrollWidth > 0)
         .map(line => line.clientWidth / line.scrollWidth);
       if (widthRatios.length) {
-        const fittedSize = Math.max(1, fontSize * Math.min(...widthRatios) - 0.5);
+        const fittedSize = Math.max(minTaraHintFont, fontSize * Math.min(...widthRatios) - 0.5);
         wordText.style.setProperty("font-size", `${fittedSize}px`, "important");
       }
     }
@@ -5672,11 +5645,10 @@ function fitTableTextOneLine() {
   if (!table) return;
 
   const maxFont = 18;
-  const maxRightAnswerFont = 22;
   const minTableFont = 15;
   const minCellFont = 15;
-  const minLeftFont = 14;
-  const minRightFont = 8;
+  const minLeftFont = 15;
+  const minRightFont = 15;
   const wrap = document.querySelector(".table-wrap");
   applyTableModeClasses(table);
 
@@ -5747,7 +5719,6 @@ function fitTableTextOneLine() {
   unifyLeftColumnFontSize(table);
   fitTaraHintLines(table);
   squeezeRightColumnToOneLine(table);
-  expandRightColumnToAvailableSpace(table, maxRightAnswerFont);
 
   table.dataset.fittedFontSize = String(size);
   table.classList.remove("fitting-table");
