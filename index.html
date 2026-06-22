@@ -5607,19 +5607,22 @@ function squeezeRightColumnToOneLine(table) {
 
     rightAnswers.forEach(el => {
       const cell = el.closest("td");
-      if (!cell || cell.clientWidth <= 0) return;
+      if (!cell) return;
 
       el.style.removeProperty("transform");
+
+      const availableWidth = el.clientWidth;
+      if (availableWidth <= 0) return;
 
       const naturalWidth = measureAtMaxFont(el, cell);
       if (!Number.isFinite(naturalWidth) || naturalWidth <= 0) return;
 
-      const rawSize = naturalWidth <= cell.clientWidth
+      const rawSize = naturalWidth <= availableWidth
         ? maxRightFont
-        : (maxRightFont * cell.clientWidth) / naturalWidth;
+        : (maxRightFont * availableWidth) / naturalWidth;
       let fittedSize = Math.max(1, Math.min(maxRightFont, Math.floor((rawSize - 0.05) * 10) / 10));
       const setFittedSize = size => el.style.setProperty("font-size", `${size}px`, "important");
-      const overflows = () => el.scrollWidth > el.clientWidth + 5;
+      const overflows = () => el.scrollWidth > el.clientWidth + 0.1;
 
       setFittedSize(fittedSize);
       while (fittedSize > 1 && overflows()) {
