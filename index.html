@@ -77,7 +77,7 @@
 
   .home-title-subtitle {
     display: block;
-    margin-top: 2px;
+    margin-top: 8px;
     color: #777;
     font-size: 17px;
     font-weight: 900;
@@ -1149,17 +1149,17 @@
   #tableArea .reason-kara-note {
     position: absolute;
     top: 100%;
-    left: 0;
-    right: 0;
-    width: 100%;
-    transform: none;
+    left: 50%;
+    width: max-content;
+    transform: translateX(-50%);
     text-align: center;
     color: inherit;
-    font-size: inherit;
-    font-weight: inherit;
-    line-height: inherit;
+    font-size: 1em;
+    font-weight: 400;
+    line-height: 1;
     white-space: nowrap;
     z-index: 2;
+    pointer-events: none;
   }
 
   #tableArea .answer-text.reason-note-answer {
@@ -1169,22 +1169,23 @@
   .question-memo-card .reason-kara-wrap {
     position: relative;
     display: inline-block;
-    line-height: 1;
-    vertical-align: top;
+    line-height: inherit;
+    vertical-align: baseline;
   }
 
   .question-memo-card .reason-kara-note {
     position: absolute;
     top: 100%;
-    left: 0;
-    right: 0;
-    width: 100%;
+    left: 50%;
+    width: max-content;
+    transform: translateX(-50%);
     color: inherit;
-    font-size: inherit;
-    font-weight: inherit;
-    line-height: inherit;
+    font-size: calc(1em - 1px);
+    font-weight: 400;
+    line-height: 1;
     text-align: center;
     white-space: nowrap;
+    pointer-events: none;
   }
 
   #tableArea .connect-separator-contrast {
@@ -1640,7 +1641,7 @@
 
   .question-memo-card .memo-pair {
     display: inline-flex;
-    align-items: center;
+    align-items: baseline;
     justify-content: center;
     gap: 1px;
     width: max-content;
@@ -1663,13 +1664,14 @@
 
   .question-memo-card .memo-pair-stacked {
     flex-direction: column;
-    gap: 2px;
+    gap: 3px;
     line-height: 1.18;
+    max-width: 100%;
   }
 
   .question-memo-card .memo-top-line {
     display: inline-flex;
-    align-items: center;
+    align-items: baseline;
     justify-content: center;
     flex-wrap: nowrap;
     gap: 1px;
@@ -1687,13 +1689,10 @@
     flex: 0 0 auto;
     color: #d90000;
     font-size: 1em;
-    line-height: 1;
-    height: 1em;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    align-self: center;
-    vertical-align: middle;
+    line-height: inherit;
+    display: inline-block;
+    align-self: baseline;
+    vertical-align: baseline;
   }
 
   .question-memo-card ruby,
@@ -1707,6 +1706,24 @@
     line-height: 1;
   }
 
+  .question-memo-card .memo-stacked .memo-right,
+  .question-memo-card .memo-pair-stacked .memo-right {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    text-align: center;
+    white-space: nowrap;
+    overflow: visible;
+  }
+
+  .question-memo-card.memo-tara {
+    font-size: 11px;
+  }
+
+  .question-memo-card.memo-tara.memo-roomy {
+    font-size: 13px;
+  }
+
   @media (max-width: 420px) {
     .question-memo-card {
       min-height: 34px;
@@ -1717,6 +1734,14 @@
 
     .question-memo-card.memo-roomy {
       font-size: 11px;
+    }
+
+    .question-memo-card.memo-tara {
+      font-size: 7px;
+    }
+
+    .question-memo-card.memo-tara.memo-roomy {
+      font-size: 9px;
     }
 
     .question-memo-card .memo-type {
@@ -3349,6 +3374,40 @@ function isStackedMemoType(type) {
   return isTariMemoType(type) || isTaraMemoType(type) || isNonConjugationMemoType(type);
 }
 
+
+function inlineBeforeAfterMemoHtml(html) {
+  const tmp = document.createElement("div");
+  tmp.innerHTML = html || "";
+  const marker = tmp.querySelector(".connect-separator-before-after");
+  if (!marker) return html || "";
+
+  const lines = Array.from(tmp.querySelectorAll(".tara-hint-line"));
+  if (lines.length < 2) return html || "";
+
+  const firstLine = lines[0].cloneNode(true);
+  const markerInFirstLine = firstLine.querySelector(".connect-separator-before-after");
+  if (markerInFirstLine) markerInFirstLine.remove();
+
+  const beforeAfterIcon = marker.outerHTML;
+  const firstText = firstLine.innerHTML.trim();
+  const secondText = lines.slice(1).map(line => line.innerHTML.trim()).join("");
+  return `${beforeAfterIcon}${firstText}・${secondText}`;
+}
+
+function inlineTaraHintMemoHtml(html) {
+  const tmp = document.createElement("div");
+  tmp.innerHTML = html || "";
+  const lines = Array.from(tmp.querySelectorAll(".tara-hint-line"));
+  if (!lines.length) return html || "";
+  const lineHtml = lines.map(line => line.innerHTML.trim());
+  const inlined = lineHtml.join("").replace(/^💭/, "");
+  if (inlined.includes("connect-separator-tara")) return inlined;
+
+  const firstLine = (lineHtml[0] || "").replace(/^💭/, "");
+  const restLines = lineHtml.slice(1).join("");
+  return `${firstLine}${makeConnectSeparator("～たら")}${restLines}`;
+}
+
 function getMemoDisplayItem(item) {
   const type = item.type || "";
   const leftText = item.leftText || stripHtmlForKey(item.leftHtml || "");
@@ -3357,15 +3416,16 @@ function getMemoDisplayItem(item) {
   let rightHtml = item.rightHtml || "";
 
   if (type === "Vたら" || type === "たら") {
-    leftHtml = extractTaraLeftHtml(leftHtml);
-    rightHtml = extractTaraRightHtml(rightHtml);
+    leftHtml = inlineTaraHintMemoHtml(leftHtml);
+  } else if (type === "つなぐ" && leftHtml.includes("connect-separator-before-after")) {
+    leftHtml = inlineBeforeAfterMemoHtml(leftHtml);
   } else if (typeNeedsFocusOnly(type, leftText)) {
     leftHtml = extractLastCoreHtml(leftHtml);
     rightHtml = extractLastCoreHtml(rightHtml);
   }
 
   if (type === "つなぐ" && rightText.includes("から")) {
-    rightHtml = addReasonKaraNote(rightHtml);
+    rightHtml = shouldAnnotateReasonKara(rightText) ? addReasonKaraNote(rightHtml) : removeReasonKaraNote(rightHtml);
   }
 
   return { type, leftHtml, rightHtml, leftText, rightText };
@@ -3552,7 +3612,8 @@ function renderQuestionMemoLayer() {
     const displayItem = getMemoDisplayItem(item);
     const card = document.createElement("div");
     const isStackedMemo = isStackedMemoType(displayItem.type);
-    card.className = `question-memo-card${pos.isRoomy ? " memo-roomy" : ""}${isStackedMemo ? " memo-stacked" : ""}${displayItem.rightHtml.includes("reason-kara-note") ? " memo-has-reason-note" : ""}`;
+    const isTaraMemo = isTaraMemoType(displayItem.type);
+    card.className = `question-memo-card${pos.isRoomy ? " memo-roomy" : ""}${isStackedMemo ? " memo-stacked" : ""}${isTaraMemo ? " memo-tara" : ""}${displayItem.rightHtml.includes("reason-kara-note") ? " memo-has-reason-note" : ""}`;
     card.style.left = `${pos.x}px`;
     card.style.top = `${pos.y}px`;
     card.style.width = `${pos.width}px`;
@@ -3601,7 +3662,8 @@ function fitMemoCardText() {
     pair.style.setProperty("--memo-text-scale", "1");
     const availableWidth = Math.max(1, card.clientWidth - 2);
     const scale = Math.min(1, availableWidth / Math.max(1, pair.scrollWidth));
-    pair.style.setProperty("--memo-text-scale", String(Math.max(0.62, Math.floor(scale * 100) / 100)));
+    const minScale = card.classList.contains("memo-tara") ? 0.46 : 0.62;
+    pair.style.setProperty("--memo-text-scale", String(Math.max(minScale, Math.floor(scale * 100) / 100)));
   });
 }
 
@@ -3897,7 +3959,10 @@ function makeConnectHint(prompt, groupTitle, rowIndex) {
 
   const addThought = groupTitle === "～たら" && rowIndex > 4;
   const separator = addThought ? "" : makeConnectSeparator(groupTitle, rowIndex);
-  const firstLine = `${addThought ? "💭" : ""}${compactHint.slice(0, separatorIndex)}${separator}`;
+  const firstPart = compactHint.slice(0, separatorIndex);
+  const firstLine = groupTitle === "前に・てから"
+    ? `${separator}${firstPart}`
+    : `${addThought ? "💭" : ""}${firstPart}${separator}`;
   const secondLine = compactHint.slice(separatorIndex + separatorText.length);
   return `
     <span class="tara-hint-line">${firstLine}</span>
@@ -3905,8 +3970,31 @@ function makeConnectHint(prompt, groupTitle, rowIndex) {
   `;
 }
 
+function removeReasonKaraNote(html) {
+  const tmp = document.createElement("div");
+  tmp.innerHTML = html || "";
+  tmp.querySelectorAll(".reason-kara-wrap").forEach(wrap => {
+    wrap.replaceWith(document.createTextNode(wrap.childNodes[0]?.textContent || "から"));
+  });
+  return tmp.innerHTML;
+}
+
+function shouldAnnotateReasonKara(text) {
+  const source = String(text || "");
+  const index = source.indexOf("から");
+  if (index < 0) return false;
+  const previousChar = source[index - 1] || "";
+  return previousChar !== "て" && previousChar !== "で";
+}
+
 function addReasonKaraNote(html) {
-  return String(html || "").replace("から", `<span class="reason-kara-wrap">から<span class="reason-kara-note">（ので）</span></span>`);
+  const source = String(html || "");
+  const text = stripHtmlForKey(source);
+  if (!shouldAnnotateReasonKara(text)) return removeReasonKaraNote(source);
+
+  const karaIndex = source.indexOf("から");
+  if (karaIndex < 0) return source;
+  return `${source.slice(0, karaIndex)}<span class="reason-kara-wrap">から<span class="reason-kara-note">（ので）</span></span>${source.slice(karaIndex + "から".length)}`;
 }
 
 function makeConnectTable() {
