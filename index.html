@@ -1077,6 +1077,25 @@
     transform-origin: center;
   }
 
+  #tableArea .connect-separator-time {
+    position: relative;
+    top: -0.06em;
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    box-shadow: inset 0 -2px 0 rgba(0,0,0,0.16);
+    font-size: 0.72em;
+    line-height: 1;
+  }
+
+  #tableArea .connect-separator-time.is-ru-time {
+    background: #aee8ff;
+  }
+
+  #tableArea .connect-separator-time.is-ta-time {
+    background: #0f5a45;
+  }
+
   #tableArea .connect-separator-square {
     position: relative;
     top: -0.06em;
@@ -1105,21 +1124,25 @@
   #tableArea .reason-kara-wrap {
     position: relative;
     display: inline-block;
-    padding-bottom: 1.12em;
-    line-height: 1;
-    vertical-align: top;
+    line-height: inherit;
+    vertical-align: baseline;
   }
 
   #tableArea .reason-kara-note {
     position: absolute;
-    top: 1.78em;
+    top: 1.34em;
     left: 50%;
     transform: translateX(-50%);
     color: #d90000;
     font-size: calc(0.48em + 2px);
     font-weight: 900;
-    white-space: nowrap;
     line-height: 1;
+    white-space: nowrap;
+    z-index: 2;
+  }
+
+  #tableArea .answer-text.reason-note-answer {
+    padding-bottom: 1.2em;
   }
 
   #tableArea .connect-separator-contrast {
@@ -3423,7 +3446,10 @@ function makeConnectSeparator(groupTitle, rowIndex = 0) {
     return `<span class="connect-separator connect-separator-before-after ${isBefore ? "is-before" : "is-after"}"><span class="connect-separator-before-after-label">${isBefore ? "before" : "after"}</span></span>`;
   }
   if (groupTitle === "就算（～ても）") return `<span class="connect-separator connect-separator-square connect-separator-temo"><span class="temo-arrow-stem"></span><span class="temo-arrow-head"></span><span class="temo-bang"></span></span>`;
-  if (groupTitle === "🕐") return `<span class="connect-separator">${rowIndex < 3 ? "🕐" : "🕣"}</span>`;
+  if (groupTitle === "🕐") {
+    const isRuTime = rowIndex < 3;
+    return `<span class="connect-separator connect-separator-time ${isRuTime ? "is-ru-time" : "is-ta-time"}">${isRuTime ? "🕐" : "🕣"}</span>`;
+  }
   if (groupTitle === "～たら") return `<span class="connect-separator connect-separator-square connect-separator-tara"><span class="tara-arrow-stem"></span><span class="tara-arrow-head"></span></span>`;
   return `<span class="connect-separator">・</span>`;
 }
@@ -3467,7 +3493,7 @@ function makeConnectTable() {
       html += `
         <tr>
           <td>${makeWordCell(addFurigana(makeConnectHint(prompt, group.title, rowIndex)))}</td>
-          <td><span class="answer-text">${displayedAnswer}</span></td>
+          <td><span class="answer-text${group.title === "理由" ? " reason-note-answer" : ""}">${displayedAnswer}</span></td>
         </tr>
       `;
     });
