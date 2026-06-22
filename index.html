@@ -770,6 +770,11 @@
     white-space: nowrap !important;
   }
 
+  #tableArea .listen-prompt-eye {
+    display: inline-block;
+    transform: scaleX(-1);
+  }
+
   #tableArea .listen-prompt-emoji {
     font-size: 1.26em !important;
     line-height: 1;
@@ -4059,9 +4064,18 @@ function formatListenPrompt(prompt) {
     <span class="listen-prompt">
       <span class="listen-prompt-text">${escapeHtml(text)}</span>
       <br class="listen-prompt-break">
-      <span class="listen-prompt-emoji">${escapeHtml(emoji)}</span>
+      <span class="listen-prompt-emoji">${formatListenPromptEmoji(emoji)}</span>
     </span>
   `;
+}
+
+function formatListenPromptEmoji(emoji) {
+  return Array.from(String(emoji || "")).map(char => {
+    if (char === "👀") {
+      return `<span class="listen-prompt-eye">${escapeHtml(char)}</span>`;
+    }
+    return escapeHtml(char);
+  }).join("");
 }
 
 function makeListenTable() {
