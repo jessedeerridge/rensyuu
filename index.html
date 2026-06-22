@@ -1586,12 +1586,17 @@
     line-height: 1.18;
   }
 
+  #tableArea table.connect-table td:last-child {
+    padding-left: 0.25em;
+    padding-right: 0.01em;
+  }
+
   #tableArea table.connect-table td:last-child .answer-text,
   #tableArea table.connect-table.fitting-table td:last-child .answer-text,
   #tableArea table.connect-table td:last-child.text-adjusted-cell .answer-text {
     font-size: var(--table-font-size) !important;
-    white-space: normal !important;
-    line-height: 1.25;
+    white-space: nowrap !important;
+    line-height: 1.18;
   }
 
   #tableArea .answer-text ruby,
@@ -3491,19 +3496,6 @@ function addReasonKaraNote(html) {
   return String(html || "").replace("から", `<span class="reason-kara-wrap">から<span class="reason-kara-note">（ので）</span></span>`);
 }
 
-function getTextLengthWithoutMarkup(html) {
-  const template = document.createElement("template");
-  template.innerHTML = String(html || "");
-  template.content.querySelectorAll("rt").forEach(node => node.remove());
-  return Array.from((template.content.textContent || "").replace(/\s+/g, "").trim()).length;
-}
-
-function formatConnectAnswer(answerHtml) {
-  const html = String(answerHtml || "");
-  if (getTextLengthWithoutMarkup(html) <= 15 || !html.includes("、")) return html;
-  return html.replace(/、/g, "、<br>");
-}
-
 function makeConnectTable() {
   let html = `
     <table class="listen-table tara-table connect-table">
@@ -3519,8 +3511,7 @@ function makeConnectTable() {
 
     group.rows.forEach(([prompt, answer], rowIndex) => {
       const answerHtml = addFurigana(compactJapanese(escapeHtml(answer)));
-      const notedAnswer = group.title === "理由" ? addReasonKaraNote(answerHtml) : answerHtml;
-      const displayedAnswer = formatConnectAnswer(notedAnswer);
+      const displayedAnswer = group.title === "理由" ? addReasonKaraNote(answerHtml) : answerHtml;
 
       html += `
         <tr>
@@ -5589,8 +5580,6 @@ function resetTableTextTransforms(table) {
 }
 
 function squeezeRightColumnToOneLine(table) {
-  if (table.classList.contains("connect-table")) return;
-
   const minRightFont = 8;
 
   table.querySelectorAll("td:last-child .answer-text").forEach(el => {
@@ -5728,8 +5717,6 @@ function fitTableTextOneLine() {
 
   let hasCellShrink = false;
   shrinkTargets().forEach(el => {
-    if (table.classList.contains("connect-table") && el.matches("td:last-child .answer-text")) return;
-
     let cellSize = size;
     const needsShrink = () => elementOverflows(el) || (el.matches(".word-text") && leftTextUsesMoreThanTwoLines(el));
     const minFont = el.matches(".word-text") ? minLeftFont : (el.matches(".answer-text") ? minRightFont : minCellFont);
