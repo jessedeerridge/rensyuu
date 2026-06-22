@@ -5581,8 +5581,10 @@ function resetTableTextTransforms(table) {
 
 function squeezeRightColumnToOneLine(table) {
   const minRightFont = 8;
+  const rightAnswers = Array.from(table.querySelectorAll("td:last-child .answer-text"))
+    .filter(el => el.offsetParent !== null);
 
-  table.querySelectorAll("td:last-child .answer-text").forEach(el => {
+  rightAnswers.forEach(el => {
     el.style.removeProperty("transform");
 
     let fontSize = parseFloat(getComputedStyle(el).fontSize);
@@ -5597,6 +5599,18 @@ function squeezeRightColumnToOneLine(table) {
       const fittedSize = Math.max(1, (fontSize * el.clientWidth) / el.scrollWidth - 0.5);
       el.style.setProperty("font-size", `${fittedSize}px`, "important");
     }
+  });
+
+  if (!table.classList.contains("connect-table") || !rightAnswers.length) return;
+
+  const smallestRightSize = rightAnswers.reduce((smallest, el) => {
+    const size = parseFloat(getComputedStyle(el).fontSize);
+    return Number.isFinite(size) ? Math.min(smallest, size) : smallest;
+  }, Infinity);
+
+  if (!Number.isFinite(smallestRightSize)) return;
+  rightAnswers.forEach(el => {
+    el.style.setProperty("font-size", `${smallestRightSize}px`, "important");
   });
 }
 
