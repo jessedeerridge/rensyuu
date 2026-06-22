@@ -71,12 +71,13 @@
     font-size: 28px;
     font-weight: 900;
     color: #ff6fae;
+    line-height: 1.05;
     margin-bottom: 4px;
   }
 
   .home-title-subtitle {
     display: block;
-    margin-top: 4px;
+    margin-top: -1px;
     color: #777;
     font-size: 17px;
     font-weight: 900;
@@ -1147,13 +1148,13 @@
 
   #tableArea .reason-kara-note {
     position: absolute;
-    top: 1.05em;
+    top: 1em;
     left: 0;
     right: 0;
     transform: none;
     text-align: center;
-    color: #d90000;
-    font-size: calc(0.48em + 6px);
+    color: inherit;
+    font-size: 1em;
     font-weight: 900;
     line-height: 1;
     white-space: nowrap;
@@ -1161,24 +1162,23 @@
   }
 
   #tableArea .answer-text.reason-note-answer {
-    padding-bottom: 1.2em;
+    padding-bottom: 0;
   }
 
   .question-memo-card .reason-kara-wrap {
     position: relative;
     display: inline-block;
-    padding-bottom: 1.15em;
     line-height: 1;
     vertical-align: top;
   }
 
   .question-memo-card .reason-kara-note {
     position: absolute;
-    top: 1.02em;
+    top: 1em;
     left: 0;
     right: 0;
-    color: #d90000;
-    font-size: 0.72em;
+    color: inherit;
+    font-size: 1em;
     font-weight: 900;
     line-height: 1;
     text-align: center;
@@ -1597,6 +1597,10 @@
 
   .question-memo-card.memo-roomy {
     font-size: 15px;
+  }
+
+  .question-memo-card.memo-has-reason-note {
+    overflow: visible;
   }
 
   .memo-empty-toast {
@@ -2024,7 +2028,7 @@ function closeStartNotice() {
 
 
 
-const TOP_MEMO_DISPLAY_LIMIT = 4;
+const TOP_MEMO_DISPLAY_LIMIT = 8;
 const MENU_MEMO_DISPLAY_LIMIT = 12;
 const nonConjugationQuestionTypes = new Set(["聞く", "話す", "つなぐ"]);
 let currentSection = "home";
@@ -3332,8 +3336,12 @@ function isNonConjugationMemoType(type) {
   return nonConjugationQuestionTypes.has(type);
 }
 
+function isTaraMemoType(type) {
+  return type === "Vたら" || type === "たら";
+}
+
 function isStackedMemoType(type) {
-  return isTariMemoType(type) || isNonConjugationMemoType(type);
+  return isTariMemoType(type) || isTaraMemoType(type) || isNonConjugationMemoType(type);
 }
 
 function getMemoDisplayItem(item) {
@@ -3505,7 +3513,9 @@ function renderQuestionMemoLayer() {
 
   const allItems = safeParseQuestionStore();
   let items;
-  if (isMenuMemo) {
+  if (currentSection === "vocab") {
+    items = getRandomQuestionMemoItems(allItems.filter(item => vocabCategories.includes(item.type)), memoLimit);
+  } else if (isMenuMemo) {
     items = getRandomQuestionMemoItems(allItems.filter(isConjugationQuestionItem), memoLimit);
   } else {
     const nonConjugationLimit = Math.round(memoLimit * 0.7);
@@ -3525,7 +3535,7 @@ function renderQuestionMemoLayer() {
   layer.innerHTML = "";
   if (!items.length) return;
 
-  const positions = getMemoLayout(items, isMenuMemo ? { displayLimit: MENU_MEMO_DISPLAY_LIMIT, zoneLimit: 6, columns: 3 } : { displayLimit: TOP_MEMO_DISPLAY_LIMIT, zoneLimit: 2, columns: 2 });
+  const positions = getMemoLayout(items, isMenuMemo ? { displayLimit: MENU_MEMO_DISPLAY_LIMIT, zoneLimit: 6, columns: 3 } : { displayLimit: TOP_MEMO_DISPLAY_LIMIT, zoneLimit: 4, columns: 2 });
   if (!positions) {
     // 画面サイズ変更などで全部は置けない場合でも、保存データは壊さない。
     // 次に？を押した時に「0個扱い」にならないよう、ここではトーストも出さない。
@@ -3537,7 +3547,7 @@ function renderQuestionMemoLayer() {
     const displayItem = getMemoDisplayItem(item);
     const card = document.createElement("div");
     const isStackedMemo = isStackedMemoType(displayItem.type);
-    card.className = `question-memo-card${pos.isRoomy ? " memo-roomy" : ""}${isStackedMemo ? " memo-stacked" : ""}`;
+    card.className = `question-memo-card${pos.isRoomy ? " memo-roomy" : ""}${isStackedMemo ? " memo-stacked" : ""}${displayItem.rightHtml.includes("reason-kara-note") ? " memo-has-reason-note" : ""}`;
     card.style.left = `${pos.x}px`;
     card.style.top = `${pos.y}px`;
     card.style.width = `${pos.width}px`;
