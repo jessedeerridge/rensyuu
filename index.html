@@ -1785,49 +1785,70 @@
     position: absolute;
     left: 50%;
     top: 50%;
-    width: 180px;
-    height: 118px;
-    transform: translate(-50%, -54%) rotateX(58deg) rotateZ(-28deg);
-    transform-style: preserve-3d;
-    border-radius: 22px 16px 20px 16px;
+    width: 230px;
+    height: 178px;
+    transform: translate(-50%, -50%);
+    filter: drop-shadow(16px 20px 18px rgba(72, 42, 17, 0.22));
+  }
+
+  .desk-top,
+  .desk-front,
+  .desk-side,
+  .desk-leg {
+    position: absolute;
+    display: block;
+  }
+
+  .desk-top {
+    left: 28px;
+    top: 12px;
+    width: 154px;
+    height: 88px;
     background:
-      radial-gradient(circle at 28% 22%, rgba(255,255,255,0.36), transparent 28%),
-      linear-gradient(135deg, #f0c27a 0%, #cf8540 58%, #a9652f 100%);
-    border: 5px solid #8f5724;
-    clip-path: polygon(12% 0, 100% 18%, 88% 100%, 0 82%);
-    box-shadow:
-      10px 14px 0 #8a4f20,
-      18px 24px 22px rgba(72, 42, 17, 0.26);
+      radial-gradient(circle at 34% 26%, rgba(255,255,255,0.45), transparent 25%),
+      linear-gradient(135deg, #f5cf91 0%, #d89048 58%, #b56b2e 100%);
+    border: 4px solid #8f5724;
+    clip-path: polygon(17% 0, 100% 17%, 83% 100%, 0 83%);
+    z-index: 4;
   }
 
-  .desk-drawing::before {
-    content: "";
-    position: absolute;
-    left: 9%;
-    right: -1%;
-    bottom: -34px;
-    height: 40px;
-    background: linear-gradient(135deg, #9a5b27, #6f3f1b);
-    clip-path: polygon(0 0, 100% 15%, 91% 100%, 8% 83%);
-    transform: translateZ(-2px);
-    box-shadow: inset 0 8px 12px rgba(255,255,255,0.10);
+  .desk-front {
+    left: 28px;
+    top: 83px;
+    width: 154px;
+    height: 48px;
+    background: linear-gradient(160deg, #a8632a 0%, #75431b 100%);
+    clip-path: polygon(0 0, 83% 29%, 83% 100%, 0 70%);
+    border-left: 4px solid #8f5724;
+    border-bottom: 4px solid #603715;
+    z-index: 3;
   }
 
-  .desk-drawing::after {
-    content: "";
-    position: absolute;
-    left: 22px;
-    bottom: -74px;
+  .desk-side {
+    left: 154px;
+    top: 29px;
+    width: 52px;
+    height: 91px;
+    background: linear-gradient(145deg, #c07835 0%, #7b471c 100%);
+    clip-path: polygon(0 0, 100% 25%, 52% 100%, 0 77%);
+    border-right: 4px solid #603715;
+    border-bottom: 4px solid #603715;
+    z-index: 2;
+  }
+
+  .desk-leg {
     width: 18px;
-    height: 56px;
+    height: 62px;
     border-radius: 0 0 8px 8px;
-    background: linear-gradient(180deg, #86501f, #4f2d13);
-    box-shadow:
-      82px 18px 0 #5f3617,
-      132px 4px 0 #6d3e19,
-      46px -14px 0 #7a471c;
-    transform: translateZ(-10px) skewX(-8deg);
+    background: linear-gradient(180deg, #86501f 0%, #4f2d13 100%);
+    box-shadow: inset -4px 0 0 rgba(0,0,0,0.14);
+    z-index: 1;
   }
+
+  .desk-leg.front-left { left: 43px; top: 113px; height: 56px; }
+  .desk-leg.front-right { left: 138px; top: 135px; height: 38px; }
+  .desk-leg.back-left { left: 70px; top: 80px; height: 52px; opacity: 0.84; }
+  .desk-leg.back-right { left: 181px; top: 98px; height: 48px; opacity: 0.84; }
 
   .position-label {
     position: absolute;
@@ -2627,7 +2648,7 @@ function makePositionVocabPractice() {
   document.getElementById("tableArea").innerHTML = `
     <div class="position-practice" id="positionPractice">
       <div class="position-stage" id="positionStage" aria-label="位置詞の練習">
-        <div class="desk-drawing" aria-label="机"></div>
+        <div class="desk-drawing" aria-label="机"><span class="desk-top"></span><span class="desk-front"></span><span class="desk-side"></span><span class="desk-leg front-left"></span><span class="desk-leg front-right"></span><span class="desk-leg back-left"></span><span class="desk-leg back-right"></span></div>
         ${labels.map(([text, cls]) => `<div class="position-label ${cls}">${escapeHtml(text)}</div>`).join("")}
         <div class="magnifier" id="positionMagnifier" role="button" aria-label="虫眼鏡を動かして文字を見る"></div>
       </div>
