@@ -1062,7 +1062,7 @@
     background: #ff8fc7;
     color: #fff;
     box-shadow: inset 0 -2px 0 rgba(0,0,0,0.12);
-    font-size: 10px;
+    font-size: 0.54em;
     font-weight: 900;
     letter-spacing: -0.02em;
   }
@@ -1084,7 +1084,7 @@
     height: 16px;
     border-radius: 4px;
     box-shadow: inset 0 -2px 0 rgba(0,0,0,0.16);
-    font-size: 10px;
+    font-size: 0.72em;
     line-height: 1;
   }
 
@@ -1109,7 +1109,7 @@
   #tableArea .connect-separator-fast {
     background: #2f4d7c;
     color: #fff;
-    font-size: 10px;
+    font-size: 0.46em;
     font-weight: 900;
   }
 
@@ -1134,7 +1134,7 @@
     left: 50%;
     transform: translateX(-50%);
     color: #d90000;
-    font-size: calc(1em - 2px);
+    font-size: calc(0.48em + 6px);
     font-weight: 900;
     line-height: 1;
     white-space: nowrap;
@@ -5587,35 +5587,6 @@ function squeezeRightColumnToOneLine(table) {
   });
 }
 
-function expandRightColumnToAvailableSpace(table, maxRightFont) {
-  table.querySelectorAll("td:last-child .answer-text").forEach(el => {
-    const cell = el.closest("td");
-    if (!cell) return;
-
-    let fontSize = parseFloat(getComputedStyle(el).fontSize);
-    if (!Number.isFinite(fontSize) || fontSize >= maxRightFont) return;
-
-    const fits = () => {
-      const rect = el.getBoundingClientRect();
-      const cellRect = cell.getBoundingClientRect();
-      return el.scrollWidth <= el.clientWidth + 0.5 && rect.right <= cellRect.right + 0.5;
-    };
-
-    let bestSize = fontSize;
-    while (fontSize < maxRightFont) {
-      fontSize = Math.min(maxRightFont, fontSize + 0.5);
-      el.style.setProperty("font-size", `${fontSize}px`, "important");
-
-      if (!fits()) {
-        el.style.setProperty("font-size", `${bestSize}px`, "important");
-        break;
-      }
-
-      bestSize = fontSize;
-    }
-  });
-}
-
 function leftTextUsesMoreThanTwoLines(el) {
   const lineHeight = parseFloat(getComputedStyle(el).lineHeight);
   if (!Number.isFinite(lineHeight) || lineHeight <= 0) return false;
@@ -5672,7 +5643,6 @@ function fitTableTextOneLine() {
   if (!table) return;
 
   const maxFont = 18;
-  const maxRightAnswerFont = 22;
   const minTableFont = 15;
   const minCellFont = 15;
   const minLeftFont = 14;
@@ -5747,7 +5717,6 @@ function fitTableTextOneLine() {
   unifyLeftColumnFontSize(table);
   fitTaraHintLines(table);
   squeezeRightColumnToOneLine(table);
-  expandRightColumnToAvailableSpace(table, maxRightAnswerFont);
 
   table.dataset.fittedFontSize = String(size);
   table.classList.remove("fitting-table");
