@@ -41,7 +41,8 @@
   }
 
   body.home-mode #homeScreen,
-  body.menu-mode #menuScreen {
+  body.menu-mode #menuScreen,
+  body.menu-mode #vocabularyMenuScreen {
     height: 100vh;
     height: 100svh;
     overflow: hidden;
@@ -52,7 +53,8 @@
     display: block;
   }
 
-  #menuScreen {
+  #menuScreen,
+  #vocabularyMenuScreen {
     display: none;
   }
 
@@ -114,7 +116,8 @@
     box-shadow: 0 7px 0 #eee2a4, 0 12px 20px rgba(0,0,0,0.10);
   }
 
-  .home-btn.connect-btn {
+  .home-btn.connect-btn,
+  .home-btn.vocabulary-btn {
     background: #f0faeb;
     box-shadow: 0 7px 0 #d1e5ca, 0 12px 20px rgba(0,0,0,0.10);
   }
@@ -281,6 +284,10 @@
   .page-nav.disabled .page-arrow {
     background: rgba(0,0,0,0.45);
     box-shadow: none;
+  }
+
+  .page-nav.disabled .page-nav-label {
+    color: rgba(34, 34, 34, 0.45);
   }
 
   .page-nav-label {
@@ -710,6 +717,15 @@
     --table-font-size: 15px;
   }
 
+  #tableArea tr.vocabulary-special-row td {
+    background: #fffbe3 !important;
+  }
+
+  #tableArea tr.vocabulary-special-row .question-box {
+    background: #fffbe3 !important;
+    border-color: #e6dca4 !important;
+  }
+
   #tableArea table th:first-child,
   #tableArea table td:first-child {
     width: 45%;
@@ -956,7 +972,8 @@
 
   /* ===== メニュー：そのページに存在するボタン群を画面中央に配置 ===== */
   body.home-mode #homeScreen,
-  body.menu-mode #menuScreen {
+  body.menu-mode #menuScreen,
+  body.menu-mode #vocabularyMenuScreen {
     position: relative;
     height: 100vh;
     height: 100svh;
@@ -1028,7 +1045,7 @@
     white-space: nowrap;
   }
 
-  #tableArea .connect-separator {
+  :is(#tableArea, .question-memo-card) .connect-separator {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -1037,7 +1054,7 @@
     line-height: 1;
   }
 
-  #tableArea .connect-separator-plus {
+  :is(#tableArea, .question-memo-card) .connect-separator-plus {
     position: relative;
     top: -0.06em;
     width: 1em;
@@ -1052,7 +1069,7 @@
     justify-content: center;
   }
 
-  #tableArea .connect-separator-before-after {
+  :is(#tableArea, .question-memo-card) .connect-separator-before-after {
     position: relative;
     top: -0.06em;
     width: auto;
@@ -1067,17 +1084,17 @@
     letter-spacing: -0.02em;
   }
 
-  #tableArea .connect-separator-before-after.is-after {
+  :is(#tableArea, .question-memo-card) .connect-separator-before-after.is-after {
     background: #d79ab7;
   }
 
-  #tableArea .connect-separator-before-after-label {
+  :is(#tableArea, .question-memo-card) .connect-separator-before-after-label {
     display: inline-block;
     transform: scaleX(0.68) scaleY(1.16);
     transform-origin: center;
   }
 
-  #tableArea .connect-separator-time {
+  :is(#tableArea, .question-memo-card) .connect-separator-time {
     position: relative;
     top: -0.06em;
     width: 16px;
@@ -1088,15 +1105,15 @@
     line-height: 1;
   }
 
-  #tableArea .connect-separator-time.is-ru-time {
+  :is(#tableArea, .question-memo-card) .connect-separator-time.is-ru-time {
     background: #aee8ff;
   }
 
-  #tableArea .connect-separator-time.is-ta-time {
+  :is(#tableArea, .question-memo-card) .connect-separator-time.is-ta-time {
     background: #78977C;
   }
 
-  #tableArea .connect-separator-square {
+  :is(#tableArea, .question-memo-card) .connect-separator-square {
     position: relative;
     top: -0.06em;
     width: 16px;
@@ -1106,29 +1123,29 @@
     box-shadow: inset 0 -2px 0 rgba(0,0,0,0.16);
   }
 
-  #tableArea .connect-separator-fast {
+  :is(#tableArea, .question-memo-card) .connect-separator-fast {
     background: #2f4d7c;
     color: #fff;
     font-size: 0.46em;
     font-weight: 900;
   }
 
-  #tableArea .connect-separator-fast span + span {
+  :is(#tableArea, .question-memo-card) .connect-separator-fast span + span {
     margin-left: calc(-0.28em - 1px);
   }
 
-  #tableArea .connect-separator-soft-blue {
+  :is(#tableArea, .question-memo-card) .connect-separator-soft-blue {
     background: #4f8fd2;
   }
 
-  #tableArea .reason-kara-wrap {
+  :is(#tableArea, .question-memo-card) .reason-kara-wrap {
     position: relative;
     display: inline-block;
     line-height: inherit;
     vertical-align: baseline;
   }
 
-  #tableArea .reason-kara-note {
+  :is(#tableArea, .question-memo-card) .reason-kara-note {
     position: absolute;
     top: calc(100% + 4px);
     left: 50%;
@@ -1141,33 +1158,33 @@
     z-index: 2;
   }
 
-  #tableArea .answer-text.reason-note-answer {
+  :is(#tableArea, .question-memo-card) .answer-text.reason-note-answer {
     padding-bottom: 1.2em;
   }
 
-  #tableArea .connect-separator-contrast {
+  :is(#tableArea, .question-memo-card) .connect-separator-contrast {
     background: #7f8792;
     color: #fff;
   }
 
-  #tableArea .connect-separator-temo {
+  :is(#tableArea, .question-memo-card) .connect-separator-temo {
     background: #b98551;
     color: #fffaf0;
   }
 
-  #tableArea .connect-separator-tara {
+  :is(#tableArea, .question-memo-card) .connect-separator-tara {
     background: #3f8cff;
     color: #fff;
   }
 
 
-  #tableArea .bidi-arrow {
+  :is(#tableArea, .question-memo-card) .bidi-arrow {
     position: relative;
     width: 14px;
     height: 8px;
   }
 
-  #tableArea .bidi-arrow::before {
+  :is(#tableArea, .question-memo-card) .bidi-arrow::before {
     content: "";
     position: absolute;
     left: 4px;
@@ -1179,8 +1196,8 @@
     transform: translateY(-50%);
   }
 
-  #tableArea .bidi-arrow-left,
-  #tableArea .bidi-arrow-right {
+  :is(#tableArea, .question-memo-card) .bidi-arrow-left,
+  :is(#tableArea, .question-memo-card) .bidi-arrow-right {
     position: absolute;
     top: 50%;
     width: 0;
@@ -1188,14 +1205,14 @@
     transform: translateY(-50%);
   }
 
-  #tableArea .bidi-arrow-left {
+  :is(#tableArea, .question-memo-card) .bidi-arrow-left {
     left: 0;
     border-top: 3.5px solid transparent;
     border-bottom: 3.5px solid transparent;
     border-right: 4.5px solid currentColor;
   }
 
-  #tableArea .bidi-arrow-right {
+  :is(#tableArea, .question-memo-card) .bidi-arrow-right {
     right: 0;
     border-top: 3.5px solid transparent;
     border-bottom: 3.5px solid transparent;
@@ -1203,7 +1220,7 @@
   }
 
 
-  #tableArea .tara-arrow-stem {
+  :is(#tableArea, .question-memo-card) .tara-arrow-stem {
     width: 6px;
     height: 3px;
     margin-left: -1px;
@@ -1211,7 +1228,7 @@
     border-radius: 999px;
   }
 
-  #tableArea .tara-arrow-head {
+  :is(#tableArea, .question-memo-card) .tara-arrow-head {
     width: 0;
     height: 0;
     margin-left: -1px;
@@ -1220,7 +1237,7 @@
     border-left: 5px solid currentColor;
   }
 
-  #tableArea .temo-arrow-stem {
+  :is(#tableArea, .question-memo-card) .temo-arrow-stem {
     width: 4px;
     height: 3px;
     margin-left: -1px;
@@ -1228,7 +1245,7 @@
     border-radius: 999px;
   }
 
-  #tableArea .temo-arrow-head {
+  :is(#tableArea, .question-memo-card) .temo-arrow-head {
     width: 0;
     height: 0;
     margin-left: -1px;
@@ -1237,14 +1254,14 @@
     border-left: 5px solid currentColor;
   }
 
-  #tableArea .temo-bang {
+  :is(#tableArea, .question-memo-card) .temo-bang {
     position: relative;
     width: 3px;
     height: 9px;
     margin-left: 1px;
   }
 
-  #tableArea .temo-bang::before {
+  :is(#tableArea, .question-memo-card) .temo-bang::before {
     content: "";
     position: absolute;
     left: 50%;
@@ -1256,7 +1273,7 @@
     transform: translateX(-50%);
   }
 
-  #tableArea .temo-bang::after {
+  :is(#tableArea, .question-memo-card) .temo-bang::after {
     content: "";
     position: absolute;
     left: 50%;
@@ -1586,11 +1603,19 @@
     line-height: 1.18;
   }
 
+  #tableArea td:last-child,
+  #tableArea td:last-child.answer-cell-short:not(.text-adjusted-cell),
   #tableArea table.connect-table td:last-child {
     padding-left: 6px;
     padding-right: 0.01px;
   }
 
+  #tableArea table.listen-table td:last-child .answer-text,
+  #tableArea table.listen-table.fitting-table td:last-child .answer-text,
+  #tableArea table.listen-table td:last-child.text-adjusted-cell .answer-text,
+  #tableArea table.conjugation-table td:last-child .answer-text,
+  #tableArea table.conjugation-table.fitting-table td:last-child .answer-text,
+  #tableArea table.conjugation-table td:last-child.text-adjusted-cell .answer-text,
   #tableArea table.connect-table td:last-child .answer-text,
   #tableArea table.connect-table.fitting-table td:last-child .answer-text,
   #tableArea table.connect-table td:last-child.text-adjusted-cell .answer-text {
@@ -1647,8 +1672,38 @@
     <div class="home-actions" aria-label="練習メニュー">
       <button class="home-btn listen-btn" type="button" onclick="openListenPage()">聞く</button>
       <button class="home-btn speak-btn" type="button" onclick="openSpeakPage()">話す</button>
-      <button class="home-btn connect-btn" type="button" onclick="openConnectPage()">つなぐ</button>
+      <button class="home-btn vocabulary-btn" type="button" onclick="openVocabularyMenu()">語彙</button>
       <button class="home-btn conjugation-btn" type="button" onclick="openConjugationMenu()">活用</button>
+    </div>
+  </div>
+
+  <div id="homeLeftPageNav" class="page-nav left-nav">
+    <button class="page-arrow" type="button" aria-label="基礎">◀</button>
+    <div class="page-nav-label">基礎</div>
+  </div>
+
+  <div id="homeRightPageNav" class="page-nav right-nav disabled">
+    <button class="page-arrow" type="button" aria-label="初級2" disabled>▶</button>
+    <div class="page-nav-label">初級2</div>
+  </div>
+</div>
+
+<div id="vocabularyMenuScreen" class="screen">
+  <div class="menu-title-row">
+    <button class="back-btn menu-back-btn" type="button" onclick="openHome()" aria-label="戻る"><span class="back-arrow-icon" aria-hidden="true">➜</span></button>
+    <div class="page-title"><span class="title-emoji left">🐢</span> 語彙れんしゅう <span class="title-emoji right">🐢</span></div>
+  </div>
+
+  <div class="button-grid">
+    <div class="menu-page active">
+      <button class="menu-btn" onclick="showTable('位置詞')">位置詞</button>
+      <button class="menu-btn basic-verb-btn" onclick="showTable('数字')">数字</button>
+      <button class="menu-btn basic-adjective-btn" onclick="showTable('日付')">日付</button>
+      <button class="menu-btn" onclick="showTable('曜日')">曜日</button>
+      <button class="menu-btn basic-verb-btn" onclick="showTable('数え方')">数え方</button>
+      <button class="menu-btn basic-adjective-btn" onclick="showTable('時間')">時間</button>
+      <button class="menu-btn" onclick="showTable('月')">月</button>
+      <button class="menu-btn basic-verb-btn" onclick="showTable('値段')">値段</button>
     </div>
   </div>
 </div>
@@ -1745,7 +1800,8 @@ function closeStartNotice() {
 
 
 const TOP_MEMO_DISPLAY_LIMIT = 12;
-const nonConjugationQuestionTypes = new Set(["聞く", "話す", "つなぐ"]);
+const HOME_MEMO_DISPLAY_LIMIT = 6;
+const nonConjugationQuestionTypes = new Set(["聞く", "話す", "つなぐ", "位置詞", "数字", "日付", "曜日", "数え方", "時間", "月", "値段"]);
 let currentSection = "home";
 
 function isConjugationQuestionItem(item) {
@@ -1976,6 +2032,7 @@ function openHome() {
   document.body.classList.add("home-mode");
   document.getElementById("tableScreen").style.display = "none";
   document.getElementById("menuScreen").style.display = "none";
+  document.getElementById("vocabularyMenuScreen").style.display = "none";
   document.getElementById("homeScreen").style.display = "block";
   requestAnimationFrame(renderQuestionMemoLayer);
   window.scrollTo(0, 0);
@@ -1986,10 +2043,22 @@ function openConjugationMenu() {
   document.body.classList.remove("home-mode", "sheet-high", "table-start-lowered");
   document.body.classList.add("menu-mode");
   document.getElementById("homeScreen").style.display = "none";
+  document.getElementById("vocabularyMenuScreen").style.display = "none";
   document.getElementById("tableScreen").style.display = "none";
   document.getElementById("menuScreen").style.display = "block";
   updateMenuPage();
   requestAnimationFrame(renderQuestionMemoLayer);
+  window.scrollTo(0, 0);
+}
+
+function openVocabularyMenu() {
+  currentSection = "vocabulary";
+  document.body.classList.remove("home-mode", "sheet-high", "table-start-lowered");
+  document.body.classList.add("menu-mode");
+  document.getElementById("homeScreen").style.display = "none";
+  document.getElementById("menuScreen").style.display = "none";
+  document.getElementById("tableScreen").style.display = "none";
+  document.getElementById("vocabularyMenuScreen").style.display = "block";
   window.scrollTo(0, 0);
 }
 
@@ -2539,12 +2608,11 @@ function sanitizeQuestionMemoHtml(html) {
   const tmp = document.createElement("div");
   tmp.innerHTML = html || "";
 
-  // 表の赤シート用カバーや色分け用の class/style を？記録へ持ち込まない。
-  // これらが保存されると、記録ボックス内の文字の上に白・色付きの四角が乗って見える。
+  // 表の赤シート用カバーやインライン style は？記録へ持ち込まない。
+  // class は絵文字や四角アイコンの組み立てに必要なので残す。
   tmp.querySelectorAll(".answer-mask-cover").forEach(el => el.remove());
-  tmp.querySelectorAll("[style], [class]").forEach(el => {
+  tmp.querySelectorAll("[style]").forEach(el => {
     el.removeAttribute("style");
-    el.removeAttribute("class");
   });
 
   return tmp.innerHTML.trim();
@@ -3005,23 +3073,25 @@ function arrangeMemoRow(rowItems) {
   return [smallFirst[0], sorted[0], smallFirst[1]];
 }
 
-function getMemoLayout(items) {
+function getMemoLayout(items, options = {}) {
   items = Array.isArray(items) ? items.filter(isValidQuestionItem) : [];
   if (!items.length) return [];
-  if (items.length > QUESTION_MEMO_DISPLAY_LIMIT) return null;
+  const displayLimit = options.displayLimit || QUESTION_MEMO_DISPLAY_LIMIT;
+  if (items.length > displayLimit) return null;
 
   const vw = window.innerWidth;
   const vh = window.innerHeight;
   const isSmall = vw <= 420;
   const margin = isSmall ? 5 : 8;
   const gap = isSmall ? 4 : 6;
-  const columns = 3;
-  const rowsPerZone = Math.ceil(QUESTION_MEMO_ZONE_LIMIT / columns);
+  const columns = options.columns || 3;
+  const zoneLimit = options.zoneLimit || QUESTION_MEMO_ZONE_LIMIT;
+  const rowsPerZone = Math.ceil(zoneLimit / columns);
   const baseCardW = Math.floor((vw - margin * 2 - gap * (columns - 1)) / columns);
   // 横長カードを行いっぱいに広げると、隣の？記録の上に白いカード背景が被るため、
   // 各カードは自分の列幅内に収め、文字側を縮小して見切れを防ぐ。
   const maxCardW = baseCardW;
-  const cardH = isSmall ? 40 : 52;
+  const cardH = options.cardHeight || (isSmall ? 40 : 52);
   const title = document.querySelector(".page-title");
   const titleRect = title ? title.getBoundingClientRect() : null;
   const topY = titleRect ? Math.max(margin, Math.ceil(titleRect.bottom + 6)) : margin;
@@ -3067,6 +3137,13 @@ function getMemoLayout(items) {
   };
 
   const placeZone = (zoneItems, yBase) => {
+    if (columns !== 3) {
+      zoneItems.forEach((layoutItem, index) => {
+        placeLayoutItem(layoutItem, index % columns, Math.floor(index / columns), yBase);
+      });
+      return;
+    }
+
     if (zoneItems.length <= columns) {
       arrangeMemoRow(zoneItems).forEach((layoutItem, col) => {
         placeLayoutItem(layoutItem, col, 0, yBase);
@@ -3094,8 +3171,8 @@ function getMemoLayout(items) {
     });
   };
 
-  placeZone(layoutItems.slice(0, QUESTION_MEMO_ZONE_LIMIT), topY);
-  placeZone(layoutItems.slice(QUESTION_MEMO_ZONE_LIMIT), bottomY);
+  placeZone(layoutItems.slice(0, zoneLimit), topY);
+  placeZone(layoutItems.slice(zoneLimit), bottomY);
 
   return positions;
 }
@@ -3123,11 +3200,12 @@ function renderQuestionMemoLayer() {
 
   const allItems = safeParseQuestionStore();
   const sourceItems = isConjugationMenu ? allItems.filter(isConjugationQuestionItem) : allItems;
-  const items = getStableQuestionMemoItems(sourceItems, TOP_MEMO_DISPLAY_LIMIT);
+  const memoDisplayLimit = currentSection === "home" ? HOME_MEMO_DISPLAY_LIMIT : TOP_MEMO_DISPLAY_LIMIT;
+  const items = getStableQuestionMemoItems(sourceItems, memoDisplayLimit);
   layer.innerHTML = "";
   if (!items.length) return;
 
-  const positions = getMemoLayout(items);
+  const positions = getMemoLayout(items, currentSection === "home" ? { columns: 2, zoneLimit: HOME_MEMO_DISPLAY_LIMIT, displayLimit: HOME_MEMO_DISPLAY_LIMIT, cardHeight: window.innerWidth <= 420 ? 48 : 62 } : {});
   if (!positions) {
     // 画面サイズ変更などで全部は置けない場合でも、保存データは壊さない。
     // 次に？を押した時に「0個扱い」にならないよう、ここではトーストも出さない。
@@ -3304,6 +3382,57 @@ function makeSpeakTable() {
   `;
 }
 
+const vocabularyPracticeData = {
+  "位置詞": [
+    ["上", "うえ"], ["下", "した"], ["前", "まえ"], ["後ろ", "うしろ"],
+    ["右", "みぎ"], ["左", "ひだり"], ["中", "なか"], ["外", "そと"], ["隣", "となり"], ["間", "あいだ", true]
+  ],
+  "数字": [
+    ["0", "ゼロ／れい"], ["1", "いち"], ["2", "に"], ["3", "さん"], ["4", "よん／し", true],
+    ["5", "ご"], ["6", "ろく"], ["7", "なな／しち", true], ["8", "はち"], ["9", "きゅう／く", true], ["10", "じゅう"]
+  ],
+  "日付": [
+    ["1日", "ついたち", true], ["2日", "ふつか", true], ["3日", "みっか", true], ["4日", "よっか", true],
+    ["5日", "いつか", true], ["6日", "むいか", true], ["7日", "なのか", true], ["8日", "ようか", true],
+    ["9日", "ここのか", true], ["10日", "とおか", true], ["14日", "じゅうよっか", true], ["20日", "はつか", true], ["24日", "にじゅうよっか", true]
+  ],
+  "曜日": [
+    ["月曜日", "げつようび"], ["火曜日", "かようび"], ["水曜日", "すいようび"], ["木曜日", "もくようび"],
+    ["金曜日", "きんようび"], ["土曜日", "どようび"], ["日曜日", "にちようび"]
+  ],
+  "数え方": [
+    ["1つ", "ひとつ", true], ["2つ", "ふたつ", true], ["3つ", "みっつ", true], ["4つ", "よっつ", true],
+    ["5つ", "いつつ", true], ["6つ", "むっつ", true], ["7つ", "ななつ"], ["8つ", "やっつ", true], ["9つ", "ここのつ", true], ["10", "とお", true]
+  ],
+  "時間": [
+    ["1時", "いちじ"], ["2時", "にじ"], ["3時", "さんじ"], ["4時", "よじ", true], ["5時", "ごじ"],
+    ["6時", "ろくじ"], ["7時", "しちじ", true], ["8時", "はちじ"], ["9時", "くじ", true], ["10時", "じゅうじ"], ["30分", "さんじゅっぷん／はん", true]
+  ],
+  "月": [
+    ["1月", "いちがつ"], ["2月", "にがつ"], ["3月", "さんがつ"], ["4月", "しがつ", true], ["5月", "ごがつ"], ["6月", "ろくがつ"],
+    ["7月", "しちがつ", true], ["8月", "はちがつ"], ["9月", "くがつ", true], ["10月", "じゅうがつ"], ["11月", "じゅういちがつ"], ["12月", "じゅうにがつ"]
+  ],
+  "値段": [
+    ["100円", "ひゃくえん"], ["300円", "さんびゃくえん", true], ["600円", "ろっぴゃくえん", true], ["800円", "はっぴゃくえん", true],
+    ["1,000円", "せんえん"], ["3,000円", "さんぜんえん", true], ["8,000円", "はっせんえん", true], ["10,000円", "いちまんえん"]
+  ]
+};
+
+function makeVocabularyTable(type) {
+  const rows = vocabularyPracticeData[type].map(([prompt, answer, isSpecial]) => `
+    <tr${isSpecial ? ' class="vocabulary-special-row"' : ''}>
+      <td>${makeWordCell(escapeHtml(prompt))}</td>
+      <td><span class="answer-text">${addFurigana(escapeHtml(answer))}</span></td>
+    </tr>
+  `).join("");
+  document.getElementById("tableArea").innerHTML = `
+    <table class="listen-table vocabulary-table">
+      <tr><th>語彙</th><th>読み方</th></tr>
+      ${rows}
+    </table>
+    <div class="scroll-extra-y"></div>
+  `;
+}
 
 function compactJapanese(html) {
   return String(html || "").replace(/[\s　]+/g, "");
@@ -3535,6 +3664,7 @@ function showPlaceholderTable(title, message, returnSection = "home") {
   document.body.classList.add("table-start-lowered");
   document.getElementById("homeScreen").style.display = "none";
   document.getElementById("menuScreen").style.display = "none";
+  document.getElementById("vocabularyMenuScreen").style.display = "none";
   document.getElementById("tableScreen").style.display = "block";
   document.getElementById("tableTitle").textContent = title;
   document.getElementById("tableArea").innerHTML = `<div class="placeholder">${escapeHtml(message)}</div>`;
@@ -3545,12 +3675,16 @@ function showPlaceholderTable(title, message, returnSection = "home") {
 }
 
 function showTable(type, focusKey = "") {
+  if (vocabularyPracticeData[type]) {
+    currentSection = "vocabulary";
+  }
   document.body.classList.remove("home-mode", "menu-mode", "sheet-high", "table-start-lowered");
-  if (type === "Vて" || type === "Vた" || type === "聞く" || type === "話す" || type === "つなぐ") {
+  if (type === "Vて" || type === "Vた" || type === "聞く" || type === "話す" || type === "つなぐ" || vocabularyPracticeData[type]) {
     document.body.classList.add("table-start-lowered");
   }
   document.getElementById("homeScreen").style.display = "none";
   document.getElementById("menuScreen").style.display = "none";
+  document.getElementById("vocabularyMenuScreen").style.display = "none";
   document.getElementById("tableScreen").style.display = "block";
   document.getElementById("tableTitle").textContent = type;
   currentTableType = type;
@@ -3566,6 +3700,8 @@ function showTable(type, focusKey = "") {
     makeSpeakTable();
   } else if (type === "つなぐ") {
     makeConnectTable();
+  } else if (vocabularyPracticeData[type]) {
+    makeVocabularyTable(type);
   } else if (type === "Vます") {
     masuSwapped = false;
     makeMasuTable();
@@ -3690,10 +3826,17 @@ function backMenu() {
   document.getElementById("tableScreen").style.display = "none";
   if (currentSection === "conjugation") {
     document.getElementById("homeScreen").style.display = "none";
+    document.getElementById("vocabularyMenuScreen").style.display = "none";
     document.getElementById("menuScreen").style.display = "block";
     document.body.classList.remove("home-mode");
     document.body.classList.add("menu-mode");
     requestAnimationFrame(renderQuestionMemoLayer);
+  } else if (currentSection === "vocabulary") {
+    document.getElementById("homeScreen").style.display = "none";
+    document.getElementById("menuScreen").style.display = "none";
+    document.getElementById("vocabularyMenuScreen").style.display = "block";
+    document.body.classList.remove("home-mode");
+    document.body.classList.add("menu-mode");
   } else {
     openHome();
     return;
@@ -5584,7 +5727,7 @@ function squeezeRightColumnToOneLine(table) {
   const rightAnswers = Array.from(table.querySelectorAll("td:last-child .answer-text"))
     .filter(el => el.offsetParent !== null);
 
-  if (table.classList.contains("connect-table")) {
+  if (table.classList.contains("connect-table") || table.classList.contains("listen-table") || table.classList.contains("conjugation-table")) {
     const maxRightFont = 16;
     const measureAtMaxFont = (el, cell) => {
       const clone = el.cloneNode(true);
@@ -5745,10 +5888,10 @@ function fitTableTextOneLine() {
     "th, td, .word-text, .answer-text, .group-row td"
   )).filter(el => el.offsetParent !== null);
 
-  const isConnectRightAnswer = el => table.classList.contains("connect-table") && el.matches("td:last-child .answer-text");
+  const isFixedSpecRightAnswer = el => (table.classList.contains("connect-table") || table.classList.contains("listen-table") || table.classList.contains("conjugation-table")) && el.matches("td:last-child .answer-text");
 
   const elementOverflows = (el) => {
-    if (isConnectRightAnswer(el)) return false;
+    if (isFixedSpecRightAnswer(el)) return false;
 
     const rect = el.getBoundingClientRect();
     if (rect.width <= 0 || rect.height <= 0) return false;
@@ -5783,7 +5926,7 @@ function fitTableTextOneLine() {
 
   let hasCellShrink = false;
   shrinkTargets().forEach(el => {
-    if (isConnectRightAnswer(el)) return;
+    if (isFixedSpecRightAnswer(el)) return;
 
     let cellSize = size;
     const needsShrink = () => elementOverflows(el) || (el.matches(".word-text") && leftTextUsesMoreThanTwoLines(el));
