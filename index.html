@@ -5619,7 +5619,7 @@ function squeezeRightColumnToOneLine(table) {
         : (maxRightFont * cell.clientWidth) / naturalWidth;
       let fittedSize = Math.max(1, Math.min(maxRightFont, Math.floor((rawSize - 0.05) * 10) / 10));
       const setFittedSize = size => el.style.setProperty("font-size", `${size}px`, "important");
-      const overflows = () => el.scrollWidth > el.clientWidth + 0.1;
+      const overflows = () => el.scrollWidth > el.clientWidth + 5;
 
       setFittedSize(fittedSize);
       while (fittedSize > 1 && overflows()) {
