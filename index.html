@@ -5999,8 +5999,18 @@ function squeezeRightColumnToOneLine(table) {
 
   const useConnectRightCellSizing = true;
   if (useConnectRightCellSizing) {
-    const maxRightFont = 16;
-    const measureAtMaxFont = (el, cell) => {
+    const isConjugationTable = table.classList.contains("conjugation-table");
+    const getMaxRightFont = (el) => {
+      if (!isConjugationTable) return 16;
+      const row = el.closest("tr");
+      const leftText = row?.querySelector("td:first-child .word-text");
+      const leftSize = leftText ? parseFloat(getComputedStyle(leftText).fontSize) : NaN;
+      if (Number.isFinite(leftSize) && leftSize > 0) return leftSize;
+      const tableSize = parseFloat(getComputedStyle(table).fontSize);
+      return Number.isFinite(tableSize) && tableSize > 0 ? tableSize : 18;
+    };
+
+    const measureAtMaxFont = (el, cell, maxRightFont) => {
       const clone = el.cloneNode(true);
       clone.querySelectorAll(".answer-mask-cover").forEach(node => node.remove());
       clone.style.position = "absolute";
@@ -6028,7 +6038,8 @@ function squeezeRightColumnToOneLine(table) {
       const availableWidth = el.clientWidth;
       if (availableWidth <= 0) return;
 
-      const naturalWidth = measureAtMaxFont(el, cell);
+      const maxRightFont = getMaxRightFont(el);
+      const naturalWidth = measureAtMaxFont(el, cell, maxRightFont);
       if (!Number.isFinite(naturalWidth) || naturalWidth <= 0) return;
 
       const rawSize = naturalWidth <= availableWidth
