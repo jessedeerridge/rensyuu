@@ -1532,13 +1532,13 @@
   }
 
   #tableArea td:last-child {
-    padding-left: 0;
+    padding-left: 1em;
     padding-right: 0;
     text-align: left;
   }
 
   #tableArea td:last-child.answer-cell-short:not(.text-adjusted-cell) {
-    padding-left: 0;
+    padding-left: 1em;
     padding-right: 0;
     text-align: left;
   }
@@ -1574,6 +1574,9 @@
   #tableArea td:last-child .answer-text,
   #tableArea table.fitting-table td:last-child .answer-text,
   #tableArea td:last-child.text-adjusted-cell .answer-text {
+    max-width: none;
+    width: calc(100% + 0.75em);
+    margin-right: -0.75em;
     text-align: left;
     white-space: nowrap !important;
   }
