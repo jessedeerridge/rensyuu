@@ -3260,8 +3260,9 @@ function getMemoLayout(items) {
   const cardH = isSmall ? 54 : 66;
   const title = document.querySelector(".page-title");
   const titleRect = title ? title.getBoundingClientRect() : null;
-  const topY = titleRect ? Math.max(margin, Math.ceil(titleRect.bottom + 6)) : margin;
-  const bottomY = Math.max(margin, vh - margin - rowsPerZone * cardH - (rowsPerZone - 1) * gap);
+  const zoneOuterGap = isSmall ? 10 : 14;
+  const topY = titleRect ? Math.max(margin + zoneOuterGap, Math.ceil(titleRect.bottom + zoneOuterGap)) : margin + zoneOuterGap;
+  const bottomY = Math.max(margin + zoneOuterGap, vh - margin - zoneOuterGap - rowsPerZone * cardH - (rowsPerZone - 1) * gap);
   const layoutItems = items.map((item, index) => {
     const textWidth = getMemoTextWidth(item, isSmall);
     const roomyTextWidth = getMemoTextWidth(item, isSmall, 3);
@@ -3274,8 +3275,7 @@ function getMemoLayout(items) {
       height: cardH,
       isWide: width > baseCardW + 1,
       isRoomy,
-      // 回転させると角が隣のカードに少し重なり、白いボックスが上に乗って見えるため固定する。
-      rotation: 0
+      rotation: Math.random() < 0.5 ? -2 : 2
     };
   });
 
