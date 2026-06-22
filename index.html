@@ -1147,9 +1147,11 @@
 
   #tableArea .reason-kara-note {
     position: absolute;
-    top: calc(100% + 4px);
-    left: 50%;
-    transform: translateX(-50%);
+    top: 1.05em;
+    left: 0;
+    right: 0;
+    transform: none;
+    text-align: center;
     color: #d90000;
     font-size: calc(0.48em + 6px);
     font-weight: 900;
@@ -1160,6 +1162,27 @@
 
   #tableArea .answer-text.reason-note-answer {
     padding-bottom: 1.2em;
+  }
+
+  .question-memo-card .reason-kara-wrap {
+    position: relative;
+    display: inline-block;
+    padding-bottom: 1.15em;
+    line-height: 1;
+    vertical-align: top;
+  }
+
+  .question-memo-card .reason-kara-note {
+    position: absolute;
+    top: 1.02em;
+    left: 0;
+    right: 0;
+    color: #d90000;
+    font-size: 0.72em;
+    font-weight: 900;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
   }
 
   #tableArea .connect-separator-contrast {
@@ -1904,7 +1927,7 @@
       <div id="homeLeftLabel" class="page-nav-label">基礎</div>
     </div>
     <div id="homeRightNav" class="page-nav right-nav home-page-nav disabled">
-      <button class="page-arrow" type="button" aria-disabled="true">▶</button>
+      <button class="page-arrow" type="button" onclick="changeHomeLevel(1)" aria-disabled="true">▶</button>
       <div id="homeRightLabel" class="page-nav-label">初級2</div>
     </div>
   </div>
@@ -2059,7 +2082,10 @@ function updateHomeNav() {
 
   const onVocab = currentHomeMenu === "vocab";
   leftNav.classList.toggle("disabled", onVocab || currentHomeLevel <= 0);
-  rightNav.classList.toggle("disabled", onVocab || currentHomeLevel >= 1);
+  const rightDisabled = onVocab || currentHomeLevel >= 1;
+  rightNav.classList.toggle("disabled", rightDisabled);
+  const rightButton = rightNav.querySelector(".page-arrow");
+  if (rightButton) rightButton.setAttribute("aria-disabled", rightDisabled ? "true" : "false");
   leftLabel.textContent = onVocab ? "" : (currentHomeLevel === 1 ? "基礎" : "");
   rightLabel.textContent = onVocab ? "" : (currentHomeLevel === 0 ? "初級1" : "初級2");
 }
@@ -3325,6 +3351,10 @@ function getMemoDisplayItem(item) {
     rightHtml = extractLastCoreHtml(rightHtml);
   }
 
+  if (type === "つなぐ" && rightText.includes("から")) {
+    rightHtml = addReasonKaraNote(rightHtml);
+  }
+
   return { type, leftHtml, rightHtml, leftText, rightText };
 }
 
@@ -3422,12 +3452,8 @@ function getMemoLayout(items, options = {}) {
 
   const positions = [];
   const placeLayoutItem = (layoutItem, col, row, yBase) => {
-    let x;
-    if (col === 0) {
-      x = margin;
-    } else {
-      x = vw - margin - layoutItem.width;
-    }
+    const columnWidth = (vw - margin * 2 - gap * (columns - 1)) / columns;
+    const x = margin + col * (columnWidth + gap);
 
     positions.push({
       itemIndex: layoutItem.itemIndex,
@@ -3442,31 +3468,10 @@ function getMemoLayout(items, options = {}) {
   };
 
   const placeZone = (zoneItems, yBase) => {
-    if (zoneItems.length <= columns) {
-      arrangeMemoRow(zoneItems).forEach((layoutItem, col) => {
-        placeLayoutItem(layoutItem, col, 0, yBase);
-      });
-      return;
-    }
-
-    const rowsNeeded = Math.ceil(zoneItems.length / columns);
-    const sortedWideFirst = zoneItems.slice().sort((a, b) => b.width - a.width);
-    const centerItems = sortedWideFirst.slice(0, rowsNeeded);
-    const sideItems = sortedWideFirst.slice(rowsNeeded).sort((a, b) => a.width - b.width);
-
-    centerItems.forEach((layoutItem, row) => {
-      placeLayoutItem(layoutItem, 1, row, yBase);
-    });
-
-    const sideSlots = [];
-    for (let row = 0; row < rowsNeeded; row++) {
-      sideSlots.push({ row, col: 0 });
-    }
-
-    sideItems.forEach((layoutItem, index) => {
-      const slot = sideSlots[index];
-      if (!slot) return;
-      placeLayoutItem(layoutItem, slot.col, slot.row, yBase);
+    zoneItems.forEach((layoutItem, index) => {
+      const row = Math.floor(index / columns);
+      const col = index % columns;
+      placeLayoutItem(layoutItem, col, row, yBase);
     });
   };
 
