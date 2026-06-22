@@ -5656,20 +5656,20 @@ function fitTaraHintLines(table) {
 function fitConnectRightColumnToPresetSizes(table) {
   if (!table.classList.contains("connect-table")) return;
 
-  const sizes = [18, 16, 14];
-  const sizeClasses = ["connect-answer-size-max", "connect-answer-size-mid", "connect-answer-size-min"];
+  const sizeRules = [
+    { maxLength: 16, size: 18, className: "connect-answer-size-max" },
+    { maxLength: 24, size: 16, className: "connect-answer-size-mid" },
+    { maxLength: Infinity, size: 14, className: "connect-answer-size-min" }
+  ];
+  const sizeClasses = sizeRules.map(rule => rule.className);
 
   table.querySelectorAll("td:last-child .answer-text").forEach(el => {
+    const visibleLength = getVisibleTextLength(el);
+    const rule = sizeRules.find(candidate => visibleLength <= candidate.maxLength) || sizeRules[sizeRules.length - 1];
+
     el.classList.remove(...sizeClasses);
-    el.style.removeProperty("font-size");
-
-    for (const [index, size] of sizes.entries()) {
-      el.classList.remove(...sizeClasses);
-      el.classList.add(sizeClasses[index]);
-      el.style.setProperty("font-size", `${size}px`, "important");
-
-      if (index === sizes.length - 1 || el.scrollWidth <= el.clientWidth + 0.5) return;
-    }
+    el.classList.add(rule.className);
+    el.style.setProperty("font-size", `${rule.size}px`, "important");
   });
 }
 
