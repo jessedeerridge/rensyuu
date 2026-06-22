@@ -775,6 +775,18 @@
     transform: scaleX(-1);
   }
 
+  #tableArea .listen-prompt-label {
+    display: inline-block;
+    padding: 0.08em 0.24em;
+    border-radius: 0.12em;
+    background: #ff8ac2;
+    color: #fff;
+    font-size: 0.72em;
+    font-weight: 900;
+    line-height: 1.1;
+    vertical-align: middle;
+  }
+
   #tableArea .listen-prompt-emoji {
     font-size: 1.26em !important;
     line-height: 1;
@@ -2538,11 +2550,11 @@ const listenPracticeData = [
   ["介绍喜欢的动漫时（コナン） 📺❔", "「コナン」というアニメを知っていますか。"],
   ["想改到8点时 🕗👌❔", "8時でもいいですか。"],
   ["想改到宿舍前时 🏫👌❔", "寮の前でもいいですか。"],
-  ["请对方帮忙检查日语时 □日本語□🙏❔", "日本語をチェックしてもらえませんか。"],
+  ["请对方帮忙检查日语时 日本語🙏❔", "日本語をチェックしてもらえませんか。"],
   ["请对方再说一遍时 🙏❔", "もう一度言ってもらえませんか。"],
   ["想请对方帮忙拍照时 📸🙏❔", "写真をとってもらえませんか。"],
   ["请对方帮忙时 🙏❔", "手伝ってもらえませんか。"],
-  ["不明白词语意思时 📖❔", "どういう意味ですか。"],
+  ["不明白词语意思时 意味❔", "どういう意味ですか。"],
   ["想问怎么去时 🚶‍♂️❔", "どうやって行ったらいいですか。"],
   ["想问怎么买票时 🎫❔", "どうやって買ったらいいですか。"],
   ["问推荐的店时 🏬👍❔", "よく行くお店はどこですか。"],
@@ -4070,12 +4082,28 @@ function formatListenPrompt(prompt) {
 }
 
 function formatListenPromptEmoji(emoji) {
-  return Array.from(String(emoji || "")).map(char => {
-    if (char === "👀") {
-      return `<span class="listen-prompt-eye">${escapeHtml(char)}</span>`;
+  const labelTexts = ["日本語", "意味"];
+  const chars = Array.from(String(emoji || ""));
+  const parts = [];
+
+  for (let i = 0; i < chars.length; i += 1) {
+    const label = labelTexts.find(text => chars.slice(i, i + Array.from(text).length).join("") === text);
+    if (label) {
+      parts.push(`<span class="listen-prompt-label">${escapeHtml(label)}</span>`);
+      i += Array.from(label).length - 1;
+      continue;
     }
-    return escapeHtml(char);
-  }).join("");
+
+    const char = chars[i];
+    if (char === "👀") {
+      parts.push(`<span class="listen-prompt-eye">${escapeHtml(char)}</span>`);
+      continue;
+    }
+
+    parts.push(escapeHtml(char));
+  }
+
+  return parts.join("");
 }
 
 function makeListenTable() {
