@@ -3959,7 +3959,10 @@ function makeConnectHint(prompt, groupTitle, rowIndex) {
 
   const addThought = groupTitle === "～たら" && rowIndex > 4;
   const separator = addThought ? "" : makeConnectSeparator(groupTitle, rowIndex);
-  const firstLine = `${addThought ? "💭" : ""}${compactHint.slice(0, separatorIndex)}${separator}`;
+  const firstPart = compactHint.slice(0, separatorIndex);
+  const firstLine = groupTitle === "前に・てから"
+    ? `${separator}${firstPart}`
+    : `${addThought ? "💭" : ""}${firstPart}${separator}`;
   const secondLine = compactHint.slice(separatorIndex + separatorText.length);
   return `
     <span class="tara-hint-line">${firstLine}</span>
