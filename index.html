@@ -1586,14 +1586,14 @@
     line-height: 1.18;
   }
 
-  #tableArea table.connect-table td:last-child {
+  #tableArea table td:last-child {
     padding-left: 6px;
     padding-right: 0.01px;
   }
 
-  #tableArea table.connect-table td:last-child .answer-text,
-  #tableArea table.connect-table.fitting-table td:last-child .answer-text,
-  #tableArea table.connect-table td:last-child.text-adjusted-cell .answer-text {
+  #tableArea table td:last-child .answer-text,
+  #tableArea table.fitting-table td:last-child .answer-text,
+  #tableArea table td:last-child.text-adjusted-cell .answer-text {
     font-size: var(--table-font-size) !important;
     white-space: nowrap !important;
     line-height: 1.18;
@@ -2539,12 +2539,11 @@ function sanitizeQuestionMemoHtml(html) {
   const tmp = document.createElement("div");
   tmp.innerHTML = html || "";
 
-  // 表の赤シート用カバーや色分け用の class/style を？記録へ持ち込まない。
-  // これらが保存されると、記録ボックス内の文字の上に白・色付きの四角が乗って見える。
+  // 表の赤シート用カバーやインライン調整だけを？記録へ持ち込まない。
+  // 絵文字や「つなぐ」の四角アイコンは class で描画しているため、class は残して完全に再現する。
   tmp.querySelectorAll(".answer-mask-cover").forEach(el => el.remove());
-  tmp.querySelectorAll("[style], [class]").forEach(el => {
+  tmp.querySelectorAll("[style]").forEach(el => {
     el.removeAttribute("style");
-    el.removeAttribute("class");
   });
 
   return tmp.innerHTML.trim();
@@ -3015,13 +3014,13 @@ function getMemoLayout(items) {
   const isSmall = vw <= 420;
   const margin = isSmall ? 5 : 8;
   const gap = isSmall ? 4 : 6;
-  const columns = 3;
+  const columns = 2;
   const rowsPerZone = Math.ceil(QUESTION_MEMO_ZONE_LIMIT / columns);
   const baseCardW = Math.floor((vw - margin * 2 - gap * (columns - 1)) / columns);
   // 横長カードを行いっぱいに広げると、隣の？記録の上に白いカード背景が被るため、
   // 各カードは自分の列幅内に収め、文字側を縮小して見切れを防ぐ。
   const maxCardW = baseCardW;
-  const cardH = isSmall ? 40 : 52;
+  const cardH = isSmall ? 54 : 66;
   const title = document.querySelector(".page-title");
   const titleRect = title ? title.getBoundingClientRect() : null;
   const topY = titleRect ? Math.max(margin, Math.ceil(titleRect.bottom + 6)) : margin;
@@ -3048,10 +3047,8 @@ function getMemoLayout(items) {
     let x;
     if (col === 0) {
       x = margin;
-    } else if (col === columns - 1) {
-      x = vw - margin - layoutItem.width;
     } else {
-      x = Math.round((vw - layoutItem.width) / 2);
+      x = vw - margin - layoutItem.width;
     }
 
     positions.push({
@@ -3085,11 +3082,12 @@ function getMemoLayout(items) {
 
     const sideSlots = [];
     for (let row = 0; row < rowsNeeded; row++) {
-      sideSlots.push({ row, col: 0 }, { row, col: 2 });
+      sideSlots.push({ row, col: 0 });
     }
 
     sideItems.forEach((layoutItem, index) => {
       const slot = sideSlots[index];
+      if (!slot) return;
       placeLayoutItem(layoutItem, slot.col, slot.row, yBase);
     });
   };
@@ -3122,8 +3120,20 @@ function renderQuestionMemoLayer() {
   if (!layer || !screen || screen.style.display === "none") return;
 
   const allItems = safeParseQuestionStore();
-  const sourceItems = isConjugationMenu ? allItems.filter(isConjugationQuestionItem) : allItems;
-  const items = getStableQuestionMemoItems(sourceItems, TOP_MEMO_DISPLAY_LIMIT);
+  let items;
+  if (isConjugationMenu) {
+    items = getStableQuestionMemoItems(allItems.filter(isConjugationQuestionItem), TOP_MEMO_DISPLAY_LIMIT);
+  } else {
+    const nonConjugationLimit = Math.round(TOP_MEMO_DISPLAY_LIMIT * 0.7);
+    const conjugationLimit = TOP_MEMO_DISPLAY_LIMIT - nonConjugationLimit;
+    const nonConjugationSource = allItems.filter(item => !isConjugationQuestionItem(item));
+    const conjugationSource = allItems.filter(isConjugationQuestionItem);
+    const nonConjugationItems = getStableQuestionMemoItems(nonConjugationSource, nonConjugationLimit);
+    const conjugationItems = getStableQuestionMemoItems(conjugationSource, conjugationLimit);
+    const selectedKeys = new Set([...nonConjugationItems, ...conjugationItems].map(item => item.key));
+    const fillItems = getStableQuestionMemoItems(allItems.filter(item => !selectedKeys.has(item.key)), TOP_MEMO_DISPLAY_LIMIT);
+    items = getStableQuestionMemoItems([...nonConjugationItems, ...conjugationItems, ...fillItems], TOP_MEMO_DISPLAY_LIMIT);
+  }
   layer.innerHTML = "";
   if (!items.length) return;
 
@@ -5584,7 +5594,8 @@ function squeezeRightColumnToOneLine(table) {
   const rightAnswers = Array.from(table.querySelectorAll("td:last-child .answer-text"))
     .filter(el => el.offsetParent !== null);
 
-  if (table.classList.contains("connect-table")) {
+  const useConnectRightCellSizing = true;
+  if (useConnectRightCellSizing) {
     const maxRightFont = 16;
     const measureAtMaxFont = (el, cell) => {
       const clone = el.cloneNode(true);
@@ -5745,7 +5756,7 @@ function fitTableTextOneLine() {
     "th, td, .word-text, .answer-text, .group-row td"
   )).filter(el => el.offsetParent !== null);
 
-  const isConnectRightAnswer = el => table.classList.contains("connect-table") && el.matches("td:last-child .answer-text");
+  const isConnectRightAnswer = el => el.matches("td:last-child .answer-text");
 
   const elementOverflows = (el) => {
     if (isConnectRightAnswer(el)) return false;
