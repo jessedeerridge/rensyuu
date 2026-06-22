@@ -1093,7 +1093,7 @@
   }
 
   #tableArea .connect-separator-time.is-ta-time {
-    background: #0f5a45;
+    background: #2f765f;
   }
 
   #tableArea .connect-separator-square {
@@ -1803,7 +1803,11 @@ const connectPracticeData = [
       ["高い・おいしいです。", "高いですけど、おいしいです。"],
       ["旅行に行きたい・時間がありません。", "旅行に行きたいですけど、時間がありません。"],
       ["おいしい・ちょっと辛かったです。", "おいしかったですけど、ちょっと辛かったです。"],
-      ["ちょっと大変・おもしろかったです。", "ちょっと大変でしたけど、おもしろかったです。"]
+      ["ちょっと大変・おもしろかったです。", "ちょっと大変でしたけど、おもしろかったです。"],
+      ["犬/好き↔猫/好きじゃない", "犬は好きですけど、猫は好きじゃないです。"],
+      ["かに/食べられる↔えび/食べられません。", "かには食べられますけど、えびは食べられません。"],
+      ["はじめ/大変↔今/おもしろい", "はじめは大変でしたけど、今はおもしろいです。"],
+      ["はじめ/緊張した↔今/慣れました", "はじめは緊張しましたけど、今は慣れました。"]
     ]
   },
   {
@@ -3305,6 +3309,9 @@ const rubyTextMap = {
   "上手": "<ruby>上手<rt>うま</rt></ruby>",
   "中止": "<ruby>中止<rt>ちゅうし</rt></ruby>",
   "人": "<ruby>人<rt>ひと</rt></ruby>",
+  "犬": "<ruby>犬<rt>いぬ</rt></ruby>",
+  "猫": "<ruby>猫<rt>ねこ</rt></ruby>",
+  "好き": "<ruby>好<rt>す</rt></ruby>き",
   "今": "<ruby>今<rt>いま</rt></ruby>",
   "体": "<ruby>体<rt>からだ</rt></ruby>",
   "何": "<ruby>何<rt>なに</rt></ruby>",
@@ -3354,8 +3361,10 @@ const rubyTextMap = {
   "磨": "<ruby>磨<rt>みが</rt></ruby>",
   "立": "<ruby>立<rt>た</rt></ruby>",
   "終": "<ruby>終<rt>お</rt></ruby>",
+  "緊張": "<ruby>緊張<rt>きんちょう</rt></ruby>",
   "練習": "<ruby>練習<rt>れんしゅう</rt></ruby>",
   "聞": "<ruby>聞<rt>き</rt></ruby>",
+  "慣": "<ruby>慣<rt>な</rt></ruby>",
   "肉": "<ruby>肉<rt>にく</rt></ruby>",
   "自転車": "<ruby>自転車<rt>じてんしゃ</rt></ruby>",
   "薬": "<ruby>薬<rt>くすり</rt></ruby>",
@@ -3456,13 +3465,14 @@ function makeConnectSeparator(groupTitle, rowIndex = 0) {
 
 function makeConnectHint(prompt, groupTitle, rowIndex) {
   const compactHint = compactJapanese(escapeHtml(prompt));
-  const separatorIndex = compactHint.indexOf("・");
+  const separatorText = compactHint.includes("・") ? "・" : "↔";
+  const separatorIndex = compactHint.indexOf(separatorText);
   if (separatorIndex < 0) return compactHint;
 
   const addThought = groupTitle === "～たら" && rowIndex > 4;
   const separator = addThought ? "" : makeConnectSeparator(groupTitle, rowIndex);
   const firstLine = `${addThought ? "💭" : ""}${compactHint.slice(0, separatorIndex)}${separator}`;
-  const secondLine = compactHint.slice(separatorIndex + 1);
+  const secondLine = compactHint.slice(separatorIndex + separatorText.length);
   return `
     <span class="tara-hint-line">${firstLine}</span>
     <span class="tara-hint-line">${secondLine}</span>
