@@ -5672,6 +5672,7 @@ function fitTableTextOneLine() {
   if (!table) return;
 
   const maxFont = 18;
+  const maxRightAnswerFont = 22;
   const minTableFont = 15;
   const minCellFont = 15;
   const minLeftFont = 14;
@@ -5746,7 +5747,7 @@ function fitTableTextOneLine() {
   unifyLeftColumnFontSize(table);
   fitTaraHintLines(table);
   squeezeRightColumnToOneLine(table);
-  expandRightColumnToAvailableSpace(table, maxFont);
+  expandRightColumnToAvailableSpace(table, maxRightAnswerFont);
 
   table.dataset.fittedFontSize = String(size);
   table.classList.remove("fitting-table");
