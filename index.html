@@ -563,6 +563,15 @@
     border-radius: 14px !important;
   }
 
+  #tableArea tr.vocab-special td {
+    background: #fff4cc !important;
+  }
+
+  #tableArea tr.vocab-special .question-box {
+    background: #fff4cc !important;
+    border-color: #e6c867 !important;
+  }
+
   ruby {
     ruby-position: over;
   }
@@ -1880,12 +1889,15 @@
 <div id="homeScreen" class="screen">
   <div id="homeQuestionMemoLayer" aria-hidden="true"></div>
   <div class="home-panel">
-    <div class="home-title"><span class="title-emoji left">🐢</span> 日本語れんしゅう <span class="title-emoji right">🐢</span></div>
-    <div class="home-actions" aria-label="練習メニュー">
-      <button class="home-btn listen-btn" type="button" onclick="openListenPage()">聞く</button>
-      <button class="home-btn speak-btn" type="button" onclick="openSpeakPage()">話す</button>
-      <button class="home-btn connect-btn" type="button" onclick="openConnectPage()">つなぐ</button>
-      <button class="home-btn conjugation-btn" type="button" onclick="openConjugationMenu()">活用</button>
+    <div id="homeTitle" class="home-title"><span class="title-emoji left">🐢</span> 初級1 <span class="title-emoji right">🐢</span></div>
+    <div id="homeActions" class="home-actions" aria-label="練習メニュー"></div>
+    <div id="homeLeftNav" class="page-nav left-nav home-page-nav">
+      <button class="page-arrow" type="button" onclick="changeHomeLevel(-1)">◀</button>
+      <div id="homeLeftLabel" class="page-nav-label">基礎</div>
+    </div>
+    <div id="homeRightNav" class="page-nav right-nav home-page-nav disabled">
+      <button class="page-arrow" type="button" aria-disabled="true">▶</button>
+      <div id="homeRightLabel" class="page-nav-label">初級2</div>
     </div>
   </div>
 </div>
@@ -1984,6 +1996,81 @@ function closeStartNotice() {
 const TOP_MEMO_DISPLAY_LIMIT = 12;
 const nonConjugationQuestionTypes = new Set(["聞く", "話す", "つなぐ"]);
 let currentSection = "home";
+
+let currentHomeLevel = 1;
+let currentHomeMenu = "main";
+
+const homeMenus = {
+  0: {
+    title: "基礎",
+    buttons: [
+      { label: "聞く", className: "listen-btn", action: "openListenPage()" },
+      { label: "はなす", className: "speak-btn", action: "openSpeakPage()" },
+      { label: "語彙", className: "connect-btn", action: "openVocabMenu()" },
+      { label: "活用", className: "conjugation-btn", action: "openConjugationMenu()" }
+    ]
+  },
+  1: {
+    title: "初級1",
+    buttons: [
+      { label: "聞く", className: "listen-btn", action: "openListenPage()" },
+      { label: "話す", className: "speak-btn", action: "openSpeakPage()" },
+      { label: "つなぐ", className: "connect-btn", action: "openConnectPage()" },
+      { label: "活用", className: "conjugation-btn", action: "openConjugationMenu()" }
+    ]
+  }
+};
+
+const vocabCategories = ["位置詞", "数字", "日付", "曜日", "数え方", "時間", "月", "値段"];
+
+function setHomeMenu(menuName = "main") {
+  currentHomeMenu = menuName;
+  const title = document.getElementById("homeTitle");
+  const actions = document.getElementById("homeActions");
+  if (!title || !actions) return;
+
+  if (menuName === "vocab") {
+    title.innerHTML = `<span class="title-emoji left">🐢</span> 語彙 <span class="title-emoji right">🐢</span>`;
+    actions.innerHTML = vocabCategories.map(category => `<button class="home-btn connect-btn" type="button" onclick="openVocabTable('${category}')">${category}</button>`).join("");
+  } else {
+    const menu = homeMenus[currentHomeLevel] || homeMenus[1];
+    title.innerHTML = `<span class="title-emoji left">🐢</span> ${menu.title} <span class="title-emoji right">🐢</span>`;
+    actions.innerHTML = menu.buttons.map(button => `<button class="home-btn ${button.className}" type="button" onclick="${button.action}">${button.label}</button>`).join("");
+  }
+  updateHomeNav();
+}
+
+function updateHomeNav() {
+  const leftNav = document.getElementById("homeLeftNav");
+  const rightNav = document.getElementById("homeRightNav");
+  const leftLabel = document.getElementById("homeLeftLabel");
+  const rightLabel = document.getElementById("homeRightLabel");
+  if (!leftNav || !rightNav || !leftLabel || !rightLabel) return;
+
+  const onVocab = currentHomeMenu === "vocab";
+  leftNav.classList.toggle("disabled", onVocab || currentHomeLevel <= 0);
+  rightNav.classList.add("disabled");
+  leftLabel.textContent = onVocab ? "" : (currentHomeLevel === 1 ? "基礎" : "");
+  rightLabel.textContent = onVocab ? "" : (currentHomeLevel === 0 ? "初級1" : "初級2");
+}
+
+function changeHomeLevel(direction) {
+  const nextLevel = currentHomeLevel + direction;
+  if (nextLevel < 0 || nextLevel > 1) return;
+  currentHomeLevel = nextLevel;
+  setHomeMenu("main");
+}
+
+function openVocabMenu() {
+  currentSection = "vocab";
+  currentHomeLevel = 0;
+  setHomeMenu("vocab");
+}
+
+function openVocabTable(type) {
+  currentSection = "vocab";
+  showTable(type);
+}
 
 function isConjugationQuestionItem(item) {
   return item && !nonConjugationQuestionTypes.has(item.type);
@@ -2214,6 +2301,7 @@ function openHome() {
   document.getElementById("tableScreen").style.display = "none";
   document.getElementById("menuScreen").style.display = "none";
   document.getElementById("homeScreen").style.display = "block";
+  setHomeMenu(currentHomeMenu === "vocab" ? "main" : currentHomeMenu);
   requestAnimationFrame(renderQuestionMemoLayer);
   window.scrollTo(0, 0);
 }
@@ -2243,6 +2331,34 @@ function openSpeakPage() {
 function openConnectPage() {
   currentSection = "connect";
   showTable("つなぐ");
+}
+
+
+const vocabTableData = {
+  "位置詞": [
+    ["上", "うえ", true], ["下", "した"], ["前", "まえ"], ["後ろ", "うしろ"], ["中", "なか"], ["外", "そと"], ["右", "みぎ"], ["左", "ひだり"], ["となり", "となり"], ["近く", "ちかく", true]
+  ],
+  "数字": [
+    ["一", "いち"], ["二", "に"], ["三", "さん"], ["四", "よん／し", true], ["五", "ご"], ["六", "ろく"], ["七", "なな／しち", true], ["八", "はち"], ["九", "きゅう／く", true], ["十", "じゅう"]
+  ],
+  "日付": [
+    ["一日", "ついたち", true], ["二日", "ふつか", true], ["三日", "みっか", true], ["四日", "よっか", true], ["五日", "いつか"], ["六日", "むいか"], ["七日", "なのか"], ["八日", "ようか", true], ["九日", "ここのか"], ["十日", "とおか", true], ["二十日", "はつか", true]
+  ],
+  "曜日": [["月曜日", "げつようび"], ["火曜日", "かようび"], ["水曜日", "すいようび"], ["木曜日", "もくようび"], ["金曜日", "きんようび"], ["土曜日", "どようび"], ["日曜日", "にちようび"]],
+  "数え方": [["一人", "ひとり", true], ["二人", "ふたり", true], ["三人", "さんにん"], ["一つ", "ひとつ", true], ["二つ", "ふたつ", true], ["一枚", "いちまい"], ["一台", "いちだい"], ["一匹", "いっぴき", true], ["一冊", "いっさつ", true]],
+  "時間": [["一時", "いちじ"], ["四時", "よじ", true], ["七時", "しちじ", true], ["九時", "くじ", true], ["一分", "いっぷん", true], ["三分", "さんぷん", true], ["四分", "よんぷん", true], ["十分", "じゅっぷん", true], ["半", "はん"]],
+  "月": [["一月", "いちがつ"], ["二月", "にがつ"], ["三月", "さんがつ"], ["四月", "しがつ", true], ["五月", "ごがつ"], ["六月", "ろくがつ"], ["七月", "しちがつ", true], ["八月", "はちがつ"], ["九月", "くがつ", true], ["十月", "じゅうがつ"], ["十一月", "じゅういちがつ"], ["十二月", "じゅうにがつ"]],
+  "値段": [["100円", "ひゃくえん"], ["300円", "さんびゃくえん", true], ["600円", "ろっぴゃくえん", true], ["800円", "はっぴゃくえん", true], ["1000円", "せんえん"], ["3000円", "さんぜんえん", true], ["8000円", "はっせんえん", true], ["一万円", "いちまんえん"]]
+};
+
+function makeVocabTable(type) {
+  const rows = vocabTableData[type] || [];
+  let html = `<table class="listen-table vocab-table"><tr><th>ことば</th><th>読み方</th></tr>`;
+  rows.forEach(([word, reading, special]) => {
+    html += `<tr${special ? ' class="vocab-special"' : ''}><td>${makeWordCell(escapeHtml(word))}</td><td><span class="answer-text">${escapeHtml(reading)}</span></td></tr>`;
+  });
+  html += `</table><div class="scroll-extra-y"></div>`;
+  document.getElementById("tableArea").innerHTML = html;
 }
 
 function escapeHtml(value) {
@@ -3797,7 +3913,7 @@ function showPlaceholderTable(title, message, returnSection = "home") {
 
 function showTable(type, focusKey = "") {
   document.body.classList.remove("home-mode", "menu-mode", "sheet-high", "table-start-lowered");
-  if (type === "Vて" || type === "Vた" || type === "聞く" || type === "話す" || type === "つなぐ") {
+  if (type === "Vて" || type === "Vた" || type === "聞く" || type === "話す" || type === "つなぐ" || vocabCategories.includes(type)) {
     document.body.classList.add("table-start-lowered");
   }
   document.getElementById("homeScreen").style.display = "none";
@@ -3817,6 +3933,8 @@ function showTable(type, focusKey = "") {
     makeSpeakTable();
   } else if (type === "つなぐ") {
     makeConnectTable();
+  } else if (vocabCategories.includes(type)) {
+    makeVocabTable(type);
   } else if (type === "Vます") {
     masuSwapped = false;
     makeMasuTable();
@@ -3939,7 +4057,13 @@ function backMenu() {
   clearAllMasks();
 
   document.getElementById("tableScreen").style.display = "none";
-  if (currentSection === "conjugation") {
+  if (currentSection === "vocab") {
+    openHome();
+    currentHomeLevel = 0;
+    currentSection = "home";
+    setHomeMenu("vocab");
+    return;
+  } else if (currentSection === "conjugation") {
     document.getElementById("homeScreen").style.display = "none";
     document.getElementById("menuScreen").style.display = "block";
     document.body.classList.remove("home-mode");
@@ -6464,6 +6588,7 @@ window.addEventListener("orientationchange", () => {
 
 window.addEventListener("load", () => {
   bootstrapQuestionStorePersistence();
+  setHomeMenu("main");
   updateMenuPage();
   renderQuestionMemoLayer();
   requestAnimationFrame(() => {
