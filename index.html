@@ -1793,70 +1793,18 @@
     position: absolute;
     left: 50%;
     top: 50%;
-    width: 230px;
-    height: 178px;
+    width: 238px;
+    height: 188px;
     transform: translate(-50%, -50%);
-    filter: drop-shadow(16px 20px 18px rgba(72, 42, 17, 0.22));
+    filter: drop-shadow(14px 18px 16px rgba(72, 42, 17, 0.20));
   }
 
-  .desk-top,
-  .desk-front,
-  .desk-side,
-  .desk-leg {
-    position: absolute;
+  .desk-svg {
+    width: 100%;
+    height: 100%;
     display: block;
+    overflow: visible;
   }
-
-  .desk-top {
-    left: 28px;
-    top: 12px;
-    width: 154px;
-    height: 88px;
-    background:
-      radial-gradient(circle at 34% 26%, rgba(255,255,255,0.45), transparent 25%),
-      linear-gradient(135deg, #f5cf91 0%, #d89048 58%, #b56b2e 100%);
-    border: 4px solid #8f5724;
-    clip-path: polygon(17% 0, 100% 17%, 83% 100%, 0 83%);
-    z-index: 4;
-  }
-
-  .desk-front {
-    left: 28px;
-    top: 83px;
-    width: 154px;
-    height: 48px;
-    background: linear-gradient(160deg, #a8632a 0%, #75431b 100%);
-    clip-path: polygon(0 0, 83% 29%, 83% 100%, 0 70%);
-    border-left: 4px solid #8f5724;
-    border-bottom: 4px solid #603715;
-    z-index: 3;
-  }
-
-  .desk-side {
-    left: 154px;
-    top: 29px;
-    width: 52px;
-    height: 91px;
-    background: linear-gradient(145deg, #c07835 0%, #7b471c 100%);
-    clip-path: polygon(0 0, 100% 25%, 52% 100%, 0 77%);
-    border-right: 4px solid #603715;
-    border-bottom: 4px solid #603715;
-    z-index: 2;
-  }
-
-  .desk-leg {
-    width: 18px;
-    height: 62px;
-    border-radius: 0 0 8px 8px;
-    background: linear-gradient(180deg, #86501f 0%, #4f2d13 100%);
-    box-shadow: inset -4px 0 0 rgba(0,0,0,0.14);
-    z-index: 1;
-  }
-
-  .desk-leg.front-left { left: 43px; top: 113px; height: 56px; }
-  .desk-leg.front-right { left: 138px; top: 135px; height: 38px; }
-  .desk-leg.back-left { left: 70px; top: 80px; height: 52px; opacity: 0.84; }
-  .desk-leg.back-right { left: 181px; top: 98px; height: 48px; opacity: 0.84; }
 
   .position-label {
     position: absolute;
@@ -2177,10 +2125,10 @@
       <button disabled class="menu-btn menu-btn-xsmall" onclick="showTable('Vてもらえませんか')">Vてもらえませんか</button>
     </div>
 
-    <div class="menu-page" data-page="3">
-      <button class="menu-btn" onclick="showTable('Vられる')">Vられる</button>
-      <button class="menu-btn" onclick="showTable('Vさせる')">Vさせる</button>
-      <button class="menu-btn menu-btn-medium" onclick="showTable('Vさせられる')">Vさせられる</button>
+    <div class="menu-page disabled-page" data-page="3" aria-disabled="true">
+      <button disabled class="menu-btn" onclick="showTable('Vられる')">Vられる</button>
+      <button disabled class="menu-btn" onclick="showTable('Vさせる')">Vさせる</button>
+      <button disabled class="menu-btn menu-btn-medium" onclick="showTable('Vさせられる')">Vさせられる</button>
     </div>
   </div>
 
@@ -2332,10 +2280,7 @@ function getHomeLevelForMemoItem(item) {
 function isHomeLevelMemoItem(item, level) {
   if (isCommonConjugationMemoItem(item)) return false;
   const itemLevel = getHomeLevelForMemoItem(item);
-  if (itemLevel === null) {
-    const menu = homeMenus[level] || homeMenus[1];
-    return !!menu.buttons.some(button => button.label === item.type || (button.label === "話す" && item.type === "話す") || (button.label === "聞く" && item.type === "聞く"));
-  }
+  if (itemLevel === null) return false;
   return itemLevel === level;
 }
 
@@ -2493,6 +2438,9 @@ const connectPracticeData = [
     ]
   }
 ];
+
+const basicListenPracticeData = [];
+const basicSpeakPracticeData = [];
 
 const listenPracticeData = [
   ["问正在吃的菜味道时", "どうですか。"],
@@ -2678,7 +2626,37 @@ function makePositionVocabPractice() {
   document.getElementById("tableArea").innerHTML = `
     <div class="position-practice" id="positionPractice">
       <div class="position-stage" id="positionStage" aria-label="位置詞の練習">
-        <div class="desk-drawing" aria-label="机"><span class="desk-top"></span><span class="desk-front"></span><span class="desk-side"></span><span class="desk-leg front-left"></span><span class="desk-leg front-right"></span><span class="desk-leg back-left"></span><span class="desk-leg back-right"></span></div>
+        <div class="desk-drawing" aria-label="机">
+          <svg class="desk-svg" viewBox="0 0 240 190" role="img" aria-label="机">
+            <defs>
+              <linearGradient id="deskTopGrad" x1="38" y1="20" x2="184" y2="104" gradientUnits="userSpaceOnUse">
+                <stop offset="0" stop-color="#f8d69a"/>
+                <stop offset="0.58" stop-color="#d99045"/>
+                <stop offset="1" stop-color="#ad642c"/>
+              </linearGradient>
+              <linearGradient id="deskFaceGrad" x1="52" y1="88" x2="152" y2="140" gradientUnits="userSpaceOnUse">
+                <stop offset="0" stop-color="#b56b30"/>
+                <stop offset="1" stop-color="#75421b"/>
+              </linearGradient>
+              <linearGradient id="deskSideGrad" x1="172" y1="54" x2="204" y2="130" gradientUnits="userSpaceOnUse">
+                <stop offset="0" stop-color="#c77b35"/>
+                <stop offset="1" stop-color="#6c3d18"/>
+              </linearGradient>
+              <linearGradient id="deskLegGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#8a4f20"/>
+                <stop offset="1" stop-color="#4f2c12"/>
+              </linearGradient>
+            </defs>
+            <path d="M50 30 L184 50 L150 112 L18 90 Z" fill="url(#deskTopGrad)" stroke="#7c491f" stroke-width="4" stroke-linejoin="round"/>
+            <path d="M18 90 L150 112 L150 145 L18 122 Z" fill="url(#deskFaceGrad)" stroke="#6b3d18" stroke-width="3" stroke-linejoin="round"/>
+            <path d="M150 112 L184 50 L210 78 L178 145 L150 145 Z" fill="url(#deskSideGrad)" stroke="#6b3d18" stroke-width="3" stroke-linejoin="round"/>
+            <path d="M58 118 L75 121 L75 172 L58 169 Z" fill="url(#deskLegGrad)"/>
+            <path d="M132 132 L149 135 L149 178 L132 175 Z" fill="url(#deskLegGrad)"/>
+            <path d="M86 78 L101 80 L101 128 L86 126 Z" fill="url(#deskLegGrad)" opacity="0.78"/>
+            <path d="M183 101 L197 89 L197 139 L183 150 Z" fill="url(#deskLegGrad)" opacity="0.82"/>
+            <path d="M58 39 L176 57" fill="none" stroke="rgba(255,255,255,0.42)" stroke-width="5" stroke-linecap="round"/>
+          </svg>
+        </div>
         ${labels.map(([text, cls]) => `<div class="position-label ${cls}">${escapeHtml(text)}</div>`).join("")}
         <div class="magnifier" id="positionMagnifier" role="button" aria-label="虫眼鏡を動かして文字を見る"></div>
       </div>
@@ -4053,7 +4031,8 @@ function toggleRandomOrder() {
 
 
 function makeListenTable() {
-  const rows = listenPracticeData.map(([prompt, answer]) => `
+  const sourceData = currentHomeLevel === 0 ? basicListenPracticeData : listenPracticeData;
+  const rows = sourceData.map(([prompt, answer]) => `
     <tr>
       <td>${makeWordCell(escapeHtml(prompt))}</td>
       <td><span class="answer-text">${addFurigana(escapeHtml(answer))}</span></td>
@@ -4069,7 +4048,8 @@ function makeListenTable() {
 }
 
 function makeSpeakTable() {
-  const rows = speakPracticeData.map(([prompt, answer]) => `
+  const sourceData = currentHomeLevel === 0 ? basicSpeakPracticeData : speakPracticeData;
+  const rows = sourceData.map(([prompt, answer]) => `
     <tr>
       <td>${makeWordCell(prompt)}</td>
       <td><span class="answer-text">${answer}</span></td>
