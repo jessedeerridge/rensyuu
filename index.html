@@ -1789,23 +1789,6 @@
     box-shadow: 0 8px 24px rgba(0,0,0,0.08);
   }
 
-  .desk-drawing {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    width: 238px;
-    height: 188px;
-    transform: translate(-50%, -50%);
-    filter: drop-shadow(14px 18px 16px rgba(72, 42, 17, 0.20));
-  }
-
-  .desk-svg {
-    width: 100%;
-    height: 100%;
-    display: block;
-    overflow: visible;
-  }
-
   .position-label {
     position: absolute;
     padding: 7px 11px;
@@ -2239,6 +2222,7 @@ function changeHomeLevel(direction) {
   if (nextLevel < 0 || nextLevel > 1) return;
   currentHomeLevel = nextLevel;
   setHomeMenu("main");
+  renderQuestionMemoLayer();
 }
 
 function openVocabMenu() {
@@ -2626,38 +2610,7 @@ function makePositionVocabPractice() {
   document.getElementById("tableArea").innerHTML = `
     <div class="position-practice" id="positionPractice">
       <div class="position-stage" id="positionStage" aria-label="位置詞の練習">
-        <div class="desk-drawing" aria-label="机">
-          <svg class="desk-svg" viewBox="0 0 240 190" role="img" aria-label="机">
-            <defs>
-              <linearGradient id="deskTopGrad" x1="38" y1="20" x2="184" y2="104" gradientUnits="userSpaceOnUse">
-                <stop offset="0" stop-color="#f8d69a"/>
-                <stop offset="0.58" stop-color="#d99045"/>
-                <stop offset="1" stop-color="#ad642c"/>
-              </linearGradient>
-              <linearGradient id="deskFaceGrad" x1="52" y1="88" x2="152" y2="140" gradientUnits="userSpaceOnUse">
-                <stop offset="0" stop-color="#b56b30"/>
-                <stop offset="1" stop-color="#75421b"/>
-              </linearGradient>
-              <linearGradient id="deskSideGrad" x1="172" y1="54" x2="204" y2="130" gradientUnits="userSpaceOnUse">
-                <stop offset="0" stop-color="#c77b35"/>
-                <stop offset="1" stop-color="#6c3d18"/>
-              </linearGradient>
-              <linearGradient id="deskLegGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stop-color="#8a4f20"/>
-                <stop offset="1" stop-color="#4f2c12"/>
-              </linearGradient>
-            </defs>
-            <path d="M50 30 L184 50 L150 112 L18 90 Z" fill="url(#deskTopGrad)" stroke="#7c491f" stroke-width="4" stroke-linejoin="round"/>
-            <path d="M18 90 L150 112 L150 145 L18 122 Z" fill="url(#deskFaceGrad)" stroke="#6b3d18" stroke-width="3" stroke-linejoin="round"/>
-            <path d="M150 112 L184 50 L210 78 L178 145 L150 145 Z" fill="url(#deskSideGrad)" stroke="#6b3d18" stroke-width="3" stroke-linejoin="round"/>
-            <path d="M58 118 L75 121 L75 172 L58 169 Z" fill="url(#deskLegGrad)"/>
-            <path d="M132 132 L149 135 L149 178 L132 175 Z" fill="url(#deskLegGrad)"/>
-            <path d="M86 78 L101 80 L101 128 L86 126 Z" fill="url(#deskLegGrad)" opacity="0.78"/>
-            <path d="M183 101 L197 89 L197 139 L183 150 Z" fill="url(#deskLegGrad)" opacity="0.82"/>
-            <path d="M58 39 L176 57" fill="none" stroke="rgba(255,255,255,0.42)" stroke-width="5" stroke-linecap="round"/>
-          </svg>
-        </div>
-        ${labels.map(([text, cls]) => `<div class="position-label ${cls}">${escapeHtml(text)}</div>`).join("")}
+       ${labels.map(([text, cls]) => `<div class="position-label ${cls}">${escapeHtml(text)}</div>`).join("")}
         <div class="magnifier" id="positionMagnifier" role="button" aria-label="虫眼鏡を動かして文字を見る"></div>
       </div>
     </div>`;
@@ -2752,6 +2705,7 @@ function changeMenuPage(direction) {
   if (nextPage < 0 || nextPage >= menuPageNames.length) return;
   currentMenuPage = nextPage;
   updateMenuPage();
+  renderQuestionMemoLayer();
   window.scrollTo(0, 0);
 }
 
