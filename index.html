@@ -71,7 +71,16 @@
     font-size: 28px;
     font-weight: 900;
     color: #ff6fae;
+    line-height: 1.05;
     margin-bottom: 4px;
+  }
+
+  .home-title-subtitle {
+    display: block;
+    margin-top: 2px;
+    color: #777;
+    font-size: 17px;
+    font-weight: 900;
   }
 
   .home-actions {
@@ -561,6 +570,15 @@
     text-align: left;
     padding-left: 16px;
     border-radius: 14px !important;
+  }
+
+  #tableArea tr.vocab-special td {
+    background: #fff4cc !important;
+  }
+
+  #tableArea tr.vocab-special .question-box {
+    background: #fff4cc !important;
+    border-color: #e6c867 !important;
   }
 
   ruby {
@@ -1130,19 +1148,43 @@
 
   #tableArea .reason-kara-note {
     position: absolute;
-    top: calc(100% + 4px);
-    left: 50%;
-    transform: translateX(-50%);
-    color: #d90000;
-    font-size: calc(0.48em + 6px);
-    font-weight: 900;
-    line-height: 1;
+    top: 100%;
+    left: 0;
+    right: 0;
+    width: 100%;
+    transform: none;
+    text-align: center;
+    color: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    line-height: inherit;
     white-space: nowrap;
     z-index: 2;
   }
 
   #tableArea .answer-text.reason-note-answer {
-    padding-bottom: 1.2em;
+    padding-bottom: 0;
+  }
+
+  .question-memo-card .reason-kara-wrap {
+    position: relative;
+    display: inline-block;
+    line-height: 1;
+    vertical-align: top;
+  }
+
+  .question-memo-card .reason-kara-note {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    width: 100%;
+    color: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    line-height: inherit;
+    text-align: center;
+    white-space: nowrap;
   }
 
   #tableArea .connect-separator-contrast {
@@ -1559,6 +1601,11 @@
     font-size: 15px;
   }
 
+  .question-memo-card.memo-has-reason-note,
+  .question-memo-card.memo-stacked {
+    overflow: visible;
+  }
+
   .memo-empty-toast {
     position: fixed;
     left: 50%;
@@ -1616,8 +1663,8 @@
 
   .question-memo-card .memo-pair-stacked {
     flex-direction: column;
-    gap: 0;
-    line-height: 1.12;
+    gap: 2px;
+    line-height: 1.18;
   }
 
   .question-memo-card .memo-top-line {
@@ -1639,12 +1686,14 @@
   .question-memo-card .memo-arrow {
     flex: 0 0 auto;
     color: #d90000;
-    font-size: 12px;
+    font-size: 1em;
     line-height: 1;
+    height: 1em;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     align-self: center;
+    vertical-align: middle;
   }
 
   .question-memo-card ruby,
@@ -1880,12 +1929,15 @@
 <div id="homeScreen" class="screen">
   <div id="homeQuestionMemoLayer" aria-hidden="true"></div>
   <div class="home-panel">
-    <div class="home-title"><span class="title-emoji left">🐢</span> 日本語れんしゅう <span class="title-emoji right">🐢</span></div>
-    <div class="home-actions" aria-label="練習メニュー">
-      <button class="home-btn listen-btn" type="button" onclick="openListenPage()">聞く</button>
-      <button class="home-btn speak-btn" type="button" onclick="openSpeakPage()">話す</button>
-      <button class="home-btn connect-btn" type="button" onclick="openConnectPage()">つなぐ</button>
-      <button class="home-btn conjugation-btn" type="button" onclick="openConjugationMenu()">活用</button>
+    <div id="homeTitle" class="home-title"><span class="title-emoji left">🐢</span> 初級1 <span class="title-emoji right">🐢</span></div>
+    <div id="homeActions" class="home-actions" aria-label="練習メニュー"></div>
+    <div id="homeLeftNav" class="page-nav left-nav home-page-nav">
+      <button class="page-arrow" type="button" onclick="changeHomeLevel(-1)">◀</button>
+      <div id="homeLeftLabel" class="page-nav-label">基礎</div>
+    </div>
+    <div id="homeRightNav" class="page-nav right-nav home-page-nav disabled">
+      <button class="page-arrow" type="button" onclick="changeHomeLevel(1)" aria-disabled="true">▶</button>
+      <div id="homeRightLabel" class="page-nav-label">初級2</div>
     </div>
   </div>
 </div>
@@ -1894,10 +1946,10 @@
   <div id="questionMemoLayer" aria-hidden="true"></div>
   <div class="menu-title-row">
     <button class="back-btn menu-back-btn" type="button" onclick="openHome()" aria-label="戻る"><span class="back-arrow-icon" aria-hidden="true">➜</span></button>
-    <div class="page-title"><span class="title-emoji left">🐢</span> 活用れんしゅう <span class="title-emoji right">🐢</span></div>
+    <div id="menuTitle" class="page-title"><span class="title-emoji left">🐢</span> 活用れんしゅう <span class="title-emoji right">🐢</span></div>
   </div>
 
-  <div class="button-grid">
+  <div id="menuButtonGrid" class="button-grid">
     <div class="menu-page active" data-page="0">
       <button class="menu-btn basic-verb-btn" onclick="showTable('Vます')">Vます</button>
       <button class="menu-btn basic-verb-btn" onclick="showTable('Vて')">Vて</button>
@@ -1981,9 +2033,98 @@ function closeStartNotice() {
 
 
 
-const TOP_MEMO_DISPLAY_LIMIT = 12;
+const TOP_MEMO_DISPLAY_LIMIT = 8;
+const MENU_MEMO_DISPLAY_LIMIT = 12;
 const nonConjugationQuestionTypes = new Set(["聞く", "話す", "つなぐ"]);
 let currentSection = "home";
+const conjugationMenuHtml = document.getElementById("menuButtonGrid")?.innerHTML || "";
+
+let currentHomeLevel = 1;
+let currentHomeMenu = "main";
+
+const homeMenus = {
+  0: {
+    title: "基礎",
+    buttons: [
+      { label: "聞く", className: "listen-btn", action: "openListenPage()" },
+      { label: "はなす", className: "speak-btn", action: "openSpeakPage()" },
+      { label: "語彙", className: "connect-btn", action: "openVocabMenu()" },
+      { label: "活用", className: "conjugation-btn", action: "openConjugationMenu()" }
+    ]
+  },
+  1: {
+    title: "初級1",
+    buttons: [
+      { label: "聞く", className: "listen-btn", action: "openListenPage()" },
+      { label: "話す", className: "speak-btn", action: "openSpeakPage()" },
+      { label: "つなぐ", className: "connect-btn", action: "openConnectPage()" },
+      { label: "活用", className: "conjugation-btn", action: "openConjugationMenu()" }
+    ]
+  }
+};
+
+const vocabCategories = ["位置詞", "数字", "日付", "曜日", "数え方", "時間", "月", "値段"];
+
+function setHomeMenu(menuName = "main") {
+  currentHomeMenu = menuName;
+  const title = document.getElementById("homeTitle");
+  const actions = document.getElementById("homeActions");
+  if (!title || !actions) return;
+
+  if (menuName === "vocab") {
+    title.innerHTML = `<span class="title-emoji left">🐢</span> 語彙 <span class="title-emoji right">🐢</span>`;
+    actions.innerHTML = vocabCategories.map(category => `<button class="home-btn connect-btn" type="button" onclick="openVocabTable('${category}')">${category}</button>`).join("");
+  } else {
+    const menu = homeMenus[currentHomeLevel] || homeMenus[1];
+    title.innerHTML = `<span class="title-emoji left">🐢</span> 日本語れんしゅう <span class="title-emoji right">🐢</span><span class="home-title-subtitle">（${menu.title}）</span>`;
+    actions.innerHTML = menu.buttons.map(button => `<button class="home-btn ${button.className}" type="button" onclick="${button.action}">${button.label}</button>`).join("");
+  }
+  updateHomeNav();
+}
+
+function updateHomeNav() {
+  const leftNav = document.getElementById("homeLeftNav");
+  const rightNav = document.getElementById("homeRightNav");
+  const leftLabel = document.getElementById("homeLeftLabel");
+  const rightLabel = document.getElementById("homeRightLabel");
+  if (!leftNav || !rightNav || !leftLabel || !rightLabel) return;
+
+  const onVocab = currentHomeMenu === "vocab";
+  leftNav.classList.toggle("disabled", onVocab || currentHomeLevel <= 0);
+  const rightDisabled = onVocab || currentHomeLevel >= 1;
+  rightNav.classList.toggle("disabled", rightDisabled);
+  const rightButton = rightNav.querySelector(".page-arrow");
+  if (rightButton) rightButton.setAttribute("aria-disabled", rightDisabled ? "true" : "false");
+  leftLabel.textContent = onVocab ? "" : (currentHomeLevel === 1 ? "基礎" : "");
+  rightLabel.textContent = onVocab ? "" : (currentHomeLevel === 0 ? "初級1" : "初級2");
+}
+
+function changeHomeLevel(direction) {
+  const nextLevel = currentHomeLevel + direction;
+  if (nextLevel < 0 || nextLevel > 1) return;
+  currentHomeLevel = nextLevel;
+  setHomeMenu("main");
+}
+
+function openVocabMenu() {
+  currentSection = "vocab";
+  document.body.classList.remove("home-mode", "sheet-high", "table-start-lowered");
+  document.body.classList.add("menu-mode");
+  document.getElementById("homeScreen").style.display = "none";
+  document.getElementById("tableScreen").style.display = "none";
+  document.getElementById("menuScreen").style.display = "block";
+  document.getElementById("menuTitle").innerHTML = `<span class="title-emoji left">🐢</span> 語彙 <span class="title-emoji right">🐢</span>`;
+  document.getElementById("menuButtonGrid").innerHTML = `<div class="menu-page active" data-page="0">${vocabCategories.map(category => `<button class="menu-btn" type="button" onclick="openVocabTable('${category}')">${category}</button>`).join("")}</div>`;
+  document.getElementById("leftPageNav").style.display = "none";
+  document.getElementById("rightPageNav").style.display = "none";
+  requestAnimationFrame(renderQuestionMemoLayer);
+  window.scrollTo(0, 0);
+}
+
+function openVocabTable(type) {
+  currentSection = "vocab";
+  showTable(type);
+}
 
 function isConjugationQuestionItem(item) {
   return item && !nonConjugationQuestionTypes.has(item.type);
@@ -2214,6 +2355,7 @@ function openHome() {
   document.getElementById("tableScreen").style.display = "none";
   document.getElementById("menuScreen").style.display = "none";
   document.getElementById("homeScreen").style.display = "block";
+  setHomeMenu(currentHomeMenu === "vocab" ? "main" : currentHomeMenu);
   requestAnimationFrame(renderQuestionMemoLayer);
   window.scrollTo(0, 0);
 }
@@ -2225,6 +2367,10 @@ function openConjugationMenu() {
   document.getElementById("homeScreen").style.display = "none";
   document.getElementById("tableScreen").style.display = "none";
   document.getElementById("menuScreen").style.display = "block";
+  document.getElementById("menuTitle").innerHTML = `<span class="title-emoji left">🐢</span> 活用れんしゅう <span class="title-emoji right">🐢</span>`;
+  document.getElementById("menuButtonGrid").innerHTML = conjugationMenuHtml;
+  document.getElementById("leftPageNav").style.display = "flex";
+  document.getElementById("rightPageNav").style.display = "flex";
   updateMenuPage();
   requestAnimationFrame(renderQuestionMemoLayer);
   window.scrollTo(0, 0);
@@ -2243,6 +2389,34 @@ function openSpeakPage() {
 function openConnectPage() {
   currentSection = "connect";
   showTable("つなぐ");
+}
+
+
+const vocabTableData = {
+  "位置詞": [
+    ["上", "うえ", true], ["下", "した"], ["前", "まえ"], ["後ろ", "うしろ"], ["中", "なか"], ["外", "そと"], ["右", "みぎ"], ["左", "ひだり"], ["となり", "となり"], ["近く", "ちかく", true]
+  ],
+  "数字": [
+    ["一", "いち"], ["二", "に"], ["三", "さん"], ["四", "よん／し", true], ["五", "ご"], ["六", "ろく"], ["七", "なな／しち", true], ["八", "はち"], ["九", "きゅう／く", true], ["十", "じゅう"]
+  ],
+  "日付": [
+    ["一日", "ついたち", true], ["二日", "ふつか", true], ["三日", "みっか", true], ["四日", "よっか", true], ["五日", "いつか"], ["六日", "むいか"], ["七日", "なのか"], ["八日", "ようか", true], ["九日", "ここのか"], ["十日", "とおか", true], ["二十日", "はつか", true]
+  ],
+  "曜日": [["月曜日", "げつようび"], ["火曜日", "かようび"], ["水曜日", "すいようび"], ["木曜日", "もくようび"], ["金曜日", "きんようび"], ["土曜日", "どようび"], ["日曜日", "にちようび"]],
+  "数え方": [["一人", "ひとり", true], ["二人", "ふたり", true], ["三人", "さんにん"], ["一つ", "ひとつ", true], ["二つ", "ふたつ", true], ["一枚", "いちまい"], ["一台", "いちだい"], ["一匹", "いっぴき", true], ["一冊", "いっさつ", true]],
+  "時間": [["一時", "いちじ"], ["四時", "よじ", true], ["七時", "しちじ", true], ["九時", "くじ", true], ["一分", "いっぷん", true], ["三分", "さんぷん", true], ["四分", "よんぷん", true], ["十分", "じゅっぷん", true], ["半", "はん"]],
+  "月": [["一月", "いちがつ"], ["二月", "にがつ"], ["三月", "さんがつ"], ["四月", "しがつ", true], ["五月", "ごがつ"], ["六月", "ろくがつ"], ["七月", "しちがつ", true], ["八月", "はちがつ"], ["九月", "くがつ", true], ["十月", "じゅうがつ"], ["十一月", "じゅういちがつ"], ["十二月", "じゅうにがつ"]],
+  "値段": [["100円", "ひゃくえん"], ["300円", "さんびゃくえん", true], ["600円", "ろっぴゃくえん", true], ["800円", "はっぴゃくえん", true], ["1000円", "せんえん"], ["3000円", "さんぜんえん", true], ["8000円", "はっせんえん", true], ["一万円", "いちまんえん"]]
+};
+
+function makeVocabTable(type) {
+  const rows = vocabTableData[type] || [];
+  let html = `<table class="listen-table vocab-table"><tr><th>ことば</th><th>読み方</th></tr>`;
+  rows.forEach(([word, reading, special]) => {
+    html += `<tr${special ? ' class="vocab-special"' : ''}><td>${makeWordCell(escapeHtml(word))}</td><td><span class="answer-text">${escapeHtml(reading)}</span></td></tr>`;
+  });
+  html += `</table><div class="scroll-extra-y"></div>`;
+  document.getElementById("tableArea").innerHTML = html;
 }
 
 function escapeHtml(value) {
@@ -3167,8 +3341,12 @@ function isNonConjugationMemoType(type) {
   return nonConjugationQuestionTypes.has(type);
 }
 
+function isTaraMemoType(type) {
+  return type === "Vたら" || type === "たら";
+}
+
 function isStackedMemoType(type) {
-  return isTariMemoType(type) || isNonConjugationMemoType(type);
+  return isTariMemoType(type) || isTaraMemoType(type) || isNonConjugationMemoType(type);
 }
 
 function getMemoDisplayItem(item) {
@@ -3184,6 +3362,10 @@ function getMemoDisplayItem(item) {
   } else if (typeNeedsFocusOnly(type, leftText)) {
     leftHtml = extractLastCoreHtml(leftHtml);
     rightHtml = extractLastCoreHtml(rightHtml);
+  }
+
+  if (type === "つなぐ" && rightText.includes("から")) {
+    rightHtml = addReasonKaraNote(rightHtml);
   }
 
   return { type, leftHtml, rightHtml, leftText, rightText };
@@ -3241,18 +3423,20 @@ function arrangeMemoRow(rowItems) {
   return [smallFirst[0], sorted[0], smallFirst[1]];
 }
 
-function getMemoLayout(items) {
+function getMemoLayout(items, options = {}) {
   items = Array.isArray(items) ? items.filter(isValidQuestionItem) : [];
   if (!items.length) return [];
-  if (items.length > QUESTION_MEMO_DISPLAY_LIMIT) return null;
+  const displayLimit = options.displayLimit || QUESTION_MEMO_DISPLAY_LIMIT;
+  const zoneLimit = options.zoneLimit || QUESTION_MEMO_ZONE_LIMIT;
+  if (items.length > displayLimit) return null;
 
   const vw = window.innerWidth;
   const vh = window.innerHeight;
   const isSmall = vw <= 420;
   const margin = isSmall ? 5 : 8;
   const gap = isSmall ? 4 : 6;
-  const columns = 2;
-  const rowsPerZone = Math.ceil(QUESTION_MEMO_ZONE_LIMIT / columns);
+  const columns = options.columns || 2;
+  const rowsPerZone = Math.ceil(zoneLimit / columns);
   const baseCardW = Math.floor((vw - margin * 2 - gap * (columns - 1)) / columns);
   // 横長カードを行いっぱいに広げると、隣の？記録の上に白いカード背景が被るため、
   // 各カードは自分の列幅内に収め、文字側を縮小して見切れを防ぐ。
@@ -3275,18 +3459,14 @@ function getMemoLayout(items) {
       height: cardH,
       isWide: width > baseCardW + 1,
       isRoomy,
-      rotation: Math.random() < 0.5 ? -2 : 2
+      rotation: Math.random() < 0.5 ? -1 : 1
     };
   });
 
   const positions = [];
   const placeLayoutItem = (layoutItem, col, row, yBase) => {
-    let x;
-    if (col === 0) {
-      x = margin;
-    } else {
-      x = vw - margin - layoutItem.width;
-    }
+    const columnWidth = (vw - margin * 2 - gap * (columns - 1)) / columns;
+    const x = margin + col * (columnWidth + gap);
 
     positions.push({
       itemIndex: layoutItem.itemIndex,
@@ -3301,36 +3481,15 @@ function getMemoLayout(items) {
   };
 
   const placeZone = (zoneItems, yBase) => {
-    if (zoneItems.length <= columns) {
-      arrangeMemoRow(zoneItems).forEach((layoutItem, col) => {
-        placeLayoutItem(layoutItem, col, 0, yBase);
-      });
-      return;
-    }
-
-    const rowsNeeded = Math.ceil(zoneItems.length / columns);
-    const sortedWideFirst = zoneItems.slice().sort((a, b) => b.width - a.width);
-    const centerItems = sortedWideFirst.slice(0, rowsNeeded);
-    const sideItems = sortedWideFirst.slice(rowsNeeded).sort((a, b) => a.width - b.width);
-
-    centerItems.forEach((layoutItem, row) => {
-      placeLayoutItem(layoutItem, 1, row, yBase);
-    });
-
-    const sideSlots = [];
-    for (let row = 0; row < rowsNeeded; row++) {
-      sideSlots.push({ row, col: 0 });
-    }
-
-    sideItems.forEach((layoutItem, index) => {
-      const slot = sideSlots[index];
-      if (!slot) return;
-      placeLayoutItem(layoutItem, slot.col, slot.row, yBase);
+    zoneItems.forEach((layoutItem, index) => {
+      const row = Math.floor(index / columns);
+      const col = index % columns;
+      placeLayoutItem(layoutItem, col, row, yBase);
     });
   };
 
-  placeZone(layoutItems.slice(0, QUESTION_MEMO_ZONE_LIMIT), topY);
-  placeZone(layoutItems.slice(QUESTION_MEMO_ZONE_LIMIT), bottomY);
+  placeZone(layoutItems.slice(0, zoneLimit), topY);
+  placeZone(layoutItems.slice(zoneLimit), bottomY);
 
   return positions;
 }
@@ -3351,25 +3510,28 @@ function getRandomQuestionMemoItems(items, limit) {
 }
 
 function renderQuestionMemoLayer() {
-  const isConjugationMenu = currentSection === "conjugation";
-  const screen = document.getElementById(isConjugationMenu ? "menuScreen" : "homeScreen");
-  const layer = document.getElementById(isConjugationMenu ? "questionMemoLayer" : "homeQuestionMemoLayer");
+  const isMenuMemo = currentSection === "conjugation" || currentSection === "vocab";
+  const memoLimit = isMenuMemo ? MENU_MEMO_DISPLAY_LIMIT : TOP_MEMO_DISPLAY_LIMIT;
+  const screen = document.getElementById(isMenuMemo ? "menuScreen" : "homeScreen");
+  const layer = document.getElementById(isMenuMemo ? "questionMemoLayer" : "homeQuestionMemoLayer");
   if (!layer || !screen || screen.style.display === "none") return;
 
   const allItems = safeParseQuestionStore();
   let items;
-  if (isConjugationMenu) {
-    items = getRandomQuestionMemoItems(allItems.filter(isConjugationQuestionItem), TOP_MEMO_DISPLAY_LIMIT);
+  if (currentSection === "vocab") {
+    items = getRandomQuestionMemoItems(allItems.filter(item => vocabCategories.includes(item.type)), memoLimit);
+  } else if (isMenuMemo) {
+    items = getRandomQuestionMemoItems(allItems.filter(isConjugationQuestionItem), memoLimit);
   } else {
-    const nonConjugationLimit = Math.round(TOP_MEMO_DISPLAY_LIMIT * 0.7);
-    const conjugationLimit = TOP_MEMO_DISPLAY_LIMIT - nonConjugationLimit;
+    const nonConjugationLimit = Math.round(memoLimit * 0.7);
+    const conjugationLimit = memoLimit - nonConjugationLimit;
     const nonConjugationSource = allItems.filter(item => !isConjugationQuestionItem(item));
     const conjugationSource = allItems.filter(isConjugationQuestionItem);
     const nonConjugationItems = getRandomQuestionMemoItems(nonConjugationSource, nonConjugationLimit);
     const conjugationItems = getRandomQuestionMemoItems(conjugationSource, conjugationLimit);
     const selectedItems = [...nonConjugationItems, ...conjugationItems];
     const selectedKeys = new Set(selectedItems.map(item => item.key));
-    const fillLimit = TOP_MEMO_DISPLAY_LIMIT - selectedItems.length;
+    const fillLimit = memoLimit - selectedItems.length;
     const fillItems = fillLimit > 0
       ? getRandomQuestionMemoItems(allItems.filter(item => !selectedKeys.has(item.key)), fillLimit)
       : [];
@@ -3378,7 +3540,7 @@ function renderQuestionMemoLayer() {
   layer.innerHTML = "";
   if (!items.length) return;
 
-  const positions = getMemoLayout(items);
+  const positions = getMemoLayout(items, isMenuMemo ? { displayLimit: MENU_MEMO_DISPLAY_LIMIT, zoneLimit: 6, columns: 3 } : { displayLimit: TOP_MEMO_DISPLAY_LIMIT, zoneLimit: 4, columns: 2 });
   if (!positions) {
     // 画面サイズ変更などで全部は置けない場合でも、保存データは壊さない。
     // 次に？を押した時に「0個扱い」にならないよう、ここではトーストも出さない。
@@ -3390,7 +3552,7 @@ function renderQuestionMemoLayer() {
     const displayItem = getMemoDisplayItem(item);
     const card = document.createElement("div");
     const isStackedMemo = isStackedMemoType(displayItem.type);
-    card.className = `question-memo-card${pos.isRoomy ? " memo-roomy" : ""}${isStackedMemo ? " memo-stacked" : ""}`;
+    card.className = `question-memo-card${pos.isRoomy ? " memo-roomy" : ""}${isStackedMemo ? " memo-stacked" : ""}${displayItem.rightHtml.includes("reason-kara-note") ? " memo-has-reason-note" : ""}`;
     card.style.left = `${pos.x}px`;
     card.style.top = `${pos.y}px`;
     card.style.width = `${pos.width}px`;
@@ -3797,7 +3959,7 @@ function showPlaceholderTable(title, message, returnSection = "home") {
 
 function showTable(type, focusKey = "") {
   document.body.classList.remove("home-mode", "menu-mode", "sheet-high", "table-start-lowered");
-  if (type === "Vて" || type === "Vた" || type === "聞く" || type === "話す" || type === "つなぐ") {
+  if (type === "Vて" || type === "Vた" || type === "聞く" || type === "話す" || type === "つなぐ" || vocabCategories.includes(type)) {
     document.body.classList.add("table-start-lowered");
   }
   document.getElementById("homeScreen").style.display = "none";
@@ -3817,6 +3979,8 @@ function showTable(type, focusKey = "") {
     makeSpeakTable();
   } else if (type === "つなぐ") {
     makeConnectTable();
+  } else if (vocabCategories.includes(type)) {
+    makeVocabTable(type);
   } else if (type === "Vます") {
     masuSwapped = false;
     makeMasuTable();
@@ -3939,7 +4103,10 @@ function backMenu() {
   clearAllMasks();
 
   document.getElementById("tableScreen").style.display = "none";
-  if (currentSection === "conjugation") {
+  if (currentSection === "vocab") {
+    openVocabMenu();
+    return;
+  } else if (currentSection === "conjugation") {
     document.getElementById("homeScreen").style.display = "none";
     document.getElementById("menuScreen").style.display = "block";
     document.body.classList.remove("home-mode");
@@ -5837,8 +6004,18 @@ function squeezeRightColumnToOneLine(table) {
 
   const useConnectRightCellSizing = true;
   if (useConnectRightCellSizing) {
-    const maxRightFont = 16;
-    const measureAtMaxFont = (el, cell) => {
+    const isConjugationTable = table.classList.contains("conjugation-table");
+    const getMaxRightFont = (el) => {
+      if (!isConjugationTable) return 16;
+      const row = el.closest("tr");
+      const leftText = row?.querySelector("td:first-child .word-text");
+      const leftSize = leftText ? parseFloat(getComputedStyle(leftText).fontSize) : NaN;
+      if (Number.isFinite(leftSize) && leftSize > 0) return leftSize;
+      const tableSize = parseFloat(getComputedStyle(table).fontSize);
+      return Number.isFinite(tableSize) && tableSize > 0 ? tableSize : 18;
+    };
+
+    const measureAtMaxFont = (el, cell, maxRightFont) => {
       const clone = el.cloneNode(true);
       clone.querySelectorAll(".answer-mask-cover").forEach(node => node.remove());
       clone.style.position = "absolute";
@@ -5866,7 +6043,8 @@ function squeezeRightColumnToOneLine(table) {
       const availableWidth = el.clientWidth;
       if (availableWidth <= 0) return;
 
-      const naturalWidth = measureAtMaxFont(el, cell);
+      const maxRightFont = getMaxRightFont(el);
+      const naturalWidth = measureAtMaxFont(el, cell, maxRightFont);
       if (!Number.isFinite(naturalWidth) || naturalWidth <= 0) return;
 
       const rawSize = naturalWidth <= availableWidth
@@ -6464,6 +6642,7 @@ window.addEventListener("orientationchange", () => {
 
 window.addEventListener("load", () => {
   bootstrapQuestionStorePersistence();
+  setHomeMenu("main");
   updateMenuPage();
   renderQuestionMemoLayer();
   requestAnimationFrame(() => {
