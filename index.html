@@ -6647,6 +6647,15 @@ function listenPromptTextUsesMoreThanTwoLines(el) {
   return el.getClientRects().length > 2;
 }
 
+function listenPromptUsesMoreThanTwoLines(el) {
+  const prompt = el.closest(".listen-prompt");
+  if (!prompt) return false;
+
+  const lineHeight = parseFloat(getComputedStyle(prompt).lineHeight);
+  if (!Number.isFinite(lineHeight) || lineHeight <= 0) return false;
+  return prompt.getBoundingClientRect().height > lineHeight * 2 + 1;
+}
+
 function fitTableTextOneLine() {
   const table = document.querySelector("#tableArea table");
   if (!table) return;
@@ -6655,7 +6664,7 @@ function fitTableTextOneLine() {
   const minTableFont = 15;
   const minCellFont = 15;
   const minLeftFont = 14;
-  const minListenPromptFont = 11;
+  const minListenPromptFont = 9;
   const minRightFont = 8;
   const wrap = document.querySelector(".table-wrap");
   applyTableModeClasses(table);
@@ -6725,7 +6734,10 @@ function fitTableTextOneLine() {
     const needsShrink = () => (
       elementOverflows(el)
       || (el.matches(".word-text") && leftTextUsesMoreThanTwoLines(el))
-      || (el.matches(".listen-prompt-text") && listenPromptTextUsesMoreThanTwoLines(el))
+      || (
+        el.matches(".listen-prompt-text")
+        && (listenPromptTextUsesMoreThanTwoLines(el) || listenPromptUsesMoreThanTwoLines(el))
+      )
     );
     const minFont = el.matches(".listen-prompt-text")
       ? minListenPromptFont
