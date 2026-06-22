@@ -750,7 +750,7 @@
 
   #tableArea .listen-prompt-text {
     display: inline;
-    font-size: 0.82em !important;
+    font-size: 1em !important;
     white-space: normal !important;
     overflow-wrap: anywhere;
   }
@@ -775,8 +775,33 @@
     transform: scaleX(-1);
   }
 
+  #tableArea .listen-prompt-label {
+    display: inline-block;
+    padding: 0.08em 0.24em;
+    border-radius: 0.12em;
+    background: #ff8ac2;
+    color: #fff;
+    font-size: 1em;
+    font-weight: 900;
+    line-height: 1.1;
+    vertical-align: middle;
+  }
+
+  #tableArea .listen-prompt-question {
+    display: inline-block;
+    color: #ff9fca;
+    font-size: 1em;
+    font-weight: 900;
+    line-height: 1;
+    text-shadow:
+      0.03em 0 currentColor,
+      -0.03em 0 currentColor,
+      0 0.03em currentColor,
+      0 -0.03em currentColor;
+  }
+
   #tableArea .listen-prompt-emoji {
-    font-size: 1.26em !important;
+    font-size: 1em !important;
     line-height: 1;
   }
 
@@ -1751,6 +1776,20 @@
     white-space: nowrap;
   }
 
+  .question-memo-card .listen-prompt {
+    display: inline;
+    white-space: nowrap;
+  }
+
+  .question-memo-card .listen-prompt-text {
+    white-space: nowrap !important;
+    overflow-wrap: normal;
+  }
+
+  .question-memo-card .listen-prompt-break {
+    display: none;
+  }
+
   .question-memo-card .memo-arrow {
     flex: 0 0 auto;
     color: #d90000;
@@ -2496,25 +2535,25 @@ const basicListenPracticeData = [];
 const basicSpeakPracticeData = [];
 
 const listenPracticeData = [
-  ["问正在吃的菜味道时 ❔🍜😋", "どうですか。"],
+  ["问正在吃的菜味道时 😋🍜❔", "どうですか。"],
   ["提议去某个地方（咖喱店） 👉🍛❔", "カレー屋は どうですか。"],
-  ["问旅行感想时 ✈️❔", "どうでしたか。"],
-  ["问电影感想时 🎬❔", "どうでしたか。"],
-  ["问哥哥性格时 👨‍🦱❔", "お兄さんはどんな人ですか。"],
+  ["问旅行感想时 😊✈️❔", "どうでしたか。"],
+  ["问电影感想时 😊🎬❔", "どうでしたか。"],
+  ["问哥哥性格时 🧑🏻‍🦱💭❔", "お兄さんはどんな人ですか。"],
   ["问电影内容时 🎬📖❔", "どんな映画ですか。"],
   ["邀请去唱卡拉OK时 🤝🎤❔", "カラオケに行きませんか。"],
   ["邀请一起烧烤时 🤝🍖❔", "バーベキューをしませんか。"],
   ["问对方在做什么时 👀❔", "なにをしていますか。"],
-  ["问对方工作时 💼❔", "なにをしていますか。"],
+  ["问对方工作时 💼👀❔", "なにをしていますか。"],
   ["问对方哪里不舒服时 👀❔🤒", "どうしたんですか。"],
   ["问对方为什么困扰时 👀❔😟", "どうしたんですか。"],
   ["问对方为什么开心时 👀❔😊", "どうしたんですか。"],
-  ["想主动帮忙时 🙋‍♂️❔🧽🍽️🙍‍♂️", "手伝いましょうか。"],
-  ["想帮对方拿行李时 🙋‍♂️❔🧳🙍‍♂️", "持ちましょうか。"],
+  ["想主动帮忙时 🙋🏻‍♂️❔🧽🍽️🙍🏻‍♂️", "手伝いましょうか。"],
+  ["想帮对方拿行李时 🙋🏻‍♂️❔🧳🙍🏻‍♂️", "持ちましょうか。"],
   ["问是谁带来的时 👤❔", "だれが持ってきましたか。"],
   ["问房间里有谁时 👥❔", "だれがいますか。"],
-  ["问果汁还有没有剩时 🧃🧃❔", "まだジュースがありますか。"],
-  ["问咖喱还有没有剩时 🍛🍛❔", "まだカレーがありますか。"],
+  ["问果汁还有没有剩时 🧃❔", "まだジュースがありますか。"],
+  ["问咖喱还有没有剩时 🍛❔", "まだカレーがありますか。"],
   ["问住在哪里时 🏠❔", "どこに住んでいますか。"],
   ["问和谁一起住时 🏠👥❔", "だれと住んでいますか。"],
   ["问收到什么礼物时 🎁❔", "なにをもらいましたか。"],
@@ -2524,7 +2563,7 @@ const listenPracticeData = [
   ["问午饭吃了没有时 🍜❔", "もうご飯を食べましたか。"],
   ["打电话时想确认对方能不能听见时 👂❔", "聞こえますか。"],
   ["想确认对方能不能看清黑板上的字时 👀❔", "見えますか。"],
-  ["想去厕所时 🚻🙋❔", "トイレに行ってもいいですか。"],
+  ["想去厕所时 🚻🙋🏻‍♂️❔", "トイレに行ってもいいですか。"],
   ["想休息一下时 😮‍💨❔", "ちょっと休んでもいいですか。"],
   ["想坐在旁边时 👉🪑❔", "ここに座ってもいいですか。"],
   ["邀请对方一起吃点东西时 🤝🍙❔", "なにか食べませんか。"],
@@ -2542,12 +2581,12 @@ const listenPracticeData = [
   ["请对方再说一遍时 🙏❔", "もう一度言ってもらえませんか。"],
   ["想请对方帮忙拍照时 📸🙏❔", "写真をとってもらえませんか。"],
   ["请对方帮忙时 🙏❔", "手伝ってもらえませんか。"],
-  ["不明白词语意思时 📖❔", "どういう意味ですか。"],
+  ["不明白词语意思时 意味❔", "どういう意味ですか。"],
   ["想问怎么去时 🚶‍♂️❔", "どうやって行ったらいいですか。"],
   ["想问怎么买票时 🎫❔", "どうやって買ったらいいですか。"],
   ["问推荐的店时 🏬👍❔", "よく行くお店はどこですか。"],
   ["问推荐的歌时 🎵👍❔", "よく聞く歌はなんですか。"],
-  ["问哪里有卖便宜肉的店时 🥩🛒❔", "安い肉を売っているお店はどこにありますか。"],
+  ["问哪里有卖便宜肉的店时 🥩🏪❔", "安い肉を売っているお店はどこにありますか。"],
   ["问两个之中是哪一个时 👉🥛🥛❔", "どっちですか。"],
   ["问两个之中哪个好时 👉🍨🍰❔", "どっちがいいですか。"],
   ["问三个以上之中是哪一个时 👉🍶🧂🥫❔", "どれですか。"],
@@ -4070,12 +4109,33 @@ function formatListenPrompt(prompt) {
 }
 
 function formatListenPromptEmoji(emoji) {
-  return Array.from(String(emoji || "")).map(char => {
-    if (char === "👀") {
-      return `<span class="listen-prompt-eye">${escapeHtml(char)}</span>`;
+  const labelTexts = ["日本語", "意味"];
+  const chars = Array.from(String(emoji || ""));
+  const parts = [];
+
+  for (let i = 0; i < chars.length; i += 1) {
+    const label = labelTexts.find(text => chars.slice(i, i + Array.from(text).length).join("") === text);
+    if (label) {
+      parts.push(`<span class="listen-prompt-label">${escapeHtml(label)}</span>`);
+      i += Array.from(label).length - 1;
+      continue;
     }
-    return escapeHtml(char);
-  }).join("");
+
+    const char = chars[i];
+    if (char === "👀") {
+      parts.push(`<span class="listen-prompt-eye">${escapeHtml(char)}</span>`);
+      continue;
+    }
+
+    if (char === "❔") {
+      parts.push(`<span class="listen-prompt-question">？</span>`);
+      continue;
+    }
+
+    parts.push(escapeHtml(char));
+  }
+
+  return parts.join("");
 }
 
 function makeListenTable() {
