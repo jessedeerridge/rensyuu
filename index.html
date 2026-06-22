@@ -1148,17 +1148,18 @@
 
   #tableArea .reason-kara-note {
     position: absolute;
-    top: calc(100% - 0.04em);
+    top: 100%;
     left: 50%;
     width: max-content;
     transform: translateX(-50%);
     text-align: center;
     color: inherit;
     font-size: 1em;
-    font-weight: inherit;
+    font-weight: 400;
     line-height: 1;
     white-space: nowrap;
     z-index: 2;
+    pointer-events: none;
   }
 
   #tableArea .answer-text.reason-note-answer {
@@ -1168,22 +1169,23 @@
   .question-memo-card .reason-kara-wrap {
     position: relative;
     display: inline-block;
-    line-height: 1;
-    vertical-align: top;
+    line-height: inherit;
+    vertical-align: baseline;
   }
 
   .question-memo-card .reason-kara-note {
     position: absolute;
-    top: calc(100% - 0.04em);
+    top: 100%;
     left: 50%;
     width: max-content;
     transform: translateX(-50%);
     color: inherit;
     font-size: calc(1em - 1px);
-    font-weight: inherit;
+    font-weight: 400;
     line-height: 1;
     text-align: center;
     white-space: nowrap;
+    pointer-events: none;
   }
 
   #tableArea .connect-separator-contrast {
@@ -3374,6 +3376,14 @@ function isStackedMemoType(type) {
   return isTariMemoType(type) || isTaraMemoType(type) || isNonConjugationMemoType(type);
 }
 
+function inlineTaraHintMemoHtml(html) {
+  const tmp = document.createElement("div");
+  tmp.innerHTML = html || "";
+  const lines = Array.from(tmp.querySelectorAll(".tara-hint-line"));
+  if (!lines.length) return html || "";
+  return lines.map(line => line.innerHTML.trim()).join("");
+}
+
 function getMemoDisplayItem(item) {
   const type = item.type || "";
   const leftText = item.leftText || stripHtmlForKey(item.leftHtml || "");
@@ -3382,8 +3392,7 @@ function getMemoDisplayItem(item) {
   let rightHtml = item.rightHtml || "";
 
   if (type === "Vたら" || type === "たら") {
-    leftHtml = extractTaraLeftHtml(leftHtml);
-    rightHtml = extractTaraRightHtml(rightHtml);
+    leftHtml = inlineTaraHintMemoHtml(leftHtml);
   } else if (typeNeedsFocusOnly(type, leftText)) {
     leftHtml = extractLastCoreHtml(leftHtml);
     rightHtml = extractLastCoreHtml(rightHtml);
@@ -3627,7 +3636,8 @@ function fitMemoCardText() {
     pair.style.setProperty("--memo-text-scale", "1");
     const availableWidth = Math.max(1, card.clientWidth - 2);
     const scale = Math.min(1, availableWidth / Math.max(1, pair.scrollWidth));
-    pair.style.setProperty("--memo-text-scale", String(Math.max(0.62, Math.floor(scale * 100) / 100)));
+    const minScale = card.classList.contains("memo-tara") ? 0.46 : 0.62;
+    pair.style.setProperty("--memo-text-scale", String(Math.max(minScale, Math.floor(scale * 100) / 100)));
   });
 }
 
