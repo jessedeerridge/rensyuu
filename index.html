@@ -1028,7 +1028,7 @@
     white-space: nowrap;
   }
 
-  #tableArea .connect-separator {
+  :is(#tableArea, .question-memo-card) .connect-separator {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -1037,7 +1037,7 @@
     line-height: 1;
   }
 
-  #tableArea .connect-separator-plus {
+  :is(#tableArea, .question-memo-card) .connect-separator-plus {
     position: relative;
     top: -0.06em;
     width: 1em;
@@ -1052,7 +1052,7 @@
     justify-content: center;
   }
 
-  #tableArea .connect-separator-before-after {
+  :is(#tableArea, .question-memo-card) .connect-separator-before-after {
     position: relative;
     top: -0.06em;
     width: auto;
@@ -1067,17 +1067,17 @@
     letter-spacing: -0.02em;
   }
 
-  #tableArea .connect-separator-before-after.is-after {
+  :is(#tableArea, .question-memo-card) .connect-separator-before-after.is-after {
     background: #d79ab7;
   }
 
-  #tableArea .connect-separator-before-after-label {
+  :is(#tableArea, .question-memo-card) .connect-separator-before-after-label {
     display: inline-block;
     transform: scaleX(0.68) scaleY(1.16);
     transform-origin: center;
   }
 
-  #tableArea .connect-separator-time {
+  :is(#tableArea, .question-memo-card) .connect-separator-time {
     position: relative;
     top: -0.06em;
     width: 16px;
@@ -1088,15 +1088,15 @@
     line-height: 1;
   }
 
-  #tableArea .connect-separator-time.is-ru-time {
+  :is(#tableArea, .question-memo-card) .connect-separator-time.is-ru-time {
     background: #aee8ff;
   }
 
-  #tableArea .connect-separator-time.is-ta-time {
+  :is(#tableArea, .question-memo-card) .connect-separator-time.is-ta-time {
     background: #78977C;
   }
 
-  #tableArea .connect-separator-square {
+  :is(#tableArea, .question-memo-card) .connect-separator-square {
     position: relative;
     top: -0.06em;
     width: 16px;
@@ -1106,29 +1106,29 @@
     box-shadow: inset 0 -2px 0 rgba(0,0,0,0.16);
   }
 
-  #tableArea .connect-separator-fast {
+  :is(#tableArea, .question-memo-card) .connect-separator-fast {
     background: #2f4d7c;
     color: #fff;
     font-size: 0.46em;
     font-weight: 900;
   }
 
-  #tableArea .connect-separator-fast span + span {
+  :is(#tableArea, .question-memo-card) .connect-separator-fast span + span {
     margin-left: calc(-0.28em - 1px);
   }
 
-  #tableArea .connect-separator-soft-blue {
+  :is(#tableArea, .question-memo-card) .connect-separator-soft-blue {
     background: #4f8fd2;
   }
 
-  #tableArea .reason-kara-wrap {
+  :is(#tableArea, .question-memo-card) .reason-kara-wrap {
     position: relative;
     display: inline-block;
     line-height: inherit;
     vertical-align: baseline;
   }
 
-  #tableArea .reason-kara-note {
+  :is(#tableArea, .question-memo-card) .reason-kara-note {
     position: absolute;
     top: calc(100% + 4px);
     left: 50%;
@@ -1141,33 +1141,33 @@
     z-index: 2;
   }
 
-  #tableArea .answer-text.reason-note-answer {
+  :is(#tableArea, .question-memo-card) .answer-text.reason-note-answer {
     padding-bottom: 1.2em;
   }
 
-  #tableArea .connect-separator-contrast {
+  :is(#tableArea, .question-memo-card) .connect-separator-contrast {
     background: #7f8792;
     color: #fff;
   }
 
-  #tableArea .connect-separator-temo {
+  :is(#tableArea, .question-memo-card) .connect-separator-temo {
     background: #b98551;
     color: #fffaf0;
   }
 
-  #tableArea .connect-separator-tara {
+  :is(#tableArea, .question-memo-card) .connect-separator-tara {
     background: #3f8cff;
     color: #fff;
   }
 
 
-  #tableArea .bidi-arrow {
+  :is(#tableArea, .question-memo-card) .bidi-arrow {
     position: relative;
     width: 14px;
     height: 8px;
   }
 
-  #tableArea .bidi-arrow::before {
+  :is(#tableArea, .question-memo-card) .bidi-arrow::before {
     content: "";
     position: absolute;
     left: 4px;
@@ -1179,8 +1179,8 @@
     transform: translateY(-50%);
   }
 
-  #tableArea .bidi-arrow-left,
-  #tableArea .bidi-arrow-right {
+  :is(#tableArea, .question-memo-card) .bidi-arrow-left,
+  :is(#tableArea, .question-memo-card) .bidi-arrow-right {
     position: absolute;
     top: 50%;
     width: 0;
@@ -1188,14 +1188,14 @@
     transform: translateY(-50%);
   }
 
-  #tableArea .bidi-arrow-left {
+  :is(#tableArea, .question-memo-card) .bidi-arrow-left {
     left: 0;
     border-top: 3.5px solid transparent;
     border-bottom: 3.5px solid transparent;
     border-right: 4.5px solid currentColor;
   }
 
-  #tableArea .bidi-arrow-right {
+  :is(#tableArea, .question-memo-card) .bidi-arrow-right {
     right: 0;
     border-top: 3.5px solid transparent;
     border-bottom: 3.5px solid transparent;
@@ -1203,7 +1203,7 @@
   }
 
 
-  #tableArea .tara-arrow-stem {
+  :is(#tableArea, .question-memo-card) .tara-arrow-stem {
     width: 6px;
     height: 3px;
     margin-left: -1px;
@@ -1211,7 +1211,7 @@
     border-radius: 999px;
   }
 
-  #tableArea .tara-arrow-head {
+  :is(#tableArea, .question-memo-card) .tara-arrow-head {
     width: 0;
     height: 0;
     margin-left: -1px;
@@ -1220,7 +1220,7 @@
     border-left: 5px solid currentColor;
   }
 
-  #tableArea .temo-arrow-stem {
+  :is(#tableArea, .question-memo-card) .temo-arrow-stem {
     width: 4px;
     height: 3px;
     margin-left: -1px;
@@ -1228,7 +1228,7 @@
     border-radius: 999px;
   }
 
-  #tableArea .temo-arrow-head {
+  :is(#tableArea, .question-memo-card) .temo-arrow-head {
     width: 0;
     height: 0;
     margin-left: -1px;
@@ -1237,14 +1237,14 @@
     border-left: 5px solid currentColor;
   }
 
-  #tableArea .temo-bang {
+  :is(#tableArea, .question-memo-card) .temo-bang {
     position: relative;
     width: 3px;
     height: 9px;
     margin-left: 1px;
   }
 
-  #tableArea .temo-bang::before {
+  :is(#tableArea, .question-memo-card) .temo-bang::before {
     content: "";
     position: absolute;
     left: 50%;
@@ -1256,7 +1256,7 @@
     transform: translateX(-50%);
   }
 
-  #tableArea .temo-bang::after {
+  :is(#tableArea, .question-memo-card) .temo-bang::after {
     content: "";
     position: absolute;
     left: 50%;
@@ -1586,11 +1586,19 @@
     line-height: 1.18;
   }
 
+  #tableArea td:last-child,
+  #tableArea td:last-child.answer-cell-short:not(.text-adjusted-cell),
   #tableArea table.connect-table td:last-child {
     padding-left: 6px;
     padding-right: 0.01px;
   }
 
+  #tableArea table.listen-table td:last-child .answer-text,
+  #tableArea table.listen-table.fitting-table td:last-child .answer-text,
+  #tableArea table.listen-table td:last-child.text-adjusted-cell .answer-text,
+  #tableArea table.conjugation-table td:last-child .answer-text,
+  #tableArea table.conjugation-table.fitting-table td:last-child .answer-text,
+  #tableArea table.conjugation-table td:last-child.text-adjusted-cell .answer-text,
   #tableArea table.connect-table td:last-child .answer-text,
   #tableArea table.connect-table.fitting-table td:last-child .answer-text,
   #tableArea table.connect-table td:last-child.text-adjusted-cell .answer-text {
@@ -1745,6 +1753,7 @@ function closeStartNotice() {
 
 
 const TOP_MEMO_DISPLAY_LIMIT = 12;
+const HOME_MEMO_DISPLAY_LIMIT = 6;
 const nonConjugationQuestionTypes = new Set(["聞く", "話す", "つなぐ"]);
 let currentSection = "home";
 
@@ -2539,12 +2548,11 @@ function sanitizeQuestionMemoHtml(html) {
   const tmp = document.createElement("div");
   tmp.innerHTML = html || "";
 
-  // 表の赤シート用カバーや色分け用の class/style を？記録へ持ち込まない。
-  // これらが保存されると、記録ボックス内の文字の上に白・色付きの四角が乗って見える。
+  // 表の赤シート用カバーやインライン style は？記録へ持ち込まない。
+  // class は絵文字や四角アイコンの組み立てに必要なので残す。
   tmp.querySelectorAll(".answer-mask-cover").forEach(el => el.remove());
-  tmp.querySelectorAll("[style], [class]").forEach(el => {
+  tmp.querySelectorAll("[style]").forEach(el => {
     el.removeAttribute("style");
-    el.removeAttribute("class");
   });
 
   return tmp.innerHTML.trim();
@@ -3005,23 +3013,25 @@ function arrangeMemoRow(rowItems) {
   return [smallFirst[0], sorted[0], smallFirst[1]];
 }
 
-function getMemoLayout(items) {
+function getMemoLayout(items, options = {}) {
   items = Array.isArray(items) ? items.filter(isValidQuestionItem) : [];
   if (!items.length) return [];
-  if (items.length > QUESTION_MEMO_DISPLAY_LIMIT) return null;
+  const displayLimit = options.displayLimit || QUESTION_MEMO_DISPLAY_LIMIT;
+  if (items.length > displayLimit) return null;
 
   const vw = window.innerWidth;
   const vh = window.innerHeight;
   const isSmall = vw <= 420;
   const margin = isSmall ? 5 : 8;
   const gap = isSmall ? 4 : 6;
-  const columns = 3;
-  const rowsPerZone = Math.ceil(QUESTION_MEMO_ZONE_LIMIT / columns);
+  const columns = options.columns || 3;
+  const zoneLimit = options.zoneLimit || QUESTION_MEMO_ZONE_LIMIT;
+  const rowsPerZone = Math.ceil(zoneLimit / columns);
   const baseCardW = Math.floor((vw - margin * 2 - gap * (columns - 1)) / columns);
   // 横長カードを行いっぱいに広げると、隣の？記録の上に白いカード背景が被るため、
   // 各カードは自分の列幅内に収め、文字側を縮小して見切れを防ぐ。
   const maxCardW = baseCardW;
-  const cardH = isSmall ? 40 : 52;
+  const cardH = options.cardHeight || (isSmall ? 40 : 52);
   const title = document.querySelector(".page-title");
   const titleRect = title ? title.getBoundingClientRect() : null;
   const topY = titleRect ? Math.max(margin, Math.ceil(titleRect.bottom + 6)) : margin;
@@ -3067,6 +3077,13 @@ function getMemoLayout(items) {
   };
 
   const placeZone = (zoneItems, yBase) => {
+    if (columns !== 3) {
+      zoneItems.forEach((layoutItem, index) => {
+        placeLayoutItem(layoutItem, index % columns, Math.floor(index / columns), yBase);
+      });
+      return;
+    }
+
     if (zoneItems.length <= columns) {
       arrangeMemoRow(zoneItems).forEach((layoutItem, col) => {
         placeLayoutItem(layoutItem, col, 0, yBase);
@@ -3094,8 +3111,8 @@ function getMemoLayout(items) {
     });
   };
 
-  placeZone(layoutItems.slice(0, QUESTION_MEMO_ZONE_LIMIT), topY);
-  placeZone(layoutItems.slice(QUESTION_MEMO_ZONE_LIMIT), bottomY);
+  placeZone(layoutItems.slice(0, zoneLimit), topY);
+  placeZone(layoutItems.slice(zoneLimit), bottomY);
 
   return positions;
 }
@@ -3123,11 +3140,12 @@ function renderQuestionMemoLayer() {
 
   const allItems = safeParseQuestionStore();
   const sourceItems = isConjugationMenu ? allItems.filter(isConjugationQuestionItem) : allItems;
-  const items = getStableQuestionMemoItems(sourceItems, TOP_MEMO_DISPLAY_LIMIT);
+  const memoDisplayLimit = currentSection === "home" ? HOME_MEMO_DISPLAY_LIMIT : TOP_MEMO_DISPLAY_LIMIT;
+  const items = getStableQuestionMemoItems(sourceItems, memoDisplayLimit);
   layer.innerHTML = "";
   if (!items.length) return;
 
-  const positions = getMemoLayout(items);
+  const positions = getMemoLayout(items, currentSection === "home" ? { columns: 2, zoneLimit: HOME_MEMO_DISPLAY_LIMIT, displayLimit: HOME_MEMO_DISPLAY_LIMIT, cardHeight: window.innerWidth <= 420 ? 48 : 62 } : {});
   if (!positions) {
     // 画面サイズ変更などで全部は置けない場合でも、保存データは壊さない。
     // 次に？を押した時に「0個扱い」にならないよう、ここではトーストも出さない。
@@ -5584,7 +5602,7 @@ function squeezeRightColumnToOneLine(table) {
   const rightAnswers = Array.from(table.querySelectorAll("td:last-child .answer-text"))
     .filter(el => el.offsetParent !== null);
 
-  if (table.classList.contains("connect-table")) {
+  if (table.classList.contains("connect-table") || table.classList.contains("listen-table") || table.classList.contains("conjugation-table")) {
     const maxRightFont = 16;
     const measureAtMaxFont = (el, cell) => {
       const clone = el.cloneNode(true);
@@ -5745,10 +5763,10 @@ function fitTableTextOneLine() {
     "th, td, .word-text, .answer-text, .group-row td"
   )).filter(el => el.offsetParent !== null);
 
-  const isConnectRightAnswer = el => table.classList.contains("connect-table") && el.matches("td:last-child .answer-text");
+  const isFixedSpecRightAnswer = el => (table.classList.contains("connect-table") || table.classList.contains("listen-table") || table.classList.contains("conjugation-table")) && el.matches("td:last-child .answer-text");
 
   const elementOverflows = (el) => {
-    if (isConnectRightAnswer(el)) return false;
+    if (isFixedSpecRightAnswer(el)) return false;
 
     const rect = el.getBoundingClientRect();
     if (rect.width <= 0 || rect.height <= 0) return false;
@@ -5783,7 +5801,7 @@ function fitTableTextOneLine() {
 
   let hasCellShrink = false;
   shrinkTargets().forEach(el => {
-    if (isConnectRightAnswer(el)) return;
+    if (isFixedSpecRightAnswer(el)) return;
 
     let cellSize = size;
     const needsShrink = () => elementOverflows(el) || (el.matches(".word-text") && leftTextUsesMoreThanTwoLines(el));
