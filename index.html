@@ -3374,6 +3374,26 @@ function isStackedMemoType(type) {
   return isTariMemoType(type) || isTaraMemoType(type) || isNonConjugationMemoType(type);
 }
 
+
+function inlineBeforeAfterMemoHtml(html) {
+  const tmp = document.createElement("div");
+  tmp.innerHTML = html || "";
+  const marker = tmp.querySelector(".connect-separator-before-after");
+  if (!marker) return html || "";
+
+  const lines = Array.from(tmp.querySelectorAll(".tara-hint-line"));
+  if (lines.length < 2) return html || "";
+
+  const firstLine = lines[0].cloneNode(true);
+  const markerInFirstLine = firstLine.querySelector(".connect-separator-before-after");
+  if (markerInFirstLine) markerInFirstLine.remove();
+
+  const beforeAfterIcon = marker.outerHTML;
+  const firstText = firstLine.innerHTML.trim();
+  const secondText = lines.slice(1).map(line => line.innerHTML.trim()).join("");
+  return `${beforeAfterIcon}${firstText}・${secondText}`;
+}
+
 function inlineTaraHintMemoHtml(html) {
   const tmp = document.createElement("div");
   tmp.innerHTML = html || "";
@@ -3397,6 +3417,8 @@ function getMemoDisplayItem(item) {
 
   if (type === "Vたら" || type === "たら") {
     leftHtml = inlineTaraHintMemoHtml(leftHtml);
+  } else if (type === "つなぐ" && leftHtml.includes("connect-separator-before-after")) {
+    leftHtml = inlineBeforeAfterMemoHtml(leftHtml);
   } else if (typeNeedsFocusOnly(type, leftText)) {
     leftHtml = extractLastCoreHtml(leftHtml);
     rightHtml = extractLastCoreHtml(rightHtml);
