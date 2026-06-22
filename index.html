@@ -1120,6 +1120,11 @@
     font-weight: 900;
     white-space: nowrap;
     line-height: 1;
+    z-index: 2;
+  }
+
+  #tableArea .answer-text.reason-note-answer {
+    margin-bottom: 1.2em;
   }
 
   #tableArea .connect-separator-contrast {
@@ -3467,7 +3472,7 @@ function makeConnectTable() {
       html += `
         <tr>
           <td>${makeWordCell(addFurigana(makeConnectHint(prompt, group.title, rowIndex)))}</td>
-          <td><span class="answer-text">${displayedAnswer}</span></td>
+          <td><span class="answer-text${group.title === "理由" ? " reason-note-answer" : ""}">${displayedAnswer}</span></td>
         </tr>
       `;
     });
