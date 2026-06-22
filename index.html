@@ -712,12 +712,12 @@
 
   #tableArea table th:first-child,
   #tableArea table td:first-child {
-    width: 42%;
+    width: 45%;
   }
 
   #tableArea table th:last-child,
   #tableArea table td:last-child {
-    width: 58%;
+    width: 55%;
   }
 
 
@@ -5587,6 +5587,35 @@ function squeezeRightColumnToOneLine(table) {
   });
 }
 
+function expandRightColumnToAvailableSpace(table, maxRightFont) {
+  table.querySelectorAll("td:last-child .answer-text").forEach(el => {
+    const cell = el.closest("td");
+    if (!cell) return;
+
+    let fontSize = parseFloat(getComputedStyle(el).fontSize);
+    if (!Number.isFinite(fontSize) || fontSize >= maxRightFont) return;
+
+    const fits = () => {
+      const rect = el.getBoundingClientRect();
+      const cellRect = cell.getBoundingClientRect();
+      return el.scrollWidth <= el.clientWidth + 0.5 && rect.right <= cellRect.right + 0.5;
+    };
+
+    let bestSize = fontSize;
+    while (fontSize < maxRightFont) {
+      fontSize = Math.min(maxRightFont, fontSize + 0.5);
+      el.style.setProperty("font-size", `${fontSize}px`, "important");
+
+      if (!fits()) {
+        el.style.setProperty("font-size", `${bestSize}px`, "important");
+        break;
+      }
+
+      bestSize = fontSize;
+    }
+  });
+}
+
 function leftTextUsesMoreThanTwoLines(el) {
   const lineHeight = parseFloat(getComputedStyle(el).lineHeight);
   if (!Number.isFinite(lineHeight) || lineHeight <= 0) return false;
@@ -5717,6 +5746,7 @@ function fitTableTextOneLine() {
   unifyLeftColumnFontSize(table);
   fitTaraHintLines(table);
   squeezeRightColumnToOneLine(table);
+  expandRightColumnToAvailableSpace(table, maxFont);
 
   table.dataset.fittedFontSize = String(size);
   table.classList.remove("fitting-table");
