@@ -2520,7 +2520,13 @@ function updateHomeNav() {
   if (!leftNav || !rightNav || !leftLabel || !rightLabel) return;
 
   const onVocab = currentHomeMenu === "vocab";
-  leftNav.classList.toggle("disabled", onVocab || currentHomeLevel <= 0);
+  const leftDisabled = onVocab || currentHomeLevel <= 0;
+  const leftHidden = currentHomeLevel <= 0;
+  leftNav.classList.toggle("disabled", leftDisabled);
+  leftNav.style.display = leftHidden ? "none" : "flex";
+  leftNav.setAttribute("aria-hidden", leftHidden ? "true" : "false");
+  const leftButton = leftNav.querySelector(".page-arrow");
+  if (leftButton) leftButton.setAttribute("aria-disabled", leftDisabled ? "true" : "false");
   const rightDisabled = onVocab || currentHomeLevel >= 1;
   rightNav.classList.toggle("disabled", rightDisabled);
   const rightButton = rightNav.querySelector(".page-arrow");
