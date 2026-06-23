@@ -209,9 +209,12 @@
 
   .open-count-badge {
     position: absolute;
+    z-index: 3;
+    display: block;
     right: 8px;
     bottom: 4px;
     color: rgba(85, 85, 85, 0.55);
+    -webkit-text-fill-color: rgba(85, 85, 85, 0.55);
     font-size: 8px;
     font-weight: 500;
     line-height: 1;
@@ -2325,6 +2328,8 @@ const conjugationMenuHtml = document.getElementById("menuButtonGrid")?.innerHTML
 
 let currentHomeLevel = 1;
 let currentHomeMenu = "main";
+let currentVocabCountLevel = currentHomeLevel;
+let currentConjugationCountLevel = currentHomeLevel;
 
 const homeMenus = {
   0: {
@@ -2350,6 +2355,7 @@ const homeMenus = {
 const vocabCategories = ["数字", "数え方", "月・日付", "時間・分", "位置詞"];
 const PAGE_OPEN_COUNT_STORAGE_KEY = "rensyuuPageOpenCounts_v1";
 const PAGE_OPEN_COUNT_SCROLL_WORDS = 25;
+const PAGE_OPEN_COUNT_INNER_SCROLL_WORDS = 10;
 let activePageOpenTracker = null;
 
 function readPageOpenCounts() {
@@ -2375,12 +2381,12 @@ function getPageOpenCountKey(level, type) {
 
 function getTableOpenCountTarget(type) {
   if (currentSection === "vocab") {
-    return { level: currentHomeLevel, type: "語彙" };
+    return { level: currentVocabCountLevel, type: "語彙", scrollWords: PAGE_OPEN_COUNT_INNER_SCROLL_WORDS };
   }
   if (currentSection === "conjugation") {
-    return { level: currentMenuPage, type: "活用" };
+    return { level: currentConjugationCountLevel, type: "活用", scrollWords: PAGE_OPEN_COUNT_INNER_SCROLL_WORDS };
   }
-  return { level: currentHomeLevel, type };
+  return { level: currentHomeLevel, type, scrollWords: PAGE_OPEN_COUNT_SCROLL_WORDS };
 }
 
 function getPageOpenCount(level, type) {
@@ -2415,15 +2421,15 @@ function stopPageOpenTracker() {
   activePageOpenTracker = null;
 }
 
-function getScrollCountThreshold() {
+function getScrollCountThreshold(wordCount = PAGE_OPEN_COUNT_SCROLL_WORDS) {
   const rows = Array.from(document.querySelectorAll("#tableArea tr")).filter(row => !row.classList.contains("group-row"));
-  if (rows.length > PAGE_OPEN_COUNT_SCROLL_WORDS) {
-    const targetRect = rows[PAGE_OPEN_COUNT_SCROLL_WORDS].getBoundingClientRect();
+  if (rows.length > wordCount) {
+    const targetRect = rows[wordCount].getBoundingClientRect();
     return Math.max(0, window.scrollY + targetRect.top - 8);
   }
   const firstCell = document.querySelector("#tableArea td, #tableArea .position-label");
   const wordHeight = firstCell ? Math.max(24, firstCell.getBoundingClientRect().height) : 36;
-  return Math.min(document.documentElement.scrollHeight - window.innerHeight, PAGE_OPEN_COUNT_SCROLL_WORDS * wordHeight);
+  return Math.min(document.documentElement.scrollHeight - window.innerHeight, wordCount * wordHeight);
 }
 
 function startPageOpenTracker(type) {
@@ -2433,7 +2439,7 @@ function startPageOpenTracker(type) {
     level: target.level,
     type: target.type,
     counted: false,
-    threshold: getScrollCountThreshold(),
+    threshold: getScrollCountThreshold(target.scrollWords),
     onScroll() {
       if (!activePageOpenTracker || activePageOpenTracker.counted) return;
       const maxScroll = Math.max(window.scrollY, document.documentElement.scrollTop || 0);
@@ -2492,6 +2498,7 @@ function changeHomeLevel(direction) {
 
 function openVocabMenu() {
   currentSection = "vocab";
+  currentVocabCountLevel = currentHomeLevel;
   document.body.classList.remove("home-mode", "sheet-high", "table-start-lowered", "position-vocab");
   document.body.classList.add("menu-mode");
   document.getElementById("homeScreen").style.display = "none";
@@ -2780,6 +2787,7 @@ function openHome() {
 
 function openConjugationMenu() {
   currentSection = "conjugation";
+  currentConjugationCountLevel = currentHomeLevel;
   document.body.classList.remove("home-mode", "sheet-high", "table-start-lowered", "position-vocab");
   document.body.classList.add("menu-mode");
   document.getElementById("homeScreen").style.display = "none";
