@@ -1975,12 +1975,38 @@
     background: #fff;
   }
 
+  .position-cube {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: min(48vw, 250px);
+    height: min(48vw, 250px);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+
+  .position-cube line,
+  .position-cube polygon,
+  .position-cube polyline {
+    fill: rgba(255, 255, 255, 0.72);
+    stroke: #000;
+    stroke-width: 9;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .position-cube .hidden-edge {
+    fill: none;
+    stroke-dasharray: 13 12;
+    opacity: 0.55;
+  }
+
   .position-label.pos-front { left: 50%; top: 15%; transform: translateX(-50%); }
   .position-label.pos-back { left: 50%; bottom: 14%; transform: translateX(-50%); }
-  .position-label.pos-left { right: 68%; top: 50%; transform: translateY(-50%); }
-  .position-label.pos-right { left: 68%; top: 50%; transform: translateY(-50%); }
-  .position-label.pos-on { left: 50%; top: 39%; transform: translate(-50%, -50%); }
-  .position-label.pos-under { left: 50%; top: 63%; transform: translate(-50%, -50%); }
+  .position-label.pos-left { right: 73%; top: 50%; transform: translateY(-50%); }
+  .position-label.pos-right { left: 73%; top: 50%; transform: translateY(-50%); }
+  .position-label.pos-on { left: 50%; top: 29%; transform: translate(-50%, -50%); }
+  .position-label.pos-under { left: 50%; top: 73%; transform: translate(-50%, -50%); }
   .position-label.pos-near { left: 8%; top: 15%; }
   .position-label.pos-inside { right: 7%; top: 15%; }
 
@@ -2894,7 +2920,16 @@ function makePositionVocabPractice() {
   document.getElementById("tableArea").innerHTML = `
     <div class="position-practice" id="positionPractice">
       <div class="position-stage" id="positionStage" aria-label="位置詞の練習">
-       ${labels.map(([text, cls]) => `<div class="position-label ${cls}">${escapeHtml(text)}</div>`).join("")}
+        <svg class="position-cube" viewBox="0 0 240 240" aria-hidden="true">
+          <polygon points="64,82 154,82 194,122 104,122"></polygon>
+          <polygon points="104,122 194,122 194,198 104,198"></polygon>
+          <polygon points="64,82 104,122 104,198 64,158"></polygon>
+          <line x1="154" y1="82" x2="154" y2="158"></line>
+          <line x1="154" y1="158" x2="194" y2="198"></line>
+          <line x1="64" y1="158" x2="154" y2="158"></line>
+          <polyline class="hidden-edge" points="64,82 154,158 194,122"></polyline>
+        </svg>
+        ${labels.map(([text, cls]) => `<div class="position-label ${cls}">${escapeHtml(text)}</div>`).join("")}
         <div class="magnifier" id="positionMagnifier" role="button" aria-label="虫眼鏡を動かして文字を見る"></div>
       </div>
     </div>`;
