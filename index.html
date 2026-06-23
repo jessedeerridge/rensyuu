@@ -2380,6 +2380,7 @@ const homeMenus = {
 
 const vocabCategories = ["数字", "数え方", "月・日付", "時間・分", "位置詞"];
 const PAGE_OPEN_COUNT_STORAGE_KEY = "rensyuuPageOpenCounts_v1";
+const PAGE_OPEN_COUNT_SHARED_LEVEL = "shared";
 const PAGE_OPEN_COUNT_SCROLL_WORDS = 25;
 const PAGE_OPEN_COUNT_INNER_SCROLL_WORDS = 10;
 let activePageOpenTracker = null;
@@ -2387,10 +2388,26 @@ let activePageOpenTracker = null;
 function readPageOpenCounts() {
   try {
     const parsed = JSON.parse(localStorage.getItem(PAGE_OPEN_COUNT_STORAGE_KEY) || "{}");
-    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return {};
+    return normalizePageOpenCounts(parsed);
   } catch (error) {
     return {};
   }
+}
+
+function normalizePageOpenCounts(counts) {
+  const sharedConjugationKey = getPageOpenCountKey(PAGE_OPEN_COUNT_SHARED_LEVEL, "活用");
+  let changed = false;
+
+  Object.keys(counts).forEach(key => {
+    if (key === sharedConjugationKey || !key.endsWith(":活用")) return;
+    counts[sharedConjugationKey] = Number(counts[sharedConjugationKey] || 0) + Number(counts[key] || 0);
+    delete counts[key];
+    changed = true;
+  });
+
+  if (changed) writePageOpenCounts(counts);
+  return counts;
 }
 
 function writePageOpenCounts(counts) {
@@ -2402,7 +2419,8 @@ function writePageOpenCounts(counts) {
 }
 
 function getPageOpenCountKey(level, type) {
-  return `${level}:${type}`;
+  const countLevel = type === "活用" ? PAGE_OPEN_COUNT_SHARED_LEVEL : level;
+  return `${countLevel}:${type}`;
 }
 
 function getTableOpenCountTarget(type) {
@@ -2435,7 +2453,7 @@ function makeOpenCountBadge(level, type) {
 
 function updateOpenCountBadges(root = document) {
   root.querySelectorAll(".open-count-badge").forEach(badge => {
-    const level = Number(badge.dataset.openCountLevel);
+    const level = badge.dataset.openCountLevel || "";
     const type = badge.dataset.openCountType || "";
     badge.textContent = getPageOpenCount(level, type);
   });
