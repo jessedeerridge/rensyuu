@@ -770,20 +770,69 @@
     white-space: nowrap !important;
   }
 
-  #tableArea .listen-prompt-eye {
+  #tableArea .listen-prompt-eye,
+  #tableArea .listen-prompt-walker-reversed {
     display: inline-block;
     transform: scaleX(-1);
   }
 
+  #tableArea .listen-prompt-direction {
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 0.1em;
+    vertical-align: middle;
+  }
+
+  #tableArea .listen-prompt-arrow-question {
+    position: relative;
+    display: inline-block;
+    min-width: 1.8em;
+    margin-left: -0.12em;
+    line-height: 1;
+    vertical-align: baseline;
+  }
+
+  #tableArea .listen-prompt-arrow-question-mark {
+    position: absolute;
+    left: -0.02em;
+    top: 50%;
+    z-index: 1;
+    color: #ff9fca;
+    font-size: 0.9em;
+    font-weight: 900;
+    line-height: 1;
+    transform: translateY(-58%) rotate(-8deg);
+    text-shadow:
+      0 0.05em 0 #fff,
+      0.05em 0 0 #fff,
+      0 -0.05em 0 #fff,
+      -0.05em 0 0 #fff,
+      0.02em 0 currentColor,
+      -0.02em 0 currentColor,
+      0 0.02em currentColor,
+      0 -0.02em currentColor;
+  }
+
+  #tableArea .listen-prompt-long-arrow {
+    display: inline-block;
+    color: #111;
+    font-size: 1em;
+    font-weight: 900;
+    line-height: 1;
+    transform: scaleX(1.25);
+    transform-origin: left center;
+    text-shadow: 0.032em 0 0 currentColor;
+  }
+
   #tableArea .listen-prompt-label {
     display: inline-block;
-    padding: 0.06em 0.2em;
-    border-radius: 0.12em;
+    padding: 0.02em 0.12em;
+    border-radius: 0.1em;
     background: #ff8ac2;
     color: #fff;
-    font-size: 0.88em;
+    font-size: 0.72em;
     font-weight: 900;
-    line-height: 1.1;
+    line-height: 1;
     vertical-align: middle;
   }
 
@@ -2583,7 +2632,7 @@ const listenPracticeData = [
   ["请对方帮忙时 🙏❔", "手伝ってもらえませんか。"],
   ["不明白词语意思时 意味❔", "どういう意味ですか。"],
   ["想问怎么去时 🚶‍♂️❔", "どうやって行ったらいいですか。"],
-  ["想问怎么买票时 🎫❔", "どうやって買ったらいいですか。"],
+  ["想问怎么买票时 🤔💻🎫❔", "どうやって買ったらいいですか。"],
   ["问推荐的店时 🏬👍❔", "よく行くお店はどこですか。"],
   ["问推荐的歌时 🎵👍❔", "よく聞く歌はなんですか。"],
   ["问哪里有卖便宜肉的店时 🥩🏪❔", "安い肉を売っているお店はどこにありますか。"],
@@ -4109,6 +4158,18 @@ function formatListenPrompt(prompt) {
 }
 
 function formatListenPromptEmoji(emoji) {
+  if (emoji === "🚶‍♂️❔") {
+    return `
+      <span class="listen-prompt-direction">
+        <span class="listen-prompt-walker-reversed">🚶‍♂️</span>
+        <span class="listen-prompt-arrow-question" aria-label="？長い矢印">
+          <span class="listen-prompt-arrow-question-mark">？</span>
+          <span class="listen-prompt-long-arrow">⟶</span>
+        </span>
+      </span>
+    `;
+  }
+
   const labelTexts = ["日本語", "意味"];
   const chars = Array.from(String(emoji || ""));
   const parts = [];
@@ -4301,8 +4362,7 @@ const rubyTextMap = {
   "眠": "<ruby>眠<rt>ねむ</rt></ruby>",
   "寝": "<ruby>寝<rt>ね</rt></ruby>",
   "元気": "<ruby>元気<rt>げんき</rt></ruby>",
-  "疲": "<ruby>疲<rt>つか</rt></ruby>",
-  "周杰伦": "<ruby>周杰伦<rt>しゅうけつりん</rt></ruby>"
+  "疲": "<ruby>疲<rt>つか</rt></ruby>"
 };
 
 const rubyTextPattern = new RegExp(Object.keys(rubyTextMap)
