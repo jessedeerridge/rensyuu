@@ -106,6 +106,7 @@
     user-select: none;
     -webkit-user-select: none;
     -webkit-tap-highlight-color: transparent;
+    position: relative;
   }
 
   .home-btn:active {
@@ -203,6 +204,25 @@
     user-select: none;
     -webkit-user-select: none;
     -webkit-tap-highlight-color: transparent;
+    position: relative;
+  }
+
+  .open-count-badge {
+    position: absolute;
+    right: 8px;
+    bottom: 4px;
+    color: rgba(85, 85, 85, 0.55);
+    font-size: 8px;
+    font-weight: 500;
+    line-height: 1;
+    text-align: center;
+    pointer-events: none;
+  }
+
+  .home-btn .open-count-badge {
+    right: 10px;
+    bottom: 6px;
+    font-size: 8px;
   }
 
   .menu-btn:active {
@@ -2328,6 +2348,104 @@ const homeMenus = {
 };
 
 const vocabCategories = ["数字", "数え方", "月・日付", "時間・分", "位置詞"];
+const PAGE_OPEN_COUNT_STORAGE_KEY = "rensyuuPageOpenCounts_v1";
+const PAGE_OPEN_COUNT_SCROLL_WORDS = 25;
+let activePageOpenTracker = null;
+
+function readPageOpenCounts() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(PAGE_OPEN_COUNT_STORAGE_KEY) || "{}");
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
+  } catch (error) {
+    return {};
+  }
+}
+
+function writePageOpenCounts(counts) {
+  try {
+    localStorage.setItem(PAGE_OPEN_COUNT_STORAGE_KEY, JSON.stringify(counts));
+  } catch (error) {
+    // localStorage が使えない環境では、表示だけ更新しない。
+  }
+}
+
+function getPageOpenCountKey(level, type) {
+  return `${level}:${type}`;
+}
+
+function getTableOpenCountTarget(type) {
+  if (currentSection === "vocab") {
+    return { level: currentHomeLevel, type: "語彙" };
+  }
+  if (currentSection === "conjugation") {
+    return { level: currentMenuPage, type: "活用" };
+  }
+  return { level: currentHomeLevel, type };
+}
+
+function getPageOpenCount(level, type) {
+  const counts = readPageOpenCounts();
+  return Number(counts[getPageOpenCountKey(level, type)] || 0);
+}
+
+function incrementPageOpenCount(level, type) {
+  const counts = readPageOpenCounts();
+  const key = getPageOpenCountKey(level, type);
+  counts[key] = Number(counts[key] || 0) + 1;
+  writePageOpenCounts(counts);
+  updateOpenCountBadges();
+}
+
+function makeOpenCountBadge(level, type) {
+  const count = getPageOpenCount(level, type);
+  return `<span class="open-count-badge" data-open-count-level="${level}" data-open-count-type="${escapeHtml(type)}">${count}</span>`;
+}
+
+function updateOpenCountBadges(root = document) {
+  root.querySelectorAll(".open-count-badge").forEach(badge => {
+    const level = Number(badge.dataset.openCountLevel);
+    const type = badge.dataset.openCountType || "";
+    badge.textContent = getPageOpenCount(level, type);
+  });
+}
+
+function stopPageOpenTracker() {
+  if (!activePageOpenTracker) return;
+  window.removeEventListener("scroll", activePageOpenTracker.onScroll);
+  activePageOpenTracker = null;
+}
+
+function getScrollCountThreshold() {
+  const rows = Array.from(document.querySelectorAll("#tableArea tr")).filter(row => !row.classList.contains("group-row"));
+  if (rows.length > PAGE_OPEN_COUNT_SCROLL_WORDS) {
+    const targetRect = rows[PAGE_OPEN_COUNT_SCROLL_WORDS].getBoundingClientRect();
+    return Math.max(0, window.scrollY + targetRect.top - 8);
+  }
+  const firstCell = document.querySelector("#tableArea td, #tableArea .position-label");
+  const wordHeight = firstCell ? Math.max(24, firstCell.getBoundingClientRect().height) : 36;
+  return Math.min(document.documentElement.scrollHeight - window.innerHeight, PAGE_OPEN_COUNT_SCROLL_WORDS * wordHeight);
+}
+
+function startPageOpenTracker(type) {
+  stopPageOpenTracker();
+  const target = getTableOpenCountTarget(type);
+  activePageOpenTracker = {
+    level: target.level,
+    type: target.type,
+    counted: false,
+    threshold: getScrollCountThreshold(),
+    onScroll() {
+      if (!activePageOpenTracker || activePageOpenTracker.counted) return;
+      const maxScroll = Math.max(window.scrollY, document.documentElement.scrollTop || 0);
+      if (maxScroll <= 0 || maxScroll < activePageOpenTracker.threshold) return;
+      activePageOpenTracker.counted = true;
+      incrementPageOpenCount(activePageOpenTracker.level, activePageOpenTracker.type);
+      stopPageOpenTracker();
+    }
+  };
+  window.addEventListener("scroll", activePageOpenTracker.onScroll, { passive: true });
+  activePageOpenTracker.onScroll();
+}
 
 function setHomeMenu(menuName = "main") {
   currentHomeMenu = menuName;
@@ -2341,9 +2459,10 @@ function setHomeMenu(menuName = "main") {
   } else {
     const menu = homeMenus[currentHomeLevel] || homeMenus[1];
     title.innerHTML = `<span class="title-emoji left">🐢</span> 日本語れんしゅう <span class="title-emoji right">🐢</span><span class="home-title-subtitle">（${menu.title}）</span>`;
-    actions.innerHTML = menu.buttons.map(button => `<button class="home-btn ${button.className}" type="button" onclick="${button.action}">${button.label}</button>`).join("");
+    actions.innerHTML = menu.buttons.map(button => `<button class="home-btn ${button.className}" type="button" onclick="${button.action}">${button.label}${makeOpenCountBadge(currentHomeLevel, button.label)}</button>`).join("");
   }
   updateHomeNav();
+  updateOpenCountBadges(actions);
 }
 
 function updateHomeNav() {
@@ -2646,6 +2765,7 @@ const listenPracticeData = [
 function openHome() {
   currentSection = "home";
   tableVisible = false;
+  stopPageOpenTracker();
   stopMaskLoop();
   clearAllMasks();
   document.body.classList.remove("home-mode", "menu-mode", "sheet-high", "table-start-lowered", "position-vocab");
@@ -4506,6 +4626,7 @@ function showPlaceholderTable(title, message, returnSection = "home") {
 }
 
 function showTable(type, focusKey = "") {
+  stopPageOpenTracker();
   document.body.classList.remove("home-mode", "menu-mode", "sheet-high", "table-start-lowered", "position-vocab");
   if (type === "Vて" || type === "Vた" || type === "聞く" || type === "話す" || type === "つなぐ" || vocabCategories.includes(type)) {
     document.body.classList.add("table-start-lowered");
@@ -4623,6 +4744,7 @@ function showTable(type, focusKey = "") {
       adjustScrollExtraHeight();
       updateSheetHiddenText();
       if (focusKey) scrollToQuestionKey(focusKey);
+      startPageOpenTracker(type);
       startMaskLoop();
     });
   });
@@ -4648,6 +4770,7 @@ function scrollToQuestionKey(key) {
 function backMenu() {
   document.body.classList.remove("sheet-high", "table-start-lowered", "position-vocab");
   tableVisible = false;
+  stopPageOpenTracker();
   stopMaskLoop();
   clearAllMasks();
 
