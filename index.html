@@ -770,9 +770,43 @@
     white-space: nowrap !important;
   }
 
-  #tableArea .listen-prompt-eye {
+  #tableArea .listen-prompt-eye,
+  #tableArea .listen-prompt-walker-reversed {
     display: inline-block;
     transform: scaleX(-1);
+  }
+
+  #tableArea .listen-prompt-direction {
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 0.1em;
+    vertical-align: middle;
+  }
+
+  #tableArea .listen-prompt-arrow-question {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 0.8;
+  }
+
+  #tableArea .listen-prompt-arrow-question-mark {
+    color: #ff9fca;
+    font-size: 0.78em;
+    font-weight: 900;
+    line-height: 0.8;
+    text-shadow:
+      0.03em 0 currentColor,
+      -0.03em 0 currentColor,
+      0 0.03em currentColor,
+      0 -0.03em currentColor;
+  }
+
+  #tableArea .listen-prompt-long-arrow {
+    color: #ff8ac2;
+    font-size: 1.25em;
+    font-weight: 900;
+    line-height: 0.7;
   }
 
   #tableArea .listen-prompt-label {
@@ -4109,6 +4143,18 @@ function formatListenPrompt(prompt) {
 }
 
 function formatListenPromptEmoji(emoji) {
+  if (emoji === "🚶‍♂️❔") {
+    return `
+      <span class="listen-prompt-direction">
+        <span class="listen-prompt-walker-reversed">🚶‍♂️</span>
+        <span class="listen-prompt-arrow-question" aria-label="？長い矢印">
+          <span class="listen-prompt-arrow-question-mark">？</span>
+          <span class="listen-prompt-long-arrow">⟶</span>
+        </span>
+      </span>
+    `;
+  }
+
   const labelTexts = ["日本語", "意味"];
   const chars = Array.from(String(emoji || ""));
   const parts = [];
@@ -4301,8 +4347,7 @@ const rubyTextMap = {
   "眠": "<ruby>眠<rt>ねむ</rt></ruby>",
   "寝": "<ruby>寝<rt>ね</rt></ruby>",
   "元気": "<ruby>元気<rt>げんき</rt></ruby>",
-  "疲": "<ruby>疲<rt>つか</rt></ruby>",
-  "周杰伦": "<ruby>周杰伦<rt>しゅうけつりん</rt></ruby>"
+  "疲": "<ruby>疲<rt>つか</rt></ruby>"
 };
 
 const rubyTextPattern = new RegExp(Object.keys(rubyTextMap)
