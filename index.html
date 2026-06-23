@@ -1967,19 +1967,74 @@
 
   .position-label {
     position: absolute;
-    padding: 7px 11px;
-    border-radius: 999px;
-    background: #aeb4bd;
-    color: transparent;
-    font-size: clamp(16px, 4.5vw, 24px);
-    font-weight: 900;
+    z-index: 2;
+    pointer-events: auto;
     white-space: nowrap;
-    box-shadow: inset 0 -3px 0 rgba(0,0,0,0.10), 0 3px 10px rgba(0,0,0,0.08);
   }
 
-  .position-label.is-revealed {
-    color: #333;
+  .position-cat {
+    width: 52px;
+    height: 52px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    font-size: clamp(30px, 8vw, 48px);
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    filter: drop-shadow(0 4px 4px rgba(0,0,0,0.16));
+    animation: catPulse 1.35s ease-in-out infinite;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .position-cat:active {
+    transform: scale(0.92);
+  }
+
+  @keyframes catPulse {
+    0%, 100% { transform: scale(0.92); }
+    50% { transform: scale(1.12); }
+  }
+
+  .position-term {
+    position: absolute;
+    left: 50%;
+    z-index: 4;
+    display: none;
+    min-width: max-content;
+    padding: 7px 10px;
+    border: 3px solid #111;
+    border-radius: 6px;
     background: #fff;
+    color: #111;
+    font-size: clamp(15px, 3.8vw, 22px);
+    font-weight: 900;
+    line-height: 1.15;
+    text-align: center;
+    box-shadow: 0 5px 12px rgba(0,0,0,0.18);
+    transform: translateX(-50%);
+  }
+
+  .position-label.is-open .position-term {
+    display: block;
+  }
+
+  .position-label[data-term-placement="above"] .position-term {
+    bottom: calc(100% + 7px);
+  }
+
+  .position-label[data-term-placement="below"] .position-term {
+    top: calc(100% + 7px);
+  }
+
+  .position-term rt {
+    font-size: 0.48em;
+    color: #555;
   }
 
   .position-cube {
@@ -2936,14 +2991,14 @@ function makeVocabTable(type) {
 function makePositionVocabPractice() {
   document.body.classList.add("position-vocab");
   const labels = [
-    ["机の前", "pos-front"],
-    ["机の後ろ", "pos-back"],
-    ["机の左", "pos-left"],
-    ["机の右", "pos-right"],
-    ["机の上", "pos-on"],
-    ["机の下", "pos-under"],
-    ["机の近く", "pos-near"],
-    ["机の中", "pos-inside"]
+    { plain: "机の前", html: "<ruby>机<rt>つくえ</rt></ruby>の<ruby>前<rt>まえ</rt></ruby>", cls: "pos-front", placement: "above" },
+    { plain: "机の後ろ", html: "<ruby>机<rt>つくえ</rt></ruby>の<ruby>後<rt>うし</rt></ruby>ろ", cls: "pos-back", placement: "below" },
+    { plain: "机の左", html: "<ruby>机<rt>つくえ</rt></ruby>の<ruby>左<rt>ひだり</rt></ruby>", cls: "pos-left", placement: "above" },
+    { plain: "机の右", html: "<ruby>机<rt>つくえ</rt></ruby>の<ruby>右<rt>みぎ</rt></ruby>", cls: "pos-right", placement: "above" },
+    { plain: "机の上", html: "<ruby>机<rt>つくえ</rt></ruby>の<ruby>上<rt>うえ</rt></ruby>", cls: "pos-on", placement: "above" },
+    { plain: "机の下", html: "<ruby>机<rt>つくえ</rt></ruby>の<ruby>下<rt>した</rt></ruby>", cls: "pos-under", placement: "below" },
+    { plain: "机の近く", html: "<ruby>机<rt>つくえ</rt></ruby>の<ruby>近<rt>ちか</rt></ruby>く", cls: "pos-near", placement: "above" },
+    { plain: "机の中", html: "<ruby>机<rt>つくえ</rt></ruby>の<ruby>中<rt>なか</rt></ruby>", cls: "pos-inside", placement: "below" }
   ];
   document.getElementById("tableArea").innerHTML = `
     <div class="position-practice" id="positionPractice">
@@ -2960,12 +3015,35 @@ function makePositionVocabPractice() {
             <line class="cube-edge" x1="136" y1="122" x2="136" y2="198"></line>
             <line class="cube-edge" x1="176" y1="82" x2="176" y2="158"></line>
           </svg>
-          ${labels.map(([text, cls]) => `<div class="position-label ${cls}">${escapeHtml(text)}</div>`).join("")}
+          ${labels.map(label => `
+            <div class="position-label ${label.cls}" data-term-placement="${label.placement}">
+              <button class="position-cat" type="button" aria-label="${escapeHtml(label.plain)}を表示">🐈‍⬛</button>
+              <div class="position-term">${label.html}</div>
+            </div>`).join("")}
         </div>
         <div class="magnifier" id="positionMagnifier" role="button" aria-label="虫眼鏡を動かして文字を見る"></div>
       </div>
     </div>`;
+  setupPositionCatLabels();
   setupPositionMagnifier();
+}
+
+function setupPositionCatLabels() {
+  const stage = document.getElementById("positionStage");
+  if (!stage) return;
+
+  stage.querySelectorAll(".position-cat").forEach(cat => {
+    cat.addEventListener("click", event => {
+      event.stopPropagation();
+      const label = cat.closest(".position-label");
+      if (!label) return;
+      const isOpen = label.classList.contains("is-open");
+      stage.querySelectorAll(".position-label.is-open").forEach(openLabel => {
+        if (openLabel !== label) openLabel.classList.remove("is-open");
+      });
+      label.classList.toggle("is-open", !isOpen);
+    });
+  });
 }
 
 function setupPositionMagnifier() {
