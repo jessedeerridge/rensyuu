@@ -2464,7 +2464,7 @@ const speakPracticeData = [
 
 const connectPracticeData = [
   {
-    title: "くて",
+    title: "～て",
     rows: [
       ["やすい・おいしいです。", "やすくて、おいしいです。"],
       ["人が多い・にぎやかなところです。", "人が多くて、にぎやかなところです。"],
@@ -2472,7 +2472,7 @@ const connectPracticeData = [
     ]
   },
   {
-    title: "ですけど・ですが",
+    title: "～けど・ですが",
     rows: [
       ["難しい・おもしろいです。", "難しいですけど、おもしろいです。"],
       ["高い・おいしいです。", "高いですけど、おいしいです。"],
@@ -2486,7 +2486,7 @@ const connectPracticeData = [
     ]
   },
   {
-    title: "➡",
+    title: "Vて（順序）",
     rows: [
       ["お風呂に入る・寝ます。", "お風呂に入って、寝ます。"],
       ["買い物をする・カフェに行きました。", "買い物をして、カフェに行きました。"],
@@ -2502,7 +2502,7 @@ const connectPracticeData = [
     ]
   },
   {
-    title: "Vて",
+    title: "Vて、感情",
     rows: [
       ["合格できた・うれしかったです。", "合格できて、うれしかったです。"],
       ["友だちに会えた・うれしいです。", "友だちに会えて、うれしいです。"],
@@ -2514,7 +2514,7 @@ const connectPracticeData = [
     ]
   },
   {
-    title: "理由",
+    title: "～ので（理由）",
     rows: [
       ["雨が降っている・傘を持っていきます。", "雨が降っているから、傘を持っていきます。"],
       ["お腹がすいた・ご飯を買ってきます。", "お腹がすいたから、ご飯を買ってきます。"],
@@ -2525,7 +2525,7 @@ const connectPracticeData = [
     ]
   },
   {
-    title: "前に・てから",
+    title: "～前に・～てから",
     rows: [
       ["寝る・歯を磨きます。", "寝る前に歯を磨きます。"],
       ["学校へ行く・朝ごはんを食べます。", "学校へ行く前に朝ごはんを食べます。"],
@@ -2534,7 +2534,7 @@ const connectPracticeData = [
     ]
   },
   {
-    title: "🕐",
+    title: "～とき",
     rows: [
       ["本を借りる・カードがいります。", "本を借りるとき、カードがいります。"],
       ["コーヒーを飲む・砂糖を入れます。", "コーヒーを飲むとき、砂糖を入れます。"],
@@ -2563,7 +2563,7 @@ const connectPracticeData = [
     ]
   },
   {
-    title: "就算（～ても）",
+    title: "～ても（就算）",
     rows: [
       ["雨が降る・試合はあります。", "雨が降っても、試合はあります。"],
       ["調べる・わかりません。", "調べても、わかりません。"],
@@ -4392,17 +4392,17 @@ function makeTwoLineHint(hint, showThoughtBubble = false) {
 
 function makeConnectSeparator(groupTitle, rowIndex = 0) {
   if (groupTitle === "くて" || groupTitle === "～て") return `<span class="connect-separator connect-separator-plus">+</span>`;
-  if (groupTitle === "Vて") return `<span class="connect-separator connect-separator-square connect-separator-fast connect-separator-soft-blue"><span>▶</span><span>▶</span></span>`;
+  if (groupTitle === "Vて、感情" || groupTitle === "Vて") return `<span class="connect-separator connect-separator-square connect-separator-fast connect-separator-soft-blue"><span>▶</span><span>▶</span></span>`;
   if (groupTitle === "～で") return `<span class="connect-separator connect-separator-square connect-separator-fast"><span>▶</span><span>▶</span></span>`;
-  if (groupTitle === "ですけど・ですが") return `<span class="connect-separator connect-separator-square connect-separator-contrast"><span class="bidi-arrow"><span class="bidi-arrow-left"></span><span class="bidi-arrow-right"></span></span></span>`;
-  if (groupTitle === "➡") return `<span class="connect-separator connect-separator-bold-arrow">➡</span>`;
-  if (groupTitle === "理由") return `<span class="connect-separator connect-separator-square connect-separator-fast connect-separator-soft-blue"><span>▶</span><span>▶</span></span>`;
-  if (groupTitle === "前に・てから") {
+  if (groupTitle === "～けど・ですが" || groupTitle === "ですけど・ですが") return `<span class="connect-separator connect-separator-square connect-separator-contrast"><span class="bidi-arrow"><span class="bidi-arrow-left"></span><span class="bidi-arrow-right"></span></span></span>`;
+  if (groupTitle === "Vて（順序）" || groupTitle === "➡") return `<span class="connect-separator connect-separator-bold-arrow">➡</span>`;
+  if (groupTitle === "～ので（理由）" || groupTitle === "理由") return `<span class="connect-separator connect-separator-square connect-separator-fast connect-separator-soft-blue"><span>▶</span><span>▶</span></span>`;
+  if (groupTitle === "～前に・～てから" || groupTitle === "前に・てから") {
     const isBefore = rowIndex < 2;
     return `<span class="connect-separator connect-separator-before-after ${isBefore ? "is-before" : "is-after"}"><span class="connect-separator-before-after-label">${isBefore ? "before" : "after"}</span></span>`;
   }
-  if (groupTitle === "就算（～ても）") return `<span class="connect-separator connect-separator-square connect-separator-temo"><span class="temo-arrow-stem"></span><span class="temo-arrow-head"></span><span class="temo-bang"></span></span>`;
-  if (groupTitle === "🕐") {
+  if (groupTitle === "～ても（就算）" || groupTitle === "就算（～ても）") return `<span class="connect-separator connect-separator-square connect-separator-temo"><span class="temo-arrow-stem"></span><span class="temo-arrow-head"></span><span class="temo-bang"></span></span>`;
+  if (groupTitle === "～とき" || groupTitle === "🕐") {
     const isRuTime = rowIndex < 3;
     return `<span class="connect-separator connect-separator-time ${isRuTime ? "is-ru-time" : "is-ta-time"}">${isRuTime ? "🕐" : "🕣"}</span>`;
   }
@@ -4419,7 +4419,7 @@ function makeConnectHint(prompt, groupTitle, rowIndex) {
   const addThought = groupTitle === "～たら" && rowIndex > 4;
   const separator = addThought ? "" : makeConnectSeparator(groupTitle, rowIndex);
   const firstPart = compactHint.slice(0, separatorIndex);
-  const firstLine = groupTitle === "前に・てから"
+  const firstLine = (groupTitle === "～前に・～てから" || groupTitle === "前に・てから")
     ? `${separator}${firstPart}`
     : `${addThought ? "💭" : ""}${firstPart}${separator}`;
   const secondLine = compactHint.slice(separatorIndex + separatorText.length);
@@ -4471,12 +4471,13 @@ function makeConnectTable() {
 
     group.rows.forEach(([prompt, answer], rowIndex) => {
       const answerHtml = addFurigana(compactJapanese(escapeHtml(answer)));
-      const displayedAnswer = group.title === "理由" ? addReasonKaraNote(answerHtml) : answerHtml;
+      const isReasonGroup = group.title === "～ので（理由）" || group.title === "理由";
+      const displayedAnswer = isReasonGroup ? addReasonKaraNote(answerHtml) : answerHtml;
 
       html += `
         <tr>
           <td>${makeWordCell(addFurigana(makeConnectHint(prompt, group.title, rowIndex)))}</td>
-          <td><span class="answer-text${group.title === "理由" ? " reason-note-answer" : ""}">${displayedAnswer}</span></td>
+          <td><span class="answer-text${isReasonGroup ? " reason-note-answer" : ""}">${displayedAnswer}</span></td>
         </tr>
       `;
     });
