@@ -2373,10 +2373,14 @@ function getPageOpenCountKey(level, type) {
   return `${level}:${type}`;
 }
 
-function getTableOpenCountLevel(type) {
-  if (vocabCategories.includes(type)) return currentHomeLevel;
-  if (type === "聞く" || type === "話す" || type === "つなぐ") return currentHomeLevel;
-  return currentMenuPage;
+function getTableOpenCountTarget(type) {
+  if (currentSection === "vocab") {
+    return { level: currentHomeLevel, type: "語彙" };
+  }
+  if (currentSection === "conjugation") {
+    return { level: currentMenuPage, type: "活用" };
+  }
+  return { level: currentHomeLevel, type };
 }
 
 function getPageOpenCount(level, type) {
@@ -2405,23 +2409,6 @@ function updateOpenCountBadges(root = document) {
   });
 }
 
-function getButtonOpenCountType(button) {
-  const onclick = button.getAttribute("onclick") || "";
-  const match = onclick.match(/(?:showTable|openVocabTable)\('([^']+)'\)/);
-  if (match) return match[1];
-  return (button.textContent || "").trim();
-}
-
-function decorateMenuOpenCountBadges(root = document) {
-  root.querySelectorAll(".menu-btn").forEach(button => {
-    if (button.querySelector(".open-count-badge")) return;
-    const type = getButtonOpenCountType(button);
-    const level = currentSection === "vocab" ? currentHomeLevel : Number(button.closest(".menu-page")?.dataset.page || currentMenuPage);
-    button.insertAdjacentHTML("beforeend", makeOpenCountBadge(level, type));
-  });
-  updateOpenCountBadges(root);
-}
-
 function stopPageOpenTracker() {
   if (!activePageOpenTracker) return;
   window.removeEventListener("scroll", activePageOpenTracker.onScroll);
@@ -2441,10 +2428,10 @@ function getScrollCountThreshold() {
 
 function startPageOpenTracker(type) {
   stopPageOpenTracker();
-  const level = getTableOpenCountLevel(type);
+  const target = getTableOpenCountTarget(type);
   activePageOpenTracker = {
-    level,
-    type,
+    level: target.level,
+    type: target.type,
     counted: false,
     threshold: getScrollCountThreshold(),
     onScroll() {
@@ -2468,7 +2455,7 @@ function setHomeMenu(menuName = "main") {
 
   if (menuName === "vocab") {
     title.innerHTML = `<span class="title-emoji left">🐢</span> 語彙 <span class="title-emoji right">🐢</span>`;
-    actions.innerHTML = vocabCategories.map(category => `<button class="home-btn connect-btn" type="button" onclick="openVocabTable('${category}')">${category}${makeOpenCountBadge(currentHomeLevel, category)}</button>`).join("");
+    actions.innerHTML = vocabCategories.map(category => `<button class="home-btn connect-btn" type="button" onclick="openVocabTable('${category}')">${category}</button>`).join("");
   } else {
     const menu = homeMenus[currentHomeLevel] || homeMenus[1];
     title.innerHTML = `<span class="title-emoji left">🐢</span> 日本語れんしゅう <span class="title-emoji right">🐢</span><span class="home-title-subtitle">（${menu.title}）</span>`;
@@ -2512,7 +2499,6 @@ function openVocabMenu() {
   document.getElementById("menuScreen").style.display = "block";
   document.getElementById("menuTitle").innerHTML = `<span class="title-emoji left">🐢</span> 語彙 <span class="title-emoji right">🐢</span>`;
   document.getElementById("menuButtonGrid").innerHTML = `<div class="menu-page active" data-page="0">${vocabCategories.map(category => `<button class="menu-btn" type="button" onclick="openVocabTable('${category}')">${category}</button>`).join("")}</div>`;
-  decorateMenuOpenCountBadges(document.getElementById("menuButtonGrid"));
   document.getElementById("leftPageNav").style.display = "none";
   document.getElementById("rightPageNav").style.display = "none";
   requestAnimationFrame(renderQuestionMemoLayer);
@@ -2801,7 +2787,6 @@ function openConjugationMenu() {
   document.getElementById("menuScreen").style.display = "block";
   document.getElementById("menuTitle").innerHTML = `<span class="title-emoji left">🐢</span> 活用れんしゅう <span class="title-emoji right">🐢</span>`;
   document.getElementById("menuButtonGrid").innerHTML = conjugationMenuHtml;
-  decorateMenuOpenCountBadges(document.getElementById("menuButtonGrid"));
   document.getElementById("leftPageNav").style.display = "flex";
   document.getElementById("rightPageNav").style.display = "flex";
   updateMenuPage();
@@ -2974,7 +2959,6 @@ function updateMenuPage() {
   document.querySelectorAll(".menu-page").forEach((page, index) => {
     page.classList.toggle("active", index === currentMenuPage);
   });
-  decorateMenuOpenCountBadges(document.getElementById("menuButtonGrid") || document);
 
   const leftNav = document.getElementById("leftPageNav");
   const rightNav = document.getElementById("rightPageNav");
