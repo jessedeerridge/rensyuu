@@ -2328,6 +2328,8 @@ const conjugationMenuHtml = document.getElementById("menuButtonGrid")?.innerHTML
 
 let currentHomeLevel = 1;
 let currentHomeMenu = "main";
+let currentVocabCountLevel = currentHomeLevel;
+let currentConjugationCountLevel = currentHomeLevel;
 
 const homeMenus = {
   0: {
@@ -2379,10 +2381,10 @@ function getPageOpenCountKey(level, type) {
 
 function getTableOpenCountTarget(type) {
   if (currentSection === "vocab") {
-    return { level: currentHomeLevel, type: "語彙", scrollWords: PAGE_OPEN_COUNT_INNER_SCROLL_WORDS };
+    return { level: currentVocabCountLevel, type: "語彙", scrollWords: PAGE_OPEN_COUNT_INNER_SCROLL_WORDS };
   }
   if (currentSection === "conjugation") {
-    return { level: currentMenuPage, type: "活用", scrollWords: PAGE_OPEN_COUNT_INNER_SCROLL_WORDS };
+    return { level: currentConjugationCountLevel, type: "活用", scrollWords: PAGE_OPEN_COUNT_INNER_SCROLL_WORDS };
   }
   return { level: currentHomeLevel, type, scrollWords: PAGE_OPEN_COUNT_SCROLL_WORDS };
 }
@@ -2496,6 +2498,7 @@ function changeHomeLevel(direction) {
 
 function openVocabMenu() {
   currentSection = "vocab";
+  currentVocabCountLevel = currentHomeLevel;
   document.body.classList.remove("home-mode", "sheet-high", "table-start-lowered", "position-vocab");
   document.body.classList.add("menu-mode");
   document.getElementById("homeScreen").style.display = "none";
@@ -2784,6 +2787,7 @@ function openHome() {
 
 function openConjugationMenu() {
   currentSection = "conjugation";
+  currentConjugationCountLevel = currentHomeLevel;
   document.body.classList.remove("home-mode", "sheet-high", "table-start-lowered", "position-vocab");
   document.body.classList.add("menu-mode");
   document.getElementById("homeScreen").style.display = "none";
