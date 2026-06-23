@@ -786,44 +786,40 @@
   #tableArea .listen-prompt-arrow-question {
     position: relative;
     display: inline-block;
-    min-width: 2.2em;
+    min-width: 1.8em;
     line-height: 1;
-    vertical-align: middle;
+    vertical-align: baseline;
   }
 
   #tableArea .listen-prompt-arrow-question-mark {
     position: absolute;
-    left: 0.08em;
+    left: 0.04em;
     top: 50%;
     z-index: 1;
     color: #ff9fca;
-    font-size: 0.95em;
+    font-size: 0.9em;
     font-weight: 900;
     line-height: 1;
-    transform: translateY(-62%) rotate(-8deg);
+    transform: translateY(-58%) rotate(-8deg);
     text-shadow:
-      0 0.06em 0 #fff,
-      0.06em 0 0 #fff,
-      0 -0.06em 0 #fff,
-      -0.06em 0 0 #fff,
-      0.03em 0 currentColor,
-      -0.03em 0 currentColor,
-      0 0.03em currentColor,
-      0 -0.03em currentColor;
+      0 0.05em 0 #fff,
+      0.05em 0 0 #fff,
+      0 -0.05em 0 #fff,
+      -0.05em 0 0 #fff,
+      0.02em 0 currentColor,
+      -0.02em 0 currentColor,
+      0 0.02em currentColor,
+      0 -0.02em currentColor;
   }
 
   #tableArea .listen-prompt-long-arrow {
     display: inline-block;
     color: #111;
-    font-size: 1.5em;
+    font-size: 1em;
     font-weight: 900;
     line-height: 1;
-    transform: scaleX(1.18);
+    transform: scaleX(1.25);
     transform-origin: left center;
-    -webkit-text-stroke: 0.035em #111;
-    text-shadow:
-      0 0.035em 0 #111,
-      0 -0.035em 0 #111;
   }
 
   #tableArea .listen-prompt-label {
@@ -4166,7 +4162,7 @@ function formatListenPromptEmoji(emoji) {
         <span class="listen-prompt-walker-reversed">🚶‍♂️</span>
         <span class="listen-prompt-arrow-question" aria-label="？長い矢印">
           <span class="listen-prompt-arrow-question-mark">？</span>
-          <span class="listen-prompt-long-arrow">⟹</span>
+          <span class="listen-prompt-long-arrow">⟶</span>
         </span>
       </span>
     `;
