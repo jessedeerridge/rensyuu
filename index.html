@@ -968,6 +968,39 @@
     transform: scaleX(-1);
   }
 
+  .connect-route-question {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.08em;
+    vertical-align: middle;
+    line-height: 1;
+  }
+
+  .connect-route-person {
+    display: inline-block;
+    transform: scaleX(-1);
+  }
+
+  .connect-route-arrow-wrap {
+    display: inline-grid;
+    grid-template-rows: 0.5em 0.45em;
+    align-items: center;
+    justify-items: center;
+    line-height: 1;
+  }
+
+  .connect-route-question-mark {
+    grid-row: 1;
+    font-size: 0.56em;
+    font-weight: 900;
+  }
+
+  .connect-route-arrow {
+    grid-row: 2;
+    font-size: 0.9em;
+    letter-spacing: -0.08em;
+  }
+
   .speak-bold-arrow {
     display: inline-block;
     margin: 0 0.12em;
@@ -2582,7 +2615,7 @@ const listenPracticeData = [
   ["想请对方帮忙拍照时 📸🙏❔", "写真をとってもらえませんか。"],
   ["请对方帮忙时 🙏❔", "手伝ってもらえませんか。"],
   ["不明白词语意思时 意味❔", "どういう意味ですか。"],
-  ["想问怎么去时 🚶‍♂️❔", "どうやって行ったらいいですか。"],
+  ["想问怎么去时 <span class=\"connect-route-question\"><span class=\"connect-route-person\">🚶‍♂️</span><span class=\"connect-route-arrow-wrap\"><span class=\"connect-route-question-mark\">？</span><span class=\"connect-route-arrow\">⟶⟶</span></span></span>", "どうやって行ったらいいですか。"],
   ["想问怎么买票时 🎫❔", "どうやって買ったらいいですか。"],
   ["问推荐的店时 🏬👍❔", "よく行くお店はどこですか。"],
   ["问推荐的歌时 🎵👍❔", "よく聞く歌はなんですか。"],
@@ -4302,7 +4335,7 @@ const rubyTextMap = {
   "寝": "<ruby>寝<rt>ね</rt></ruby>",
   "元気": "<ruby>元気<rt>げんき</rt></ruby>",
   "疲": "<ruby>疲<rt>つか</rt></ruby>",
-  "周杰伦": "<ruby>周杰伦<rt>しゅうけつりん</rt></ruby>"
+  "周杰伦": "周杰伦"
 };
 
 const rubyTextPattern = new RegExp(Object.keys(rubyTextMap)
