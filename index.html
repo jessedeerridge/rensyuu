@@ -1985,20 +1985,17 @@
     pointer-events: none;
   }
 
-  .position-cube line,
-  .position-cube polygon,
-  .position-cube polyline {
+  .position-cube .cube-face {
     fill: rgba(255, 255, 255, 0.72);
+    stroke: none;
+  }
+
+  .position-cube .cube-edge {
+    fill: none;
     stroke: #000;
     stroke-width: 9;
     stroke-linecap: round;
     stroke-linejoin: round;
-  }
-
-  .position-cube .hidden-edge {
-    fill: none;
-    stroke-dasharray: 13 12;
-    opacity: 0.55;
   }
 
   .position-label.pos-front { left: 50%; top: 15%; transform: translateX(-50%); }
@@ -2939,13 +2936,13 @@ function makePositionVocabPractice() {
     <div class="position-practice" id="positionPractice">
       <div class="position-stage" id="positionStage" aria-label="位置詞の練習">
         <svg class="position-cube" viewBox="0 0 240 240" aria-hidden="true">
-          <polygon points="64,82 154,82 194,122 104,122"></polygon>
-          <polygon points="104,122 194,122 194,198 104,198"></polygon>
-          <polygon points="64,82 104,122 104,198 64,158"></polygon>
-          <line x1="154" y1="82" x2="154" y2="158"></line>
-          <line x1="154" y1="158" x2="194" y2="198"></line>
-          <line x1="64" y1="158" x2="154" y2="158"></line>
-          <polyline class="hidden-edge" points="64,82 154,158 194,122"></polyline>
+          <polygon class="cube-face" points="46,122 86,82 176,82 136,122"></polygon>
+          <polygon class="cube-face" points="46,122 136,122 136,198 46,198"></polygon>
+          <polygon class="cube-face" points="136,122 176,82 176,158 136,198"></polygon>
+          <polyline class="cube-edge" points="46,122 86,82 176,82 136,122 46,122"></polyline>
+          <line class="cube-edge" x1="46" y1="122" x2="46" y2="198"></line>
+          <line class="cube-edge" x1="136" y1="122" x2="136" y2="198"></line>
+          <line class="cube-edge" x1="176" y1="82" x2="176" y2="158"></line>
         </svg>
         ${labels.map(([text, cls]) => `<div class="position-label ${cls}">${escapeHtml(text)}</div>`).join("")}
         <div class="magnifier" id="positionMagnifier" role="button" aria-label="虫眼鏡を動かして文字を見る"></div>
