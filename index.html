@@ -756,7 +756,7 @@
   }
 
   #tableArea table.listen-table {
-    --table-font-size: 15px;
+    --table-font-size: 16px;
   }
 
   #tableArea .listen-prompt {
@@ -885,6 +885,16 @@
   #tableArea table th:last-child,
   #tableArea table td:last-child {
     width: 55%;
+  }
+
+  #tableArea table.listen-table th:first-child,
+  #tableArea table.listen-table td:first-child {
+    width: 37%;
+  }
+
+  #tableArea table.listen-table th:last-child,
+  #tableArea table.listen-table td:last-child {
+    width: 63%;
   }
 
 
@@ -2151,10 +2161,17 @@
     white-space: nowrap !important;
   }
 
+  #tableArea table.listen-table td:last-child,
+  #tableArea table.listen-table td:last-child.answer-cell-short:not(.text-adjusted-cell) {
+    padding-left: 0.35em;
+    padding-right: 0;
+  }
+
   #tableArea table.listen-table td:last-child .answer-text,
   #tableArea table.listen-table.fitting-table td:last-child .answer-text,
   #tableArea table.listen-table td:last-child.text-adjusted-cell .answer-text {
-    white-space: nowrap !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere;
     transform: none !important;
     line-height: 1.18;
   }
