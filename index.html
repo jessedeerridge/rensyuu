@@ -2151,9 +2151,18 @@
     white-space: nowrap !important;
   }
 
+  #tableArea table.listen-table td:last-child {
+    padding-left: 1em;
+    padding-right: 0 !important;
+  }
+
   #tableArea table.listen-table td:last-child .answer-text,
   #tableArea table.listen-table.fitting-table td:last-child .answer-text,
   #tableArea table.listen-table td:last-child.text-adjusted-cell .answer-text {
+    display: block;
+    width: calc(100% + 0.35em);
+    max-width: none;
+    margin-right: -0.35em;
     white-space: nowrap !important;
     transform: none !important;
     line-height: 1.18;
