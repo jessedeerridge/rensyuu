@@ -1958,31 +1958,116 @@
     box-shadow: 0 8px 24px rgba(0,0,0,0.08);
   }
 
+  .position-visual {
+    position: absolute;
+    inset: 0;
+    transform: translateX(4%);
+    pointer-events: none;
+  }
+
   .position-label {
     position: absolute;
-    padding: 7px 11px;
-    border-radius: 999px;
-    background: #aeb4bd;
-    color: transparent;
-    font-size: clamp(16px, 4.5vw, 24px);
-    font-weight: 900;
+    z-index: 2;
+    pointer-events: auto;
     white-space: nowrap;
-    box-shadow: inset 0 -3px 0 rgba(0,0,0,0.10), 0 3px 10px rgba(0,0,0,0.08);
   }
 
-  .position-label.is-revealed {
-    color: #333;
+  .position-cat {
+    width: 52px;
+    height: 52px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    font-size: clamp(30px, 8vw, 48px);
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    filter: drop-shadow(0 4px 4px rgba(0,0,0,0.16));
+    animation: catPulse 1.35s ease-in-out infinite;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .position-cat:active {
+    transform: scale(0.92);
+  }
+
+  @keyframes catPulse {
+    0%, 100% { transform: scale(0.92); }
+    50% { transform: scale(1.12); }
+  }
+
+  .position-term {
+    position: absolute;
+    left: 50%;
+    z-index: 4;
+    display: none;
+    min-width: max-content;
+    padding: 7px 10px;
+    border: 3px solid #111;
+    border-radius: 6px;
     background: #fff;
+    color: #111;
+    font-size: clamp(15px, 3.8vw, 22px);
+    font-weight: 900;
+    line-height: 1.15;
+    text-align: center;
+    box-shadow: 0 5px 12px rgba(0,0,0,0.18);
+    transform: translateX(-50%);
   }
 
-  .position-label.pos-front { left: 50%; top: 15%; transform: translateX(-50%); }
-  .position-label.pos-back { left: 50%; bottom: 14%; transform: translateX(-50%); }
-  .position-label.pos-left { right: 68%; top: 50%; transform: translateY(-50%); }
-  .position-label.pos-right { left: 68%; top: 50%; transform: translateY(-50%); }
-  .position-label.pos-on { left: 50%; top: 39%; transform: translate(-50%, -50%); }
-  .position-label.pos-under { left: 50%; top: 63%; transform: translate(-50%, -50%); }
-  .position-label.pos-near { left: 8%; top: 15%; }
-  .position-label.pos-inside { right: 7%; top: 15%; }
+  .position-label.is-open .position-term {
+    display: block;
+  }
+
+  .position-label[data-term-placement="above"] .position-term {
+    bottom: calc(100% + 7px);
+  }
+
+  .position-label[data-term-placement="below"] .position-term {
+    top: calc(100% + 7px);
+  }
+
+  .position-term rt {
+    font-size: 0.48em;
+    color: #555;
+  }
+
+  .position-cube {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: min(67vw, 350px);
+    height: min(67vw, 350px);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+
+  .position-cube .cube-face {
+    fill: rgba(255, 255, 255, 0.72);
+    stroke: none;
+  }
+
+  .position-cube .cube-edge {
+    fill: none;
+    stroke: #000;
+    stroke-width: 7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .position-label.pos-front { right: 60%; top: 76%; }
+  .position-label.pos-back { right: 10%; top: 30%; }
+  .position-label.pos-left { right: 80%; top: 50%; }
+  .position-label.pos-right { right: 10%; top: 50%; }
+  .position-label.pos-on { right: 41%; top: 36%; }
+  .position-label.pos-near { right: 10%; top: 70%; }
+  .position-label.pos-inside { right: 50%; top: 50%; }
+  .position-label.pos-under { right: 50%; top: 63%; }
 
   .magnifier {
     position: absolute;
@@ -1991,10 +2076,10 @@
     z-index: 8;
     width: 86px;
     height: 86px;
-    border: 7px solid #333;
+    border: 7px solid #111;
     border-radius: 50%;
-    background: rgba(223,248,255,0.38);
-    box-shadow: 0 8px 18px rgba(0,0,0,0.18), inset 0 0 0 3px rgba(255,255,255,0.62);
+    background: rgba(255,255,255,0.36);
+    box-shadow: 0 9px 18px rgba(0,0,0,0.18);
     cursor: grab;
     touch-action: none;
   }
@@ -2002,12 +2087,12 @@
   .magnifier::after {
     content: "";
     position: absolute;
-    width: 48px;
-    height: 13px;
-    right: -36px;
-    bottom: -18px;
+    left: 58px;
+    top: 58px;
+    width: 58px;
+    height: 18px;
     border-radius: 999px;
-    background: #333;
+    background: #111;
     transform: rotate(45deg);
     transform-origin: left center;
   }
@@ -2354,6 +2439,7 @@ const homeMenus = {
 
 const vocabCategories = ["数字", "数え方", "月・日付", "時間・分", "位置詞"];
 const PAGE_OPEN_COUNT_STORAGE_KEY = "rensyuuPageOpenCounts_v1";
+const PAGE_OPEN_COUNT_SHARED_LEVEL = "shared";
 const PAGE_OPEN_COUNT_SCROLL_WORDS = 25;
 const PAGE_OPEN_COUNT_INNER_SCROLL_WORDS = 10;
 let activePageOpenTracker = null;
@@ -2361,10 +2447,26 @@ let activePageOpenTracker = null;
 function readPageOpenCounts() {
   try {
     const parsed = JSON.parse(localStorage.getItem(PAGE_OPEN_COUNT_STORAGE_KEY) || "{}");
-    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return {};
+    return normalizePageOpenCounts(parsed);
   } catch (error) {
     return {};
   }
+}
+
+function normalizePageOpenCounts(counts) {
+  const sharedConjugationKey = getPageOpenCountKey(PAGE_OPEN_COUNT_SHARED_LEVEL, "活用");
+  let changed = false;
+
+  Object.keys(counts).forEach(key => {
+    if (key === sharedConjugationKey || !key.endsWith(":活用")) return;
+    counts[sharedConjugationKey] = Number(counts[sharedConjugationKey] || 0) + Number(counts[key] || 0);
+    delete counts[key];
+    changed = true;
+  });
+
+  if (changed) writePageOpenCounts(counts);
+  return counts;
 }
 
 function writePageOpenCounts(counts) {
@@ -2376,7 +2478,8 @@ function writePageOpenCounts(counts) {
 }
 
 function getPageOpenCountKey(level, type) {
-  return `${level}:${type}`;
+  const countLevel = type === "活用" ? PAGE_OPEN_COUNT_SHARED_LEVEL : level;
+  return `${countLevel}:${type}`;
 }
 
 function getTableOpenCountTarget(type) {
@@ -2409,7 +2512,7 @@ function makeOpenCountBadge(level, type) {
 
 function updateOpenCountBadges(root = document) {
   root.querySelectorAll(".open-count-badge").forEach(badge => {
-    const level = Number(badge.dataset.openCountLevel);
+    const level = badge.dataset.openCountLevel || "";
     const type = badge.dataset.openCountType || "";
     badge.textContent = getPageOpenCount(level, type);
   });
@@ -2479,7 +2582,13 @@ function updateHomeNav() {
   if (!leftNav || !rightNav || !leftLabel || !rightLabel) return;
 
   const onVocab = currentHomeMenu === "vocab";
-  leftNav.classList.toggle("disabled", onVocab || currentHomeLevel <= 0);
+  const leftDisabled = onVocab || currentHomeLevel <= 0;
+  const leftHidden = currentHomeLevel <= 0;
+  leftNav.classList.toggle("disabled", leftDisabled);
+  leftNav.style.display = leftHidden ? "none" : "flex";
+  leftNav.setAttribute("aria-hidden", leftHidden ? "true" : "false");
+  const leftButton = leftNav.querySelector(".page-arrow");
+  if (leftButton) leftButton.setAttribute("aria-disabled", leftDisabled ? "true" : "false");
   const rightDisabled = onVocab || currentHomeLevel >= 1;
   rightNav.classList.toggle("disabled", rightDisabled);
   const rightButton = rightNav.querySelector(".page-arrow");
@@ -2882,23 +2991,59 @@ function makeVocabTable(type) {
 function makePositionVocabPractice() {
   document.body.classList.add("position-vocab");
   const labels = [
-    ["机の前", "pos-front"],
-    ["机の後ろ", "pos-back"],
-    ["机の左", "pos-left"],
-    ["机の右", "pos-right"],
-    ["机の上", "pos-on"],
-    ["机の下", "pos-under"],
-    ["机の近く", "pos-near"],
-    ["机の中", "pos-inside"]
+    { plain: "机の前", html: "<ruby>机<rt>つくえ</rt></ruby>の<ruby>前<rt>まえ</rt></ruby>", cls: "pos-front", placement: "above" },
+    { plain: "机の後ろ", html: "<ruby>机<rt>つくえ</rt></ruby>の<ruby>後<rt>うし</rt></ruby>ろ", cls: "pos-back", placement: "below" },
+    { plain: "机の左", html: "<ruby>机<rt>つくえ</rt></ruby>の<ruby>左<rt>ひだり</rt></ruby>", cls: "pos-left", placement: "above" },
+    { plain: "机の右", html: "<ruby>机<rt>つくえ</rt></ruby>の<ruby>右<rt>みぎ</rt></ruby>", cls: "pos-right", placement: "above" },
+    { plain: "机の上", html: "<ruby>机<rt>つくえ</rt></ruby>の<ruby>上<rt>うえ</rt></ruby>", cls: "pos-on", placement: "above" },
+    { plain: "机の下", html: "<ruby>机<rt>つくえ</rt></ruby>の<ruby>下<rt>した</rt></ruby>", cls: "pos-under", placement: "below" },
+    { plain: "机の近く", html: "<ruby>机<rt>つくえ</rt></ruby>の<ruby>近<rt>ちか</rt></ruby>く", cls: "pos-near", placement: "above" },
+    { plain: "机の中", html: "<ruby>机<rt>つくえ</rt></ruby>の<ruby>中<rt>なか</rt></ruby>", cls: "pos-inside", placement: "below" }
   ];
   document.getElementById("tableArea").innerHTML = `
     <div class="position-practice" id="positionPractice">
       <div class="position-stage" id="positionStage" aria-label="位置詞の練習">
-       ${labels.map(([text, cls]) => `<div class="position-label ${cls}">${escapeHtml(text)}</div>`).join("")}
+        <div class="position-visual">
+          <svg class="position-cube" viewBox="0 0 240 240" aria-hidden="true">
+            <polygon class="cube-face" points="46,122 86,82 176,82 136,122"></polygon>
+            <polygon class="cube-face" points="46,122 136,122 136,198 46,198"></polygon>
+            <polygon class="cube-face" points="136,122 176,82 176,158 136,198"></polygon>
+            <polyline class="cube-edge" points="46,122 86,82 176,82 136,122 46,122"></polyline>
+            <line class="cube-edge" x1="46" y1="154" x2="136" y2="154"></line>
+            <line class="cube-edge" x1="136" y1="154" x2="176" y2="114"></line>
+            <line class="cube-edge" x1="46" y1="122" x2="46" y2="198"></line>
+            <line class="cube-edge" x1="136" y1="122" x2="136" y2="198"></line>
+            <line class="cube-edge" x1="176" y1="82" x2="176" y2="158"></line>
+          </svg>
+          ${labels.map(label => `
+            <div class="position-label ${label.cls}" data-term-placement="${label.placement}">
+              <button class="position-cat" type="button" aria-label="${escapeHtml(label.plain)}を表示">🐈‍⬛</button>
+              <div class="position-term">${label.html}</div>
+            </div>`).join("")}
+        </div>
         <div class="magnifier" id="positionMagnifier" role="button" aria-label="虫眼鏡を動かして文字を見る"></div>
       </div>
     </div>`;
+  setupPositionCatLabels();
   setupPositionMagnifier();
+}
+
+function setupPositionCatLabels() {
+  const stage = document.getElementById("positionStage");
+  if (!stage) return;
+
+  stage.querySelectorAll(".position-cat").forEach(cat => {
+    cat.addEventListener("click", event => {
+      event.stopPropagation();
+      const label = cat.closest(".position-label");
+      if (!label) return;
+      const isOpen = label.classList.contains("is-open");
+      stage.querySelectorAll(".position-label.is-open").forEach(openLabel => {
+        if (openLabel !== label) openLabel.classList.remove("is-open");
+      });
+      label.classList.toggle("is-open", !isOpen);
+    });
+  });
 }
 
 function setupPositionMagnifier() {
