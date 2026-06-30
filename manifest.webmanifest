@@ -1,0 +1,19 @@
+{
+  "name": "日本語れんしゅう",
+  "short_name": "日本語れんしゅう",
+  "description": "日本語を楽しく練習するためのアプリです。",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fff7fb",
+  "theme_color": "#fff7fb",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "practice.png",
+      "sizes": "928x943",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
