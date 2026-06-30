@@ -1,6 +1,6 @@
 {
-  "name": "日本語練習",
-  "short_name": "日本語練習",
+  "name": "日本語れんしゅう",
+  "short_name": "日本語れんしゅう",
   "description": "日本語を楽しく練習するためのアプリです。",
   "start_url": "./index.html",
   "scope": "./",
