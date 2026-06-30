@@ -2204,9 +2204,7 @@
 <div id="startNotice" class="start-notice-overlay" onclick="closeStartNotice()" role="button" aria-label="説明を閉じる">
   <table class="start-notice-table">
     <tr>
-      <td>请务必不要只在脑中练习，而是一定要大声说出来进行练习。通过按照规则连续口头表达，让头脑和嘴巴都逐渐适应。
-“？”仅保存在同一浏览器内。
-      到初级页面后，会用<strong>句子</strong>进行口语热身，并以会话为目标。</td>
+      <td id="startNoticeText"></td>
     </tr>
   </table>
 </div>
@@ -2311,12 +2309,41 @@
 
 <script>
 
+const TOP_MENU_NOTICE_TEXT = `请务必不要只在脑中练习，而是要大声说出来练习。通过说出口，可以让头脑和嘴巴都慢慢适应。
+
+“听”和“说”并不是把内容翻译成日语的练习。
+而是想象具体场景，并练习能够马上说出口。
+
+不要只是理解意思，请用红色遮挡板遮住答案，练习到能够马上说出口。
+
+“？”仅保存在同一浏览器内。`;
+
+const CONJUGATION_NOTICE_TEXT = `按照词尾变化的规则连续大声练习，可以让头脑和嘴巴都慢慢适应。
+到初级页面后，会用句子进行口语热身，并以会话为目标。`;
+
+function setStartNoticeText(text) {
+  const noticeText = document.getElementById("startNoticeText");
+  if (noticeText) {
+    noticeText.textContent = text;
+  }
+}
+
+function showStartNotice(text) {
+  setStartNoticeText(text);
+  const notice = document.getElementById("startNotice");
+  if (notice) {
+    notice.style.display = "flex";
+  }
+}
+
 function closeStartNotice() {
   const notice = document.getElementById("startNotice");
   if (notice) {
     notice.style.display = "none";
   }
 }
+
+setStartNoticeText(TOP_MENU_NOTICE_TEXT);
 
 
 
@@ -2798,6 +2825,7 @@ function openConjugationMenu() {
   document.getElementById("leftPageNav").style.display = "flex";
   document.getElementById("rightPageNav").style.display = "flex";
   updateMenuPage();
+  showStartNotice(CONJUGATION_NOTICE_TEXT);
   requestAnimationFrame(renderQuestionMemoLayer);
   window.scrollTo(0, 0);
 }
