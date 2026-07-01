@@ -2232,8 +2232,8 @@
   <div class="home-panel">
     <div id="homeTitle" class="home-title"><span class="title-emoji left">🐢</span> 初級1 <span class="title-emoji right">🐢</span></div>
     <div id="homeActions" class="home-actions" aria-label="練習メニュー"></div>
-    <div id="homeLeftNav" class="page-nav left-nav home-page-nav">
-      <button class="page-arrow" type="button" onclick="changeHomeLevel(-1)">◀</button>
+    <div id="homeLeftNav" class="page-nav left-nav home-page-nav disabled">
+      <button class="page-arrow" type="button" onclick="changeHomeLevel(-1)" aria-disabled="true">◀</button>
       <div id="homeLeftLabel" class="page-nav-label">基礎</div>
     </div>
     <div id="homeRightNav" class="page-nav right-nav home-page-nav disabled">
@@ -2493,10 +2493,13 @@ function updateHomeNav() {
   if (!leftNav || !rightNav || !leftLabel || !rightLabel) return;
 
   const onVocab = currentHomeMenu === "vocab";
-  leftNav.classList.toggle("disabled", onVocab || currentHomeLevel <= 0);
+  const leftDisabled = onVocab || currentHomeLevel <= 1;
+  leftNav.classList.toggle("disabled", leftDisabled);
   const rightDisabled = onVocab || currentHomeLevel >= 1;
   rightNav.classList.toggle("disabled", rightDisabled);
   const rightButton = rightNav.querySelector(".page-arrow");
+  const leftButton = leftNav.querySelector(".page-arrow");
+  if (leftButton) leftButton.setAttribute("aria-disabled", leftDisabled ? "true" : "false");
   if (rightButton) rightButton.setAttribute("aria-disabled", rightDisabled ? "true" : "false");
   leftLabel.textContent = onVocab ? "" : (currentHomeLevel === 1 ? "基礎" : "");
   rightLabel.textContent = onVocab ? "" : (currentHomeLevel === 0 ? "初級1" : "初級2");
@@ -2504,7 +2507,7 @@ function updateHomeNav() {
 
 function changeHomeLevel(direction) {
   const nextLevel = currentHomeLevel + direction;
-  if (nextLevel < 0 || nextLevel > 1) return;
+  if (nextLevel < 1 || nextLevel > 1) return;
   currentHomeLevel = nextLevel;
   setHomeMenu("main");
   renderQuestionMemoLayer();
