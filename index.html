@@ -2805,6 +2805,7 @@ function openHome() {
 function openConjugationMenu() {
   currentSection = "conjugation";
   currentConjugationCountLevel = currentHomeLevel;
+  currentMenuPage = 0;
   document.body.classList.remove("home-mode", "sheet-high", "table-start-lowered", "position-vocab");
   document.body.classList.add("menu-mode");
   document.getElementById("homeScreen").style.display = "none";
