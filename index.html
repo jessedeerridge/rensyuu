@@ -4434,9 +4434,10 @@ function getSpeechErrorMessage(error) {
 }
 
 function startSpeechTest(button) {
-  const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!Recognition) {
-    button.querySelector(".test-transcript").textContent = "このブラウザーは音声認識に対応していません";
+  if (!speechRecognition || speechSessionError) {
+    button.className = "test-answer-button";
+    button.querySelector(".test-transcript").textContent = speechSessionError || "テストを押し直してください";
+    button.querySelector(".test-status").textContent = "";
     return;
   }
 
@@ -4445,19 +4446,15 @@ function startSpeechTest(button) {
   }
   activeSpeechButton = button;
   button.className = "test-answer-button listening";
-  button.querySelector(".test-transcript").textContent = speechSessionError || "聞いています…";
+  button.querySelector(".test-transcript").textContent = "聞いています…";
   button.querySelector(".test-status").textContent = "";
-  if (!speechRecognition) {
-    button.classList.remove("listening");
-    button.querySelector(".test-transcript").textContent = speechSessionError || "テストを押し直してください";
-  }
 }
 
 function startSpeechTestSession() {
   const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!Recognition) {
     speechSessionError = "このブラウザーは音声認識に対応していません";
-    return false;
+    return;
   }
 
   const recognition = new Recognition();
@@ -4529,11 +4526,9 @@ function startSpeechTestSession() {
     // 初回の音声認識開始は、ユーザーがテストボタンを押した操作内で行う。
     // getUserMedia を併用すると別系統の許可ダイアログが増えるため使用しない。
     recognition.start();
-    return true;
   } catch (error) {
     speechSessionError = "開始できませんでした。テストを押し直してください";
     speechRecognition = null;
-    return false;
   }
 }
 
