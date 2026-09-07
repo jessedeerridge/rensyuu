@@ -4275,14 +4275,23 @@ let tableRandomized = false;
 let sequentialTableHtml = "";
 let testModeActive = false;
 let speechRecognition = null;
-let microphoneReady = false;
+const MICROPHONE_PERMISSION_STORAGE_KEY = "rensyuuMicrophonePermission_v1";
+let microphoneReady = (() => {
+  try {
+    return localStorage.getItem(MICROPHONE_PERMISSION_STORAGE_KEY) === "granted";
+  } catch (error) {
+    return false;
+  }
+})();
 let localSpeechAvailability;
 
 function normalizeSpeechText(value) {
   return String(value || "")
     .normalize("NFKC")
     .toLocaleLowerCase("ja-JP")
-    .replace(/[\s、。,.!?！？・「」『』（）()]/g, "");
+    // 読点・句点は、文中・文末および正解側・認識結果側のどちらにあっても採点対象外。
+    .replace(/[、。]/g, "")
+    .replace(/[\s,.!?！？・「」『』（）()]/g, "");
 }
 
 function getCellAnswerText(cell) {
@@ -4298,6 +4307,11 @@ async function prepareMicrophone() {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     stream.getTracks().forEach(track => track.stop());
     microphoneReady = true;
+    try {
+      localStorage.setItem(MICROPHONE_PERMISSION_STORAGE_KEY, "granted");
+    } catch (error) {
+      // 保存できない環境でも、このページを開いている間は再確認しない。
+    }
     return true;
   } catch (error) {
     alert("マイクを許可すると発音テストができます。ブラウザーの設定をご確認ください。");
@@ -4339,6 +4353,15 @@ function getSpeechErrorMessage(error) {
   return "聞き取れませんでした。もう一度タップしてください";
 }
 
+function forgetMicrophonePermission() {
+  microphoneReady = false;
+  try {
+    localStorage.removeItem(MICROPHONE_PERMISSION_STORAGE_KEY);
+  } catch (error) {
+    // localStorage が使えない環境ではメモリ上の状態だけを更新する。
+  }
+}
+
 async function startSpeechTest(button) {
   const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!Recognition) {
@@ -4374,6 +4397,9 @@ async function startSpeechTest(button) {
     button.querySelector(".test-status").textContent = correct ? "〇 正解" : "× もう一度";
   };
   recognition.onerror = event => {
+    if (event.error === "not-allowed" || event.error === "service-not-allowed") {
+      forgetMicrophonePermission();
+    }
     button.className = "test-answer-button";
     button.querySelector(".test-transcript").textContent = getSpeechErrorMessage(event.error);
     button.querySelector(".test-status").textContent = "";
