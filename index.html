@@ -4277,6 +4277,7 @@ let testModeActive = false;
 let speechRecognition = null;
 let activeSpeechButton = null;
 let speechSessionError = "";
+let speechRestartTimer = null;
 let localSpeechAvailable = false;
 
 function checkLocalSpeechAvailability() {
@@ -4308,6 +4309,10 @@ function getCellAnswerText(cell) {
 function stopSpeechRecognition() {
   activeSpeechButton = null;
   speechSessionError = "";
+  if (speechRestartTimer !== null) {
+    clearTimeout(speechRestartTimer);
+    speechRestartTimer = null;
+  }
   if (!speechRecognition) return;
   speechRecognition.abort();
   speechRecognition = null;
@@ -4355,6 +4360,7 @@ function startSpeechTestSession() {
   recognition.interimResults = true;
   recognition.continuous = true;
   if (localSpeechAvailable && "processLocally" in recognition) recognition.processLocally = true;
+  let recognitionCanRestart = true;
 
   recognition.onresult = event => {
     const target = activeSpeechButton;
@@ -4369,25 +4375,47 @@ function startSpeechTestSession() {
     activeSpeechButton = null;
   };
   recognition.onerror = event => {
-    speechSessionError = getSpeechErrorMessage(event.error);
     const target = activeSpeechButton;
+    const isSilence = event.error === "no-speech";
+    if (!isSilence) {
+      speechSessionError = getSpeechErrorMessage(event.error);
+      recognitionCanRestart = false;
+    }
     if (target) {
       target.className = "test-answer-button";
-      target.querySelector(".test-transcript").textContent = speechSessionError;
+      target.querySelector(".test-transcript").textContent = isSilence
+        ? getSpeechErrorMessage(event.error)
+        : speechSessionError;
       target.querySelector(".test-status").textContent = "";
     }
     activeSpeechButton = null;
   };
   recognition.onend = () => {
+    if (speechRecognition !== recognition) return;
+    if (testModeActive && recognitionCanRestart) {
+      // WebKit系は無音で連続認識を終了するため、許可済みの同じ認識器を待機状態へ戻す。
+      speechRestartTimer = setTimeout(() => {
+        speechRestartTimer = null;
+        if (!testModeActive || speechRecognition !== recognition) return;
+        try {
+          recognition.start();
+          if (activeSpeechButton) {
+            activeSpeechButton.classList.add("listening");
+            activeSpeechButton.querySelector(".test-transcript").textContent = "聞いています…";
+          }
+        } catch (error) {
+          speechSessionError = "音声認識を再開できませんでした。テストを押し直してください";
+          speechRecognition = null;
+        }
+      }, 250);
+      return;
+    }
     if (activeSpeechButton) activeSpeechButton.classList.remove("listening");
     activeSpeechButton = null;
-    if (speechRecognition === recognition) {
-      speechRecognition = null;
-      if (!speechSessionError) speechSessionError = "音声認識が終了しました。テストを押し直してください";
-    }
+    speechRecognition = null;
   };
   try {
-    // ユーザーがテストボタンを押したこの一度だけ音声認識を開始する。
+    // 初回の音声認識開始は、ユーザーがテストボタンを押した操作内で行う。
     // getUserMedia を併用すると別系統の許可ダイアログが増えるため使用しない。
     recognition.start();
     return true;
