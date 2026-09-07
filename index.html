@@ -4275,6 +4275,8 @@ let tableRandomized = false;
 let sequentialTableHtml = "";
 let testModeActive = false;
 let speechRecognition = null;
+let activeSpeechButton = null;
+let microphoneStream = null;
 const MICROPHONE_PERMISSION_STORAGE_KEY = "rensyuuMicrophonePermission_v1";
 let microphoneReady = (() => {
   try {
@@ -4289,9 +4291,8 @@ function normalizeSpeechText(value) {
   return String(value || "")
     .normalize("NFKC")
     .toLocaleLowerCase("ja-JP")
-    // 読点・句点は、文中・文末および正解側・認識結果側のどちらにあっても採点対象外。
-    .replace(/[、。]/g, "")
-    .replace(/[\s,.!?！？・「」『』（）()]/g, "");
+    // 音声認識が補う句読点・疑問符などは、位置や全角・半角を問わず採点対象外。
+    .replace(/[\s\p{P}\p{S}]/gu, "");
 }
 
 function getCellAnswerText(cell) {
@@ -4301,11 +4302,11 @@ function getCellAnswerText(cell) {
 }
 
 async function prepareMicrophone() {
-  if (microphoneReady) return true;
+  if (microphoneStream?.getAudioTracks().some(track => track.readyState === "live")) return true;
   if (!navigator.mediaDevices?.getUserMedia) return true;
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    stream.getTracks().forEach(track => track.stop());
+    // テスト中は同じストリームを維持し、問題ごとのマイク再取得を避ける。
+    microphoneStream = await navigator.mediaDevices.getUserMedia({ audio: true });
     microphoneReady = true;
     try {
       localStorage.setItem(MICROPHONE_PERMISSION_STORAGE_KEY, "granted");
@@ -4319,7 +4320,14 @@ async function prepareMicrophone() {
   }
 }
 
+function releaseMicrophone() {
+  if (!microphoneStream) return;
+  microphoneStream.getTracks().forEach(track => track.stop());
+  microphoneStream = null;
+}
+
 function stopSpeechRecognition() {
+  activeSpeechButton = null;
   if (!speechRecognition) return;
   speechRecognition.abort();
   speechRecognition = null;
@@ -4369,15 +4377,23 @@ async function startSpeechTest(button) {
     return;
   }
 
-  stopSpeechRecognition();
+  if (activeSpeechButton && activeSpeechButton !== button) {
+    activeSpeechButton.classList.remove("listening");
+  }
+  activeSpeechButton = button;
+  button.className = "test-answer-button listening";
+  button.querySelector(".test-transcript").textContent = speechRecognition ? "聞いています…" : "準備しています…";
+  button.querySelector(".test-status").textContent = "";
+
+  // 一つの連続認識セッションを全問題で共有し、問題を押すたびに
+  // SpeechRecognition がマイク許可を取り直すことを防ぐ。
+  if (speechRecognition) return;
+
   const recognition = new Recognition();
   speechRecognition = recognition;
   recognition.lang = "ja-JP";
   recognition.interimResults = true;
-  recognition.continuous = false;
-  button.className = "test-answer-button listening";
-  button.querySelector(".test-transcript").textContent = "準備しています…";
-  button.querySelector(".test-status").textContent = "";
+  recognition.continuous = true;
 
   // 端末内の日本語認識パックが実際に利用可能な場合だけローカル処理を指定する。
   // 未導入端末で無条件に指定すると、開始直後に language-not-supported で終了してしまう。
@@ -4389,23 +4405,32 @@ async function startSpeechTest(button) {
   button.querySelector(".test-transcript").textContent = "聞いています…";
 
   recognition.onresult = event => {
-    const transcript = Array.from(event.results).map(result => result[0].transcript).join("");
-    button.querySelector(".test-transcript").textContent = transcript;
-    if (!event.results[event.results.length - 1].isFinal) return;
-    const correct = normalizeSpeechText(transcript) === normalizeSpeechText(button.dataset.answer);
-    button.className = `test-answer-button ${correct ? "correct" : "incorrect"}`;
-    button.querySelector(".test-status").textContent = correct ? "〇 正解" : "× もう一度";
+    const target = activeSpeechButton;
+    if (!target) return;
+    const result = event.results[event.resultIndex];
+    const transcript = result[0].transcript;
+    target.querySelector(".test-transcript").textContent = transcript;
+    if (!result.isFinal) return;
+    const correct = normalizeSpeechText(transcript) === normalizeSpeechText(target.dataset.answer);
+    target.className = `test-answer-button ${correct ? "correct" : "incorrect"}`;
+    target.querySelector(".test-status").textContent = correct ? "〇 正解" : "× もう一度";
+    activeSpeechButton = null;
   };
   recognition.onerror = event => {
     if (event.error === "not-allowed" || event.error === "service-not-allowed") {
       forgetMicrophonePermission();
     }
-    button.className = "test-answer-button";
-    button.querySelector(".test-transcript").textContent = getSpeechErrorMessage(event.error);
-    button.querySelector(".test-status").textContent = "";
+    const target = activeSpeechButton;
+    if (target) {
+      target.className = "test-answer-button";
+      target.querySelector(".test-transcript").textContent = getSpeechErrorMessage(event.error);
+      target.querySelector(".test-status").textContent = "";
+    }
+    activeSpeechButton = null;
   };
   recognition.onend = () => {
-    if (button.classList.contains("listening")) button.classList.remove("listening");
+    if (activeSpeechButton) activeSpeechButton.classList.remove("listening");
+    activeSpeechButton = null;
     if (speechRecognition === recognition) speechRecognition = null;
   };
   try {
@@ -4413,6 +4438,7 @@ async function startSpeechTest(button) {
   } catch (error) {
     button.className = "test-answer-button";
     button.querySelector(".test-transcript").textContent = "開始できませんでした。もう一度タップしてください";
+    activeSpeechButton = null;
     speechRecognition = null;
   }
 }
@@ -4439,6 +4465,7 @@ function makeTestTable() {
 async function toggleTestMode() {
   if (testModeActive) {
     stopSpeechRecognition();
+    releaseMicrophone();
     document.getElementById("tableArea").innerHTML = sequentialTableHtml;
     testModeActive = false;
     document.body.classList.remove("test-mode");
@@ -4897,6 +4924,7 @@ function showPlaceholderTable(title, message, returnSection = "home") {
 
 function showTable(type, focusKey = "") {
   stopSpeechRecognition();
+  releaseMicrophone();
   stopPageOpenTracker();
   document.body.classList.remove("home-mode", "menu-mode", "sheet-high", "table-start-lowered", "position-vocab");
   if (type === "Vて" || type === "Vた" || type === "聞く" || type === "話す" || type === "つなぐ" || vocabCategories.includes(type)) {
@@ -5043,6 +5071,7 @@ function scrollToQuestionKey(key) {
 
 function backMenu() {
   stopSpeechRecognition();
+  releaseMicrophone();
   testModeActive = false;
   document.body.classList.remove("test-mode");
   document.body.classList.remove("sheet-high", "table-start-lowered", "position-vocab");
