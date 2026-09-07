@@ -21,8 +21,6 @@
 <link rel="manifest" href="manifest.webmanifest">
 
 <style>
-  @import url("https://fonts.googleapis.com/css2?family=Kosugi+Maru&family=Ma+Shan+Zheng&family=ZCOOL+KuaiLe&display=swap");
-
   * {
     box-sizing: border-box;
   }
@@ -519,7 +517,8 @@
     transform: scaleX(-1);
   }
 
-  .random-order-btn {
+  .random-order-btn,
+  .test-mode-btn {
     width: 48px;
     height: 48px;
     flex: 0 0 48px;
@@ -541,9 +540,70 @@
     -webkit-tap-highlight-color: transparent;
   }
 
-  .random-order-btn:active {
+  .random-order-btn:active,
+  .test-mode-btn:active {
     transform: scale(0.92);
     box-shadow: 0 2px 8px rgba(0,0,0,0.20);
+  }
+
+  .test-mode-btn.is-active {
+    background: #ff6fae;
+  }
+
+  body.test-mode .red-sheet {
+    display: none;
+  }
+
+  .test-table td:last-child {
+    color: #555;
+  }
+
+  .test-answer-cell {
+    padding: 5px;
+  }
+
+  .test-answer-button {
+    width: 100%;
+    min-height: 43px;
+    border: 2px dashed #ffd1e6;
+    border-radius: 12px;
+    background: #fff7fb;
+    color: #777;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .test-answer-button.listening {
+    border-color: #ff6fae;
+    color: #ff4f9e;
+    animation: slowPulse 1.2s ease-in-out infinite;
+  }
+
+  .test-answer-button.correct {
+    border-style: solid;
+    border-color: #69c779;
+    background: #edfff0;
+    color: #228b35;
+  }
+
+  .test-answer-button.incorrect {
+    border-style: solid;
+    border-color: #ee7777;
+    background: #fff0f0;
+    color: #c62828;
+  }
+
+  .test-transcript {
+    display: block;
+    overflow-wrap: anywhere;
+  }
+
+  .test-status {
+    display: block;
+    margin-top: 3px;
+    font-size: 11px;
   }
 
   .table-title {
@@ -1944,7 +2004,8 @@
 
   /* ===== 位置詞：机と虫眼鏡で読む練習 ===== */
   body.position-vocab .red-sheet,
-  body.position-vocab .random-order-btn {
+  body.position-vocab .random-order-btn,
+  body.position-vocab .test-mode-btn {
     display: none;
   }
 
@@ -2313,6 +2374,7 @@
   <div class="top-bar">
     <button class="back-btn" onclick="backMenu()" aria-label="戻る"><span class="back-arrow-icon" aria-hidden="true">➜</span></button>
     <div class="table-title" id="tableTitle">Vます</div>
+    <button class="test-mode-btn" id="testModeBtn" type="button" onclick="toggleTestMode()" aria-label="15問の発音テストを始める">测试</button>
     <button class="random-order-btn" id="randomOrderBtn" type="button" onclick="toggleRandomOrder()" aria-label="表をランダムに並べ替える">随机</button>
   </div>
 
@@ -4211,6 +4273,205 @@ let tableVisible = false;
 let masuSwapped = false;
 let tableRandomized = false;
 let sequentialTableHtml = "";
+let testModeActive = false;
+let speechRecognition = null;
+let activeSpeechButton = null;
+let speechSessionError = "";
+let speechRestartTimer = null;
+let localSpeechAvailable = false;
+
+function checkLocalSpeechAvailability() {
+  const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (typeof Recognition?.available !== "function") return;
+  Recognition.available({ langs: ["ja-JP"], processLocally: true })
+    .then(availability => {
+      localSpeechAvailable = availability === "available";
+    })
+    .catch(() => {
+      localSpeechAvailable = false;
+    });
+}
+
+function normalizeSpeechText(value) {
+  return String(value || "")
+    .normalize("NFKC")
+    .toLocaleLowerCase("ja-JP")
+    // 音声認識が補う句読点・疑問符などは、位置や全角・半角を問わず採点対象外。
+    .replace(/[\s\p{P}\p{S}]/gu, "");
+}
+
+function isSpeechAnswerCorrect(transcript, answer) {
+  const normalizedTranscript = normalizeSpeechText(transcript);
+  const normalizedAnswer = normalizeSpeechText(answer);
+  return normalizedAnswer.length > 0 && normalizedTranscript.includes(normalizedAnswer);
+}
+
+function getCellAnswerText(cell) {
+  const copy = cell.cloneNode(true);
+  copy.querySelectorAll("rt, .answer-mask-cover, .reason-kara-note").forEach(node => node.remove());
+  return copy.textContent.trim();
+}
+
+function stopSpeechRecognition() {
+  activeSpeechButton = null;
+  speechSessionError = "";
+  if (speechRestartTimer !== null) {
+    clearTimeout(speechRestartTimer);
+    speechRestartTimer = null;
+  }
+  if (!speechRecognition) return;
+  speechRecognition.abort();
+  speechRecognition = null;
+}
+
+function getSpeechErrorMessage(error) {
+  if (error === "not-allowed" || error === "service-not-allowed") return "マイクを許可してください";
+  if (error === "no-speech") return "声が聞こえませんでした。もう一度タップしてください";
+  if (error === "audio-capture") return "マイクを使用できません";
+  if (error === "network") return "音声認識に接続できません。端末の音声入力を確認してください";
+  if (error === "language-not-supported") return "日本語の音声認識を使用できません";
+  return "聞き取れませんでした。もう一度タップしてください";
+}
+
+function startSpeechTest(button) {
+  const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!Recognition) {
+    button.querySelector(".test-transcript").textContent = "このブラウザーは音声認識に対応していません";
+    return;
+  }
+
+  if (activeSpeechButton && activeSpeechButton !== button) {
+    activeSpeechButton.classList.remove("listening");
+  }
+  activeSpeechButton = button;
+  button.className = "test-answer-button listening";
+  button.querySelector(".test-transcript").textContent = speechSessionError || "聞いています…";
+  button.querySelector(".test-status").textContent = "";
+  if (!speechRecognition) {
+    button.classList.remove("listening");
+    button.querySelector(".test-transcript").textContent = speechSessionError || "テストを押し直してください";
+  }
+}
+
+function startSpeechTestSession() {
+  const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!Recognition) {
+    speechSessionError = "このブラウザーは音声認識に対応していません";
+    return false;
+  }
+
+  const recognition = new Recognition();
+  speechRecognition = recognition;
+  recognition.lang = "ja-JP";
+  recognition.interimResults = true;
+  recognition.continuous = true;
+  if (localSpeechAvailable && "processLocally" in recognition) recognition.processLocally = true;
+  let recognitionCanRestart = true;
+
+  recognition.onresult = event => {
+    const target = activeSpeechButton;
+    if (!target) return;
+    const result = event.results[event.resultIndex];
+    const transcript = result[0].transcript;
+    target.querySelector(".test-transcript").textContent = transcript;
+    if (!result.isFinal) return;
+    const correct = isSpeechAnswerCorrect(transcript, target.dataset.answer);
+    target.className = `test-answer-button ${correct ? "correct" : "incorrect"}`;
+    if (correct) target.querySelector(".test-transcript").textContent = target.dataset.answer;
+    target.querySelector(".test-status").textContent = correct ? "" : "× もう一度";
+    activeSpeechButton = null;
+  };
+  recognition.onerror = event => {
+    const target = activeSpeechButton;
+    const isSilence = event.error === "no-speech";
+    if (!isSilence) {
+      speechSessionError = getSpeechErrorMessage(event.error);
+      recognitionCanRestart = false;
+    }
+    if (target) {
+      target.className = "test-answer-button";
+      target.querySelector(".test-transcript").textContent = isSilence
+        ? getSpeechErrorMessage(event.error)
+        : speechSessionError;
+      target.querySelector(".test-status").textContent = "";
+    }
+    activeSpeechButton = null;
+  };
+  recognition.onend = () => {
+    if (speechRecognition !== recognition) return;
+    if (testModeActive && recognitionCanRestart) {
+      // WebKit系は無音で連続認識を終了するため、許可済みの同じ認識器を待機状態へ戻す。
+      speechRestartTimer = setTimeout(() => {
+        speechRestartTimer = null;
+        if (!testModeActive || speechRecognition !== recognition) return;
+        try {
+          recognition.start();
+          if (activeSpeechButton) {
+            activeSpeechButton.classList.add("listening");
+            activeSpeechButton.querySelector(".test-transcript").textContent = "聞いています…";
+          }
+        } catch (error) {
+          speechSessionError = "音声認識を再開できませんでした。テストを押し直してください";
+          speechRecognition = null;
+        }
+      }, 250);
+      return;
+    }
+    if (activeSpeechButton) activeSpeechButton.classList.remove("listening");
+    activeSpeechButton = null;
+    speechRecognition = null;
+  };
+  try {
+    // 初回の音声認識開始は、ユーザーがテストボタンを押した操作内で行う。
+    // getUserMedia を併用すると別系統の許可ダイアログが増えるため使用しない。
+    recognition.start();
+    return true;
+  } catch (error) {
+    speechSessionError = "開始できませんでした。テストを押し直してください";
+    speechRecognition = null;
+    return false;
+  }
+}
+
+function makeTestTable() {
+  const sourceTable = document.querySelector("#tableArea table");
+  if (!sourceTable) return false;
+  const rows = Array.from(sourceTable.querySelectorAll("tr"))
+    .filter(row => !row.querySelector("th") && !row.classList.contains("group-row"))
+    .filter(row => row.cells.length >= 2);
+  if (!rows.length) return false;
+
+  const selected = shuffleArray(rows).slice(0, Math.min(15, rows.length));
+  const body = selected.map((row, index) => {
+    const prompt = row.cells[0].cloneNode(true);
+    prompt.querySelectorAll(".question-box").forEach(node => node.remove());
+    const answer = getCellAnswerText(row.cells[row.cells.length - 1]);
+    return `<tr><td>${prompt.innerHTML}</td><td class="test-answer-cell"><button class="test-answer-button" type="button" data-answer="${escapeHtml(answer)}" onclick="startSpeechTest(this)" aria-label="${index + 1}問目を音声で答える"><span class="test-transcript">タップして話す 🎤</span><span class="test-status"></span></button></td></tr>`;
+  }).join("");
+  document.getElementById("tableArea").innerHTML = `<table class="test-table"><tr><th>問題</th><th>あなたの答え</th></tr>${body}</table><div class="scroll-extra-y"></div>`;
+  return true;
+}
+
+function toggleTestMode() {
+  if (testModeActive) {
+    stopSpeechRecognition();
+    document.getElementById("tableArea").innerHTML = sequentialTableHtml;
+    testModeActive = false;
+    document.body.classList.remove("test-mode");
+    document.getElementById("testModeBtn").classList.remove("is-active");
+    afterTableOrderChanged();
+    return;
+  }
+  rememberSequentialTable();
+  if (!makeTestTable()) return;
+  testModeActive = true;
+  tableRandomized = false;
+  document.body.classList.add("test-mode");
+  document.getElementById("testModeBtn").classList.add("is-active");
+  updateRandomOrderButton();
+  afterTableOrderChanged();
+  startSpeechTestSession();
+}
 
 function updateRandomOrderButton() {
   const button = document.getElementById("randomOrderBtn");
@@ -4268,6 +4529,7 @@ function randomizeCurrentTable() {
 }
 
 function toggleRandomOrder() {
+  if (testModeActive) return;
   const area = document.getElementById("tableArea");
   if (!area) return;
 
@@ -4650,6 +4912,7 @@ function showPlaceholderTable(title, message, returnSection = "home") {
 }
 
 function showTable(type, focusKey = "") {
+  stopSpeechRecognition();
   stopPageOpenTracker();
   document.body.classList.remove("home-mode", "menu-mode", "sheet-high", "table-start-lowered", "position-vocab");
   if (type === "Vて" || type === "Vた" || type === "聞く" || type === "話す" || type === "つなぐ" || vocabCategories.includes(type)) {
@@ -4661,6 +4924,9 @@ function showTable(type, focusKey = "") {
   document.getElementById("tableTitle").textContent = type;
   document.body.classList.toggle("position-vocab", type === "位置詞");
   currentTableType = type;
+  testModeActive = false;
+  document.body.classList.remove("test-mode");
+  document.getElementById("testModeBtn").classList.remove("is-active");
   tableRandomized = false;
   sequentialTableHtml = "";
   updateRandomOrderButton();
@@ -4792,6 +5058,9 @@ function scrollToQuestionKey(key) {
 }
 
 function backMenu() {
+  stopSpeechRecognition();
+  testModeActive = false;
+  document.body.classList.remove("test-mode");
   document.body.classList.remove("sheet-high", "table-start-lowered", "position-vocab");
   tableVisible = false;
   stopPageOpenTracker();
@@ -7374,6 +7643,7 @@ window.addEventListener("orientationchange", () => {
 });
 
 window.addEventListener("load", () => {
+  checkLocalSpeechAvailability();
   bootstrapQuestionStorePersistence();
   setHomeMenu("main");
   updateMenuPage();
