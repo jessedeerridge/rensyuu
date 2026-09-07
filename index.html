@@ -4279,6 +4279,7 @@ let activeSpeechButton = null;
 let speechSessionError = "";
 let speechRestartTimer = null;
 let localSpeechAvailable = false;
+let speechKanjiReadingMap = [];
 
 function checkLocalSpeechAvailability() {
   const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -4300,15 +4301,56 @@ function normalizeSpeechText(value) {
     .replace(/[\s\p{P}\p{S}]/gu, "");
 }
 
-function isSpeechAnswerCorrect(transcript, answer) {
+function collectSpeechKanjiReadings(root) {
+  const readings = new Map();
+  root.querySelectorAll("ruby").forEach(ruby => {
+    const copy = ruby.cloneNode(true);
+    copy.querySelectorAll("rt").forEach(node => node.remove());
+    const kanji = normalizeSpeechText(copy.textContent);
+    const reading = normalizeSpeechText(Array.from(ruby.querySelectorAll(":scope > rt"))
+      .map(rt => rt.textContent)
+      .join(""));
+    if (kanji && reading && kanji !== reading) readings.set(kanji, reading);
+  });
+  speechKanjiReadingMap = Array.from(readings.entries())
+    .sort((a, b) => b[0].length - a[0].length);
+}
+
+function replaceKnownKanjiWithReadings(value) {
+  return speechKanjiReadingMap.reduce(
+    (text, [kanji, reading]) => text.replaceAll(kanji, reading),
+    normalizeSpeechText(value)
+  );
+}
+
+function isSpeechAnswerCorrect(transcript, ...answers) {
   const normalizedTranscript = normalizeSpeechText(transcript);
-  const normalizedAnswer = normalizeSpeechText(answer);
-  return normalizedAnswer.length > 0 && normalizedTranscript.includes(normalizedAnswer);
+  const transcriptReading = replaceKnownKanjiWithReadings(transcript);
+  return answers.some(answer => {
+    const normalizedAnswer = normalizeSpeechText(answer);
+    if (!normalizedAnswer) return false;
+    const answerReading = replaceKnownKanjiWithReadings(answer);
+    return normalizedTranscript.includes(normalizedAnswer)
+      || transcriptReading.includes(answerReading);
+  });
 }
 
 function getCellAnswerText(cell) {
   const copy = cell.cloneNode(true);
   copy.querySelectorAll("rt, .answer-mask-cover, .reason-kara-note").forEach(node => node.remove());
+  return copy.textContent.trim();
+}
+
+function getCellAnswerReading(cell) {
+  const copy = cell.cloneNode(true);
+  copy.querySelectorAll(".answer-mask-cover, .reason-kara-note").forEach(node => node.remove());
+  copy.querySelectorAll("ruby").forEach(ruby => {
+    const reading = Array.from(ruby.querySelectorAll(":scope > rt"))
+      .map(rt => rt.textContent)
+      .join("");
+    if (reading) ruby.replaceWith(document.createTextNode(reading));
+  });
+  copy.querySelectorAll("rt").forEach(node => node.remove());
   return copy.textContent.trim();
 }
 
@@ -4375,7 +4417,11 @@ function startSpeechTestSession() {
     const transcript = result[0].transcript;
     target.querySelector(".test-transcript").textContent = transcript;
     if (!result.isFinal) return;
-    const correct = isSpeechAnswerCorrect(transcript, target.dataset.answer);
+    const correct = isSpeechAnswerCorrect(
+      transcript,
+      target.dataset.answer,
+      target.dataset.answerReading
+    );
     target.className = `test-answer-button ${correct ? "correct" : "incorrect"}`;
     if (correct) target.querySelector(".test-transcript").textContent = target.dataset.answer;
     target.querySelector(".test-status").textContent = correct ? "" : "× もう一度";
@@ -4436,6 +4482,7 @@ function startSpeechTestSession() {
 function makeTestTable() {
   const sourceTable = document.querySelector("#tableArea table");
   if (!sourceTable) return false;
+  collectSpeechKanjiReadings(sourceTable);
   const rows = Array.from(sourceTable.querySelectorAll("tr"))
     .filter(row => !row.querySelector("th") && !row.classList.contains("group-row"))
     .filter(row => row.cells.length >= 2);
@@ -4446,7 +4493,8 @@ function makeTestTable() {
     const prompt = row.cells[0].cloneNode(true);
     prompt.querySelectorAll(".question-box").forEach(node => node.remove());
     const answer = getCellAnswerText(row.cells[row.cells.length - 1]);
-    return `<tr><td>${prompt.innerHTML}</td><td class="test-answer-cell"><button class="test-answer-button" type="button" data-answer="${escapeHtml(answer)}" onclick="startSpeechTest(this)" aria-label="${index + 1}問目を音声で答える"><span class="test-transcript">タップして話す 🎤</span><span class="test-status"></span></button></td></tr>`;
+    const answerReading = getCellAnswerReading(row.cells[row.cells.length - 1]);
+    return `<tr><td>${prompt.innerHTML}</td><td class="test-answer-cell"><button class="test-answer-button" type="button" data-answer="${escapeHtml(answer)}" data-answer-reading="${escapeHtml(answerReading)}" onclick="startSpeechTest(this)" aria-label="${index + 1}問目を音声で答える"><span class="test-transcript">タップして話す 🎤</span><span class="test-status"></span></button></td></tr>`;
   }).join("");
   document.getElementById("tableArea").innerHTML = `<table class="test-table"><tr><th>問題</th><th>あなたの答え</th></tr>${body}</table><div class="scroll-extra-y"></div>`;
   return true;
