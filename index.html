@@ -4318,14 +4318,6 @@ const SPEECH_EQUIVALENT_GROUPS = [
   ["お酒", "おさけ", "ビール", "さけ"],
   ["夜", "よる", "夜は", "よるは", "夜に", "よるに"],
   ["スマホ", "携帯", "けいたい", "携帯電話", "けいたいでんわ", "電話", "でんわ"],
-  [
-    "人が多い", "ひとがおおい", "ひとが多い", "人がおおい", "混む", "こむ", "込む",
-    "多いと思います", "多いとおもいます", "おおいと思います", "おおいとおもいます",
-    "多そうです", "おおそうです",
-    "混むと思います", "混むとおもいます", "こむと思います", "こむとおもいます",
-    "混みそうです", "こみそうです",
-    "込むと思います", "込むとおもいます", "込みそうです"
-  ],
   ["ひいた", "引いた", "弾いた", "轢いた"],
   ["明日は", "あしたは", "明日", "あした"],
   ["名前を", "なまえを", "名前は", "なまえは"],
@@ -4339,6 +4331,20 @@ const SPEECH_EQUIVALENT_GROUPS = [
   ["ひとり", "1人", "一人"],
   ["にまい", "2枚", "二枚"],
   ["スーパー", "デパート"]
+];
+
+const PEOPLE_CROWDED_ANSWER_FORMS = [
+  "人が多いと思います", "ひとがおおいと思います", "人が多いとおもいます", "ひとがおおいとおもいます"
+];
+
+const PEOPLE_CROWDED_ACCEPTED_FORMS = [
+  ...PEOPLE_CROWDED_ANSWER_FORMS,
+  "人が多い", "ひとがおおい", "ひとが多い", "人がおおい", "混む", "こむ", "込む",
+  "多いと思います", "多いとおもいます", "おおいと思います", "おおいとおもいます",
+  "人が多そうです", "ひとが多そうです", "人がおおそうです", "ひとがおおそうです",
+  "多そうです", "おおそうです",
+  "混むと思います", "混むとおもいます", "こむと思います", "こむとおもいます",
+  "混みそうです", "こみそうです", "込むと思います", "込むとおもいます", "込みそうです"
 ];
 
 const SPEECH_EQUIVALENT_ALIASES = SPEECH_EQUIVALENT_GROUPS
@@ -4381,9 +4387,16 @@ function normalizeSpeechForComparison(value) {
   return replaceSpeechEquivalentAliases(replaceKnownKanjiWithReadings(value));
 }
 
+function getSpeechAnswerCandidates(answer) {
+  const normalizedAnswer = normalizeSpeechText(answer);
+  const isPeopleCrowdedAnswer = PEOPLE_CROWDED_ANSWER_FORMS
+    .some(form => normalizeSpeechText(form) === normalizedAnswer);
+  return isPeopleCrowdedAnswer ? PEOPLE_CROWDED_ACCEPTED_FORMS : [answer];
+}
+
 function isSpeechAnswerCorrect(transcript, ...answers) {
   const normalizedTranscript = normalizeSpeechForComparison(transcript);
-  return answers.some(answer => {
+  return answers.flatMap(getSpeechAnswerCandidates).some(answer => {
     const normalizedAnswer = normalizeSpeechForComparison(answer);
     if (!normalizedAnswer) return false;
     return normalizedTranscript.includes(normalizedAnswer);
