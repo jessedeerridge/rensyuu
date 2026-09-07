@@ -4300,6 +4300,12 @@ function normalizeSpeechText(value) {
     .replace(/[\s\p{P}\p{S}]/gu, "");
 }
 
+function isSpeechAnswerCorrect(transcript, answer) {
+  const normalizedTranscript = normalizeSpeechText(transcript);
+  const normalizedAnswer = normalizeSpeechText(answer);
+  return normalizedAnswer.length > 0 && normalizedTranscript.includes(normalizedAnswer);
+}
+
 function getCellAnswerText(cell) {
   const copy = cell.cloneNode(true);
   copy.querySelectorAll("rt, .answer-mask-cover, .reason-kara-note").forEach(node => node.remove());
@@ -4369,8 +4375,9 @@ function startSpeechTestSession() {
     const transcript = result[0].transcript;
     target.querySelector(".test-transcript").textContent = transcript;
     if (!result.isFinal) return;
-    const correct = normalizeSpeechText(transcript) === normalizeSpeechText(target.dataset.answer);
+    const correct = isSpeechAnswerCorrect(transcript, target.dataset.answer);
     target.className = `test-answer-button ${correct ? "correct" : "incorrect"}`;
+    if (correct) target.querySelector(".test-transcript").textContent = target.dataset.answer;
     target.querySelector(".test-status").textContent = correct ? "" : "× もう一度";
     activeSpeechButton = null;
   };
