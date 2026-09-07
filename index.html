@@ -4365,7 +4365,7 @@ function startSpeechTestSession() {
     if (!result.isFinal) return;
     const correct = normalizeSpeechText(transcript) === normalizeSpeechText(target.dataset.answer);
     target.className = `test-answer-button ${correct ? "correct" : "incorrect"}`;
-    target.querySelector(".test-status").textContent = correct ? "〇 正解" : "× もう一度";
+    target.querySelector(".test-status").textContent = correct ? "" : "× もう一度";
     activeSpeechButton = null;
   };
   recognition.onerror = event => {
