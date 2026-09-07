@@ -4276,6 +4276,7 @@ let sequentialTableHtml = "";
 let testModeActive = false;
 let speechRecognition = null;
 let microphoneReady = false;
+let localSpeechAvailability;
 
 function normalizeSpeechText(value) {
   return String(value || "")
@@ -4310,7 +4311,35 @@ function stopSpeechRecognition() {
   speechRecognition = null;
 }
 
-function startSpeechTest(button) {
+async function canUseLocalSpeechRecognition(Recognition) {
+  if (localSpeechAvailability !== undefined) return localSpeechAvailability;
+  if (typeof Recognition.available !== "function") {
+    localSpeechAvailability = false;
+    return false;
+  }
+
+  try {
+    const availability = await Recognition.available({
+      langs: ["ja-JP"],
+      processLocally: true
+    });
+    localSpeechAvailability = availability === "available";
+  } catch (error) {
+    localSpeechAvailability = false;
+  }
+  return localSpeechAvailability;
+}
+
+function getSpeechErrorMessage(error) {
+  if (error === "not-allowed" || error === "service-not-allowed") return "マイクを許可してください";
+  if (error === "no-speech") return "声が聞こえませんでした。もう一度タップしてください";
+  if (error === "audio-capture") return "マイクを使用できません";
+  if (error === "network") return "音声認識に接続できません。端末の音声入力を確認してください";
+  if (error === "language-not-supported") return "日本語の音声認識を使用できません";
+  return "聞き取れませんでした。もう一度タップしてください";
+}
+
+async function startSpeechTest(button) {
   const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!Recognition) {
     button.querySelector(".test-transcript").textContent = "このブラウザーは音声認識に対応していません";
@@ -4323,10 +4352,18 @@ function startSpeechTest(button) {
   recognition.lang = "ja-JP";
   recognition.interimResults = true;
   recognition.continuous = false;
-  if ("processLocally" in recognition) recognition.processLocally = true;
   button.className = "test-answer-button listening";
-  button.querySelector(".test-transcript").textContent = "聞いています…";
+  button.querySelector(".test-transcript").textContent = "準備しています…";
   button.querySelector(".test-status").textContent = "";
+
+  // 端末内の日本語認識パックが実際に利用可能な場合だけローカル処理を指定する。
+  // 未導入端末で無条件に指定すると、開始直後に language-not-supported で終了してしまう。
+  if ("processLocally" in recognition && await canUseLocalSpeechRecognition(Recognition)) {
+    recognition.processLocally = true;
+  }
+
+  if (speechRecognition !== recognition) return;
+  button.querySelector(".test-transcript").textContent = "聞いています…";
 
   recognition.onresult = event => {
     const transcript = Array.from(event.results).map(result => result[0].transcript).join("");
@@ -4337,14 +4374,21 @@ function startSpeechTest(button) {
     button.querySelector(".test-status").textContent = correct ? "〇 正解" : "× もう一度";
   };
   recognition.onerror = event => {
-    button.className = "test-answer-button incorrect";
-    button.querySelector(".test-status").textContent = event.error === "not-allowed" ? "マイクを許可してください" : "聞き取れませんでした";
+    button.className = "test-answer-button";
+    button.querySelector(".test-transcript").textContent = getSpeechErrorMessage(event.error);
+    button.querySelector(".test-status").textContent = "";
   };
   recognition.onend = () => {
     if (button.classList.contains("listening")) button.classList.remove("listening");
     if (speechRecognition === recognition) speechRecognition = null;
   };
-  recognition.start();
+  try {
+    recognition.start();
+  } catch (error) {
+    button.className = "test-answer-button";
+    button.querySelector(".test-transcript").textContent = "開始できませんでした。もう一度タップしてください";
+    speechRecognition = null;
+  }
 }
 
 function makeTestTable() {
