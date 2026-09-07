@@ -4301,6 +4301,46 @@ function normalizeSpeechText(value) {
     .replace(/[\s\p{P}\p{S}]/gu, "");
 }
 
+const SPEECH_EQUIVALENT_GROUPS = [
+  ["方", "ほう"],
+  ["くらい", "ぐらい"],
+  ["城", "お城", "しろ", "おしろ"],
+  ["お祭り", "おまつり", "花火", "はなび"],
+  ["テスト", "試験", "考査", "こうさ", "しけん"],
+  ["家", "いえ", "うち"],
+  ["兄", "弟", "あに", "おとうと"],
+  ["姉", "あね", "妹", "いもうと"],
+  ["車", "くるま", "タクシー"],
+  ["かく", "書く", "描く"],
+  ["友だち", "友達", "ともだち"],
+  ["サル", "猿", "さる"],
+  ["子ども", "子供", "こども"],
+  ["お酒", "おさけ", "ビール", "さけ"],
+  ["夜", "よる", "夜は", "よるは", "夜に", "よるに"],
+  ["スマホ", "携帯", "けいたい", "携帯電話", "けいたいでんわ", "電話", "でんわ"],
+  ["人が多い", "ひとがおおい", "ひとが多い", "人がおおい", "混む", "こむ", "込む"],
+  ["ひいた", "引いた", "弾いた"],
+  ["明日は", "あしたは", "明日", "あした"],
+  ["名前を", "名前は"],
+  ["住んで", "すんで", "済んで"],
+  ["新しい服", "あたらしふく", "新しいふく", "あたらしい服", "服", "ふく"],
+  ["へ行", "に行"]
+];
+
+const SPEECH_EQUIVALENT_ALIASES = SPEECH_EQUIVALENT_GROUPS
+  .flatMap((group, groupIndex) => group.map(value => ({
+    alias: normalizeSpeechText(value),
+    canonical: `speechgroup${groupIndex}`
+  })))
+  .sort((a, b) => b.alias.length - a.alias.length);
+
+function replaceSpeechEquivalentAliases(value) {
+  return SPEECH_EQUIVALENT_ALIASES.reduce(
+    (text, { alias, canonical }) => text.replaceAll(alias, canonical),
+    normalizeSpeechText(value)
+  );
+}
+
 function collectSpeechKanjiReadings(root) {
   const readings = new Map();
   root.querySelectorAll("ruby").forEach(ruby => {
@@ -4323,15 +4363,16 @@ function replaceKnownKanjiWithReadings(value) {
   );
 }
 
+function normalizeSpeechForComparison(value) {
+  return replaceSpeechEquivalentAliases(replaceKnownKanjiWithReadings(value));
+}
+
 function isSpeechAnswerCorrect(transcript, ...answers) {
-  const normalizedTranscript = normalizeSpeechText(transcript);
-  const transcriptReading = replaceKnownKanjiWithReadings(transcript);
+  const normalizedTranscript = normalizeSpeechForComparison(transcript);
   return answers.some(answer => {
-    const normalizedAnswer = normalizeSpeechText(answer);
+    const normalizedAnswer = normalizeSpeechForComparison(answer);
     if (!normalizedAnswer) return false;
-    const answerReading = replaceKnownKanjiWithReadings(answer);
-    return normalizedTranscript.includes(normalizedAnswer)
-      || transcriptReading.includes(answerReading);
+    return normalizedTranscript.includes(normalizedAnswer);
   });
 }
 
