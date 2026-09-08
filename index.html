@@ -4279,10 +4279,17 @@ let activeSpeechButton = null;
 let speechSessionError = "";
 let speechRestartTimer = null;
 let speechGradeTimer = null;
+let speechAnswerTimeoutTimer = null;
 let activeSpeechSegments = new Map();
 let speechResultCount = 0;
 let activeSpeechStartIndex = 0;
 let localSpeechAvailable = false;
+
+function clearSpeechAnswerTimeout() {
+  if (speechAnswerTimeoutTimer === null) return;
+  clearTimeout(speechAnswerTimeoutTimer);
+  speechAnswerTimeoutTimer = null;
+}
 
 function checkLocalSpeechAvailability() {
   const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -4537,6 +4544,7 @@ function stopSpeechRecognition() {
   speechResultCount = 0;
   activeSpeechStartIndex = 0;
   speechSessionError = "";
+  clearSpeechAnswerTimeout();
   if (speechGradeTimer !== null) {
     clearTimeout(speechGradeTimer);
     speechGradeTimer = null;
@@ -4571,6 +4579,7 @@ function startSpeechTest(button) {
     clearTimeout(speechGradeTimer);
     speechGradeTimer = null;
   }
+  clearSpeechAnswerTimeout();
   activeSpeechSegments.clear();
   // これまでの結果番号を境界にし、前の問題の遅れて届いた更新を次へ引き継がない。
   activeSpeechStartIndex = speechResultCount;
@@ -4581,6 +4590,16 @@ function startSpeechTest(button) {
   button.className = "test-answer-button listening";
   button.querySelector(".test-transcript").textContent = "聞いています…";
   button.querySelector(".test-status").textContent = "";
+  // 認識イベントが届かない場合も「聞いています…」のまま残さず、再回答できる状態へ戻す。
+  speechAnswerTimeoutTimer = setTimeout(() => {
+    speechAnswerTimeoutTimer = null;
+    if (activeSpeechButton !== button) return;
+    button.className = "test-answer-button";
+    button.querySelector(".test-transcript").textContent = "もう一度タップして話してください";
+    button.querySelector(".test-status").textContent = "";
+    activeSpeechButton = null;
+    activeSpeechSegments.clear();
+  }, 7000);
 }
 
 function gradeSpeechAnswer(target, onlyIfCorrect = false) {
@@ -4599,6 +4618,7 @@ function gradeSpeechAnswer(target, onlyIfCorrect = false) {
   );
   // 途中結果でも正解を含んだ時点で確定し、待機中のパルス表示をすぐ終了する。
   if (onlyIfCorrect && !correct) return false;
+  clearSpeechAnswerTimeout();
   target.className = `test-answer-button ${correct ? "correct" : "incorrect"}`;
   if (correct) target.querySelector(".test-transcript").textContent = target.dataset.answer;
   target.querySelector(".test-status").textContent = correct ? "" : "× もう一度";
@@ -4651,6 +4671,7 @@ function startSpeechTestSession() {
   };
   recognition.onerror = event => {
     const target = activeSpeechButton;
+    clearSpeechAnswerTimeout();
     if (speechGradeTimer !== null) {
       clearTimeout(speechGradeTimer);
       speechGradeTimer = null;
