@@ -4294,12 +4294,55 @@ function checkLocalSpeechAvailability() {
     });
 }
 
+function japaneseNumeralToArabic(token) {
+  if (/^\d+$/.test(token)) return token;
+  const digits = { "〇": 0, "零": 0, "一": 1, "二": 2, "三": 3, "四": 4, "五": 5, "六": 6, "七": 7, "八": 8, "九": 9 };
+  if (!/[十百千万]/.test(token)) return Array.from(token, character => digits[character]).join("");
+
+  let total = 0;
+  let section = 0;
+  let number = 0;
+  for (const character of token) {
+    if (character in digits) {
+      number = digits[character];
+    } else if (character === "万") {
+      section += number;
+      total += (section || 1) * 10000;
+      section = 0;
+      number = 0;
+    } else {
+      const unit = { "十": 10, "百": 100, "千": 1000 }[character];
+      section += (number || 1) * unit;
+      number = 0;
+    }
+  }
+  return String(total + section + number);
+}
+
 function normalizeSpeechText(value) {
   return String(value || "")
     .normalize("NFKC")
     .toLocaleLowerCase("ja-JP")
+    // 漢数字・全角数字・半角数字を同じ半角数字へ統一する。
+    .replace(/[〇零一二三四五六七八九十百千万]+|\d+/g, japaneseNumeralToArabic)
     // 音声認識が補う句読点・疑問符などは、位置や全角・半角を問わず採点対象外。
     .replace(/[\s\p{P}\p{S}]/gu, "");
+}
+
+function makeFriendTransferSpeechVariants(items) {
+  const friends = ["友だち", "友達", "ともだち"];
+  const variants = [];
+  for (const friend of friends) {
+    for (const item of items) variants.push(`${friend}が${item}をくれました`);
+    for (const particle of ["に", "から"]) {
+      for (const item of items) {
+        for (const verb of ["もらいました", "貰いました"]) {
+          variants.push(`${friend}${particle}${item}を${verb}`);
+        }
+      }
+    }
+  }
+  return variants;
 }
 
 const SPEECH_EQUIVALENT_GROUPS = [
@@ -4350,14 +4393,8 @@ const SPEECH_EQUIVALENT_GROUPS = [
     "有名だそうです", "ゆうめいだそうです", "有名なようです", "ゆうめいなようです",
     "有名みたいです", "ゆうめいみたいです", "有名らしいです", "ゆうめいらしいです"
   ],
-  [
-    "友だちが靴をくれました", "友達が靴をくれました", "ともだちがくつをくれました",
-    "友だちに靴をもらいました", "友達に靴をもらいました", "ともだちにくつをもらいました"
-  ],
-  [
-    "友だちがパソコンをくれました", "友達がパソコンをくれました", "ともだちがパソコンをくれました", "ともだちがぱそこんをくれました",
-    "友だちにパソコンをもらいました", "友達にパソコンをもらいました", "ともだちにパソコンをもらいました", "ともだちにぱそこんをもらいました"
-  ],
+  makeFriendTransferSpeechVariants(["靴", "くつ"]),
+  makeFriendTransferSpeechVariants(["パソコン", "ぱそこん"]),
   ["新しい服", "あたらしいふく", "新しいふく", "あたらしい服", "服", "ふく"],
   ["へ", "に"],
   ["ほしい", "欲しい"],
