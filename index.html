@@ -4427,8 +4427,11 @@ function replaceKnownKanjiWithReadings(value, kanjiReadingMap = []) {
 }
 
 function normalizeSpeechForComparison(value, kanjiReadingMap = []) {
-  // 他の問題のルビを混ぜず、この問題の正解欄にあるルビだけを最初に適用する。
-  return replaceSpeechEquivalentAliases(replaceKnownKanjiWithReadings(value, kanjiReadingMap));
+  // 完全な言い換え候補を先に保護してから、この問題固有のルビを適用する。
+  // 例：「友達」の「友」だけが先に「とも」になると「とも達」になり、候補と一致しなくなる。
+  const protectedAliases = replaceSpeechEquivalentAliases(value);
+  const withReadings = replaceKnownKanjiWithReadings(protectedAliases, kanjiReadingMap);
+  return replaceSpeechEquivalentAliases(withReadings);
 }
 
 function isOrderedSpeechMatch(transcript, answer) {
