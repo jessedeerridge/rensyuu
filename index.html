@@ -4280,7 +4280,8 @@ let speechSessionError = "";
 let speechRestartTimer = null;
 let speechGradeTimer = null;
 let activeSpeechSegments = new Map();
-let activeSpeechReady = false;
+let speechResultCount = 0;
+let activeSpeechStartIndex = 0;
 let localSpeechAvailable = false;
 
 function checkLocalSpeechAvailability() {
@@ -4532,8 +4533,9 @@ function getCellAnswerReading(cell) {
 
 function stopSpeechRecognition() {
   activeSpeechButton = null;
-  activeSpeechReady = false;
   activeSpeechSegments.clear();
+  speechResultCount = 0;
+  activeSpeechStartIndex = 0;
   speechSessionError = "";
   if (speechGradeTimer !== null) {
     clearTimeout(speechGradeTimer);
@@ -4570,8 +4572,8 @@ function startSpeechTest(button) {
     speechGradeTimer = null;
   }
   activeSpeechSegments.clear();
-  // タップ前の発話の末尾を拾わないよう、次の speechstart までは結果を受け付けない。
-  activeSpeechReady = false;
+  // これまでの結果番号を境界にし、前の問題の遅れて届いた更新を次へ引き継がない。
+  activeSpeechStartIndex = speechResultCount;
   if (activeSpeechButton && activeSpeechButton !== button) {
     activeSpeechButton.classList.remove("listening");
   }
@@ -4601,7 +4603,6 @@ function gradeSpeechAnswer(target, onlyIfCorrect = false) {
   if (correct) target.querySelector(".test-transcript").textContent = target.dataset.answer;
   target.querySelector(".test-status").textContent = correct ? "" : "× もう一度";
   activeSpeechButton = null;
-  activeSpeechReady = false;
   activeSpeechSegments.clear();
   return correct;
 }
@@ -4621,19 +4622,15 @@ function startSpeechTestSession() {
   if (localSpeechAvailable && "processLocally" in recognition) recognition.processLocally = true;
   let recognitionCanRestart = true;
 
-  recognition.onspeechstart = () => {
-    if (!activeSpeechButton) return;
-    // この問題をタップした後に始まった発話だけを、新しい回答として採用する。
-    activeSpeechSegments.clear();
-    activeSpeechReady = true;
-  };
-
   recognition.onresult = event => {
+    speechResultCount = Math.max(speechResultCount, event.results.length);
     const target = activeSpeechButton;
-    if (!target || !activeSpeechReady) return;
-    for (let index = event.resultIndex; index < event.results.length; index += 1) {
+    if (!target) return;
+    const firstNewResult = Math.max(event.resultIndex, activeSpeechStartIndex);
+    for (let index = firstNewResult; index < event.results.length; index += 1) {
       activeSpeechSegments.set(index, event.results[index][0].transcript);
     }
+    if (!activeSpeechSegments.size) return;
     const transcript = Array.from(activeSpeechSegments.values()).join("");
     target.querySelector(".test-transcript").textContent = transcript;
     if (speechGradeTimer !== null) {
@@ -4658,7 +4655,6 @@ function startSpeechTestSession() {
       clearTimeout(speechGradeTimer);
       speechGradeTimer = null;
     }
-    activeSpeechReady = false;
     activeSpeechSegments.clear();
     const isSilence = event.error === "no-speech";
     if (!isSilence) {
@@ -4682,6 +4678,9 @@ function startSpeechTestSession() {
         speechRestartTimer = null;
         if (!testModeActive || speechRecognition !== recognition) return;
         try {
+          activeSpeechSegments.clear();
+          speechResultCount = 0;
+          activeSpeechStartIndex = 0;
           recognition.start();
           if (activeSpeechButton) {
             activeSpeechButton.classList.add("listening");
