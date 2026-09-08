@@ -4533,8 +4533,8 @@ function startSpeechTest(button) {
   button.querySelector(".test-status").textContent = "";
 }
 
-function gradeSpeechAnswer(target) {
-  if (activeSpeechButton !== target) return;
+function gradeSpeechAnswer(target, onlyIfCorrect = false) {
+  if (activeSpeechButton !== target) return false;
   const transcript = Array.from(activeSpeechSegments.values()).join("");
   let kanjiReadingMap = [];
   try {
@@ -4547,11 +4547,14 @@ function gradeSpeechAnswer(target) {
     [target.dataset.answer, target.dataset.answerReading],
     kanjiReadingMap
   );
+  // 途中結果でも正解を含んだ時点で確定し、待機中のパルス表示をすぐ終了する。
+  if (onlyIfCorrect && !correct) return false;
   target.className = `test-answer-button ${correct ? "correct" : "incorrect"}`;
   if (correct) target.querySelector(".test-transcript").textContent = target.dataset.answer;
   target.querySelector(".test-status").textContent = correct ? "" : "× もう一度";
   activeSpeechButton = null;
   activeSpeechSegments.clear();
+  return correct;
 }
 
 function startSpeechTestSession() {
@@ -4577,7 +4580,13 @@ function startSpeechTestSession() {
     }
     const transcript = Array.from(activeSpeechSegments.values()).join("");
     target.querySelector(".test-transcript").textContent = transcript;
-    if (speechGradeTimer !== null) clearTimeout(speechGradeTimer);
+    if (speechGradeTimer !== null) {
+      clearTimeout(speechGradeTimer);
+      speechGradeTimer = null;
+    }
+    if (gradeSpeechAnswer(target, true)) {
+      return;
+    }
     const latestResult = event.results[event.results.length - 1];
     if (!latestResult.isFinal) return;
     // continuous モードは一文を複数の final result に分割することがある。
