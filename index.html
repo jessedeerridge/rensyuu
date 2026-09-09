@@ -4366,6 +4366,7 @@ const SPEECH_EQUIVALENT_GROUPS = [
   ["陳", "珍"],
   ["日本", "旅行"],
   ["このケーキ屋", "ケーキ屋", "このけーきや", "けーきや"],
+  ["とき", "時"],
   ["方", "ほう", "法"],
   [
     "くらいです", "ぐらいです", "です",
@@ -4747,7 +4748,17 @@ function gradeSpeechAnswer(target, onlyIfCorrect = false) {
   activeSpeechButton = null;
   activeSpeechSegments.clear();
   abortCurrentSpeechRecognition();
-  if (staysCorrect) startNextSpeechQuestion(target);
+  if (staysCorrect) {
+    startNextSpeechQuestion(target);
+  } else {
+    // 誤答表示で一度閉じた後、次のイベントループですぐ同じ問題を再開する。
+    speechRetryCount = 0;
+    activeSpeechButton = target;
+    speechGradeTimer = setTimeout(() => {
+      speechGradeTimer = null;
+      retrySpeechQuestion(target);
+    }, 0);
+  }
   return correct;
 }
 
