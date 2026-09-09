@@ -4485,11 +4485,48 @@ const SPEECH_EQUIVALENT_ALIASES = SPEECH_EQUIVALENT_GROUPS
   })))
   .sort((a, b) => b.alias.length - a.alias.length);
 
+const CONJUGATION_READING_GROUPS = [
+  ["買", "勝", "か"],
+  ["書", "描", "掻", "か"],
+  ["合", "会", "あ"],
+  ["立", "建", "た"],
+  ["読", "呼", "よ"],
+  ["聞", "効", "聴", "き"],
+  ["貸", "課", "か"],
+  ["着", "来", "き"],
+  ["帰", "変", "かえ"],
+  ["乗", "載", "の"],
+  ["暑", "熱", "厚", "あつ"],
+  ["早", "速", "はや"],
+  ["自己", "事故", "じこ"],
+  ["優し", "やさし"],
+  ["良", "よ"],
+  ["綺麗", "きれい"],
+  ["賑やか", "にぎやか"],
+  ["嫌い", "きらい"]
+];
+
+const CONJUGATION_READING_ALIASES = CONJUGATION_READING_GROUPS
+  .flatMap(group => group.slice(0, -1).map(value => ({
+    alias: normalizeSpeechText(value),
+    reading: normalizeSpeechText(group[group.length - 1])
+  })))
+  .sort((a, b) => b.alias.length - a.alias.length);
+
 function replaceSpeechEquivalentAliases(value) {
   return SPEECH_EQUIVALENT_ALIASES.reduce(
     (text, { alias, canonical }) => text.replaceAll(alias, canonical),
     normalizeSpeechText(value)
   );
+}
+
+function replaceConjugationVariants(value) {
+  return CONJUGATION_READING_ALIASES.reduce(
+    (text, { alias, reading }) => text.replaceAll(alias, reading),
+    normalizeSpeechText(value)
+  )
+    .replace(/よい/g, "いい")
+    .replace(/られ/g, "れ");
 }
 
 function getCellKanjiReadingMap(cell) {
@@ -4513,12 +4550,14 @@ function replaceKnownKanjiWithReadings(value, kanjiReadingMap = []) {
   );
 }
 
-function normalizeSpeechForComparison(value, kanjiReadingMap = []) {
+function normalizeSpeechForComparison(value, kanjiReadingMap = [], isConjugation = false) {
   // 完全な言い換え候補を先に保護してから、この問題固有のルビを適用する。
   // 例：「友達」の「友」だけが先に「とも」になると「とも達」になり、候補と一致しなくなる。
-  const protectedAliases = replaceSpeechEquivalentAliases(value);
+  const modeNormalized = isConjugation ? replaceConjugationVariants(value) : value;
+  const protectedAliases = replaceSpeechEquivalentAliases(modeNormalized);
   const withReadings = replaceKnownKanjiWithReadings(protectedAliases, kanjiReadingMap);
-  return replaceSpeechEquivalentAliases(withReadings);
+  const normalized = replaceSpeechEquivalentAliases(withReadings);
+  return isConjugation ? replaceConjugationVariants(normalized) : normalized;
 }
 
 function isOrderedSpeechMatch(transcript, answer) {
@@ -4535,15 +4574,17 @@ function isOrderedSpeechMatch(transcript, answer) {
   return false;
 }
 
-function isSpeechAnswerCorrect(transcript, answers, kanjiReadingMap = []) {
-  const normalizedTranscript = normalizeSpeechForComparison(transcript, kanjiReadingMap);
+function isSpeechAnswerCorrect(transcript, answers, kanjiReadingMap = [], isConjugation = false) {
+  const normalizedTranscript = normalizeSpeechForComparison(transcript, kanjiReadingMap, isConjugation);
   return answers.some(answer => {
     // 問題文の注意喚起として付けた冒頭の「あ！」は、発話しなくても採点に影響させない。
     const answerVariants = [answer, String(answer || "").replace(/^\s*あ[!！]\s*/, "")];
     return answerVariants.some(answerVariant => {
-      const normalizedAnswer = normalizeSpeechForComparison(answerVariant, kanjiReadingMap);
+      const normalizedAnswer = normalizeSpeechForComparison(answerVariant, kanjiReadingMap, isConjugation);
       if (!normalizedAnswer) return false;
-      return isOrderedSpeechMatch(normalizedTranscript, normalizedAnswer);
+      return isConjugation
+        ? normalizedTranscript.includes(normalizedAnswer)
+        : isOrderedSpeechMatch(normalizedTranscript, normalizedAnswer);
     });
   });
 }
@@ -4669,7 +4710,8 @@ function gradeSpeechAnswer(target, onlyIfCorrect = false) {
   const correct = isSpeechAnswerCorrect(
     transcript,
     [target.dataset.answer, target.dataset.answerReading],
-    kanjiReadingMap
+    kanjiReadingMap,
+    target.dataset.conjugation === "true"
   );
   if (onlyIfCorrect && !correct) return false;
 
@@ -4785,6 +4827,7 @@ function makeTestTable() {
     .filter(row => !row.querySelector("th") && !row.classList.contains("group-row"))
     .filter(row => row.cells.length >= 2);
   if (!rows.length) return false;
+  const isConjugation = currentSection === "conjugation";
 
   const selected = shuffleArray(rows).slice(0, Math.min(15, rows.length));
   const body = selected.map((row, index) => {
@@ -4793,7 +4836,7 @@ function makeTestTable() {
     const answer = getCellAnswerText(row.cells[row.cells.length - 1]);
     const answerReading = getCellAnswerReading(row.cells[row.cells.length - 1]);
     const kanjiReadingMap = getCellKanjiReadingMap(row.cells[row.cells.length - 1]);
-    return `<tr><td>${prompt.innerHTML}</td><td class="test-answer-cell"><button class="test-answer-button" type="button" data-answer="${escapeHtml(answer)}" data-answer-reading="${escapeHtml(answerReading)}" data-kanji-reading-map="${escapeHtml(JSON.stringify(kanjiReadingMap))}" onclick="startSpeechTest(this)" aria-label="${index + 1}問目を音声で答える"><span class="test-transcript">タップして話す 🎤</span><span class="test-status"></span></button></td></tr>`;
+    return `<tr><td>${prompt.innerHTML}</td><td class="test-answer-cell"><button class="test-answer-button" type="button" data-answer="${escapeHtml(answer)}" data-answer-reading="${escapeHtml(answerReading)}" data-kanji-reading-map="${escapeHtml(JSON.stringify(kanjiReadingMap))}" data-conjugation="${isConjugation}" onclick="startSpeechTest(this)" aria-label="${index + 1}問目を音声で答える"><span class="test-transcript">タップして話す 🎤</span><span class="test-status"></span></button></td></tr>`;
   }).join("");
   document.getElementById("tableArea").innerHTML = `<table class="test-table"><tr><th>問題</th><th>あなたの答え</th></tr>${body}</table><div class="scroll-extra-y"></div>`;
   return true;
