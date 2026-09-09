@@ -678,6 +678,15 @@
     z-index: 1;
   }
 
+  .test-congratulations-note {
+    display: block;
+    margin-top: 8px;
+    color: #777;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.4;
+  }
+
   .test-congratulations-sakura {
     position: absolute;
     z-index: 0;
@@ -4816,6 +4825,8 @@ const SPEECH_EQUIVALENT_GROUPS = [
   ["新しい服", "あたらしいふく", "新しいふく", "あたらしい服", "服", "ふく"],
   ["へ", "に"],
   ["ほしい", "欲しい"],
+  ["新しい服がほしいです", "服が欲しいです", "服を買いたいです"],
+  ["おみやげ", "お土産"],
   [
     "風邪を引いたそうです", "かぜをひいたそうです", "風邪を引いたようです", "かぜをひいたようです",
     "風邪を引いたみたいです", "かぜをひいたみたいです", "風邪を引いたらしいです", "かぜをひいたらしいです",
@@ -5190,6 +5201,10 @@ function finishTestSuccessfullyIfComplete() {
   const buttons = Array.from(document.querySelectorAll("#tableArea .test-answer-button"));
   if (!buttons.length || buttons.some(button => button.dataset.correct !== "true")) return false;
 
+  const isTimedSpeechMode = ["聞く", "話す", "つなぐ"].includes(currentTableType);
+  const completedWithinTwoMinutesTenSeconds = isTimedSpeechMode
+    && testCountdownDeadline > 0
+    && Date.now() <= testCountdownDeadline - 50 * 1000;
   testSessionEnded = true;
   stopSpeechRecognition();
   clearTestCountdown();
@@ -5202,9 +5217,12 @@ function finishTestSuccessfullyIfComplete() {
     const scale = (0.75 + Math.random() * 0.65).toFixed(2);
     return `<span class="test-congratulations-sakura" aria-hidden="true" style="left:${left}%;top:${top}%;transform:translate(-50%,-50%) rotate(${rotation}deg) scale(${scale})">🌸</span>`;
   }).join("");
+  const praise = completedWithinTwoMinutesTenSeconds
+    ? `本当にすごいですね！<small class="test-congratulations-note" lang="zh">※请把这个截图发给老师！</small>`
+    : "すごいですね！";
   document.body.insertAdjacentHTML("beforeend", `
     <div class="test-start-overlay test-congratulations-overlay" id="testCongratulations" role="status">
-      <div class="test-start-panel test-congratulations">${sakura}<div class="test-congratulations-content">${escapeHtml(name)}さん、<br>すごいですね！</div></div>
+      <div class="test-start-panel test-congratulations">${sakura}<div class="test-congratulations-content">${escapeHtml(name)}さん、<br>${praise}</div></div>
     </div>
   `);
   return true;
