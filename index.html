@@ -595,6 +595,73 @@
     color: #c62828;
   }
 
+  .test-answer-button.revealed {
+    border-style: solid;
+    border-color: #c8c8c8;
+    background: #f1f1f1;
+    color: #666;
+    animation: none;
+  }
+
+  .test-reveal-btn {
+    position: fixed;
+    left: 14px;
+    bottom: max(14px, env(safe-area-inset-bottom));
+    z-index: 80;
+    border: 0;
+    border-radius: 999px;
+    padding: 11px 18px;
+    background: #777;
+    color: #fff;
+    font: inherit;
+    font-weight: 800;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+  }
+
+  .test-start-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 120;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    background: rgba(255,255,255,0.9);
+  }
+
+  .test-start-panel {
+    width: min(340px, 100%);
+    padding: 24px;
+    border: 2px solid #ffd1e6;
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.16);
+  }
+
+  .test-start-panel label,
+  .test-start-panel input,
+  .test-start-panel button {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    font: inherit;
+  }
+
+  .test-start-panel input {
+    margin: 10px 0 16px;
+    padding: 11px 12px;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+  }
+
+  .test-start-panel button {
+    border: 0;
+    border-radius: 999px;
+    padding: 11px;
+    background: #ff6fae;
+    color: #fff;
+    font-weight: 800;
+  }
+
   .test-transcript {
     display: block;
     overflow-wrap: anywhere;
@@ -4274,6 +4341,8 @@ let masuSwapped = false;
 let tableRandomized = false;
 let sequentialTableHtml = "";
 let testModeActive = false;
+const TEST_PARTICIPANT_NAME_KEY = "rensyuuTestParticipantName_v1";
+let testParticipantConfirmed = false;
 let speechRecognition = null;
 let activeSpeechButton = null;
 let speechSessionError = "";
@@ -4286,12 +4355,13 @@ let localSpeechAvailable = false;
 function setSpeechButtonClass(button, state = "") {
   const classes = ["test-answer-button"];
   if (button.dataset.correct === "true") classes.push("correct");
+  else if (button.dataset.revealed === "true") classes.push("revealed");
   if (state) classes.push(state);
   button.className = classes.join(" ");
 }
 
 function setSpeechButtonMessage(button, message) {
-  button.querySelector(".test-transcript").textContent = button.dataset.correct === "true"
+  button.querySelector(".test-transcript").textContent = button.dataset.correct === "true" || button.dataset.revealed === "true"
     ? button.dataset.answer
     : message;
 }
@@ -4854,6 +4924,67 @@ function startSpeechTestSession() {
   speechSessionError = Recognition ? "" : "このブラウザーは音声認識に対応していません";
 }
 
+function getSavedTestParticipantName() {
+  try {
+    return localStorage.getItem(TEST_PARTICIPANT_NAME_KEY) || "";
+  } catch (error) {
+    return "";
+  }
+}
+
+function beginTestQuestions() {
+  startSpeechTestSession();
+  const firstQuestion = document.querySelector("#tableArea .test-answer-button");
+  if (firstQuestion) startSpeechTest(firstQuestion);
+}
+
+function confirmTestParticipant(event) {
+  event.preventDefault();
+  const input = document.getElementById("testParticipantName");
+  const name = input ? input.value.trim() : "";
+  if (!name) {
+    if (input) {
+      input.setCustomValidity("名前を入力してください");
+      input.reportValidity();
+    }
+    return;
+  }
+  input.setCustomValidity("");
+  try {
+    localStorage.setItem(TEST_PARTICIPANT_NAME_KEY, name);
+  } catch (error) {
+    // 保存できない環境でも、現在のページ内ではテストを開始できる。
+  }
+  testParticipantConfirmed = true;
+  document.getElementById("testStartOverlay")?.remove();
+  beginTestQuestions();
+}
+
+function showTestStartPanel() {
+  const savedName = getSavedTestParticipantName();
+  document.body.insertAdjacentHTML("beforeend", `
+    <div class="test-start-overlay" id="testStartOverlay">
+      <form class="test-start-panel" onsubmit="confirmTestParticipant(event)">
+        <label for="testParticipantName">名前</label>
+        <input id="testParticipantName" name="participantName" value="${escapeHtml(savedName)}" autocomplete="name" required>
+        <button type="submit">はじめる</button>
+      </form>
+    </div>
+  `);
+  document.getElementById("testParticipantName")?.focus();
+}
+
+function revealTestAnswers() {
+  stopSpeechRecognition();
+  document.querySelectorAll("#tableArea .test-answer-button").forEach(button => {
+    if (button.dataset.correct === "true") return;
+    button.dataset.revealed = "true";
+    button.className = "test-answer-button revealed";
+    button.querySelector(".test-transcript").textContent = button.dataset.answer;
+    button.querySelector(".test-status").textContent = "";
+  });
+}
+
 function makeTestTable() {
   const sourceTable = document.querySelector("#tableArea table");
   if (!sourceTable) return false;
@@ -4872,13 +5003,14 @@ function makeTestTable() {
     const kanjiReadingMap = getCellKanjiReadingMap(row.cells[row.cells.length - 1]);
     return `<tr><td>${prompt.innerHTML}</td><td class="test-answer-cell"><button class="test-answer-button" type="button" data-answer="${escapeHtml(answer)}" data-answer-reading="${escapeHtml(answerReading)}" data-kanji-reading-map="${escapeHtml(JSON.stringify(kanjiReadingMap))}" data-conjugation="${isConjugation}" onclick="startSpeechTest(this)" aria-label="${index + 1}問目を音声で答える"><span class="test-transcript">タップして話す 🎤</span><span class="test-status"></span></button></td></tr>`;
   }).join("");
-  document.getElementById("tableArea").innerHTML = `<table class="test-table"><tr><th>問題</th><th>あなたの答え</th></tr>${body}</table><div class="scroll-extra-y"></div>`;
+  document.getElementById("tableArea").innerHTML = `<table class="test-table"><tr><th>問題</th><th>あなたの答え</th></tr>${body}</table><button class="test-reveal-btn" type="button" onclick="revealTestAnswers()">答え</button><div class="scroll-extra-y"></div>`;
   return true;
 }
 
 function toggleTestMode() {
   if (testModeActive) {
     stopSpeechRecognition();
+    document.getElementById("testStartOverlay")?.remove();
     document.getElementById("tableArea").innerHTML = sequentialTableHtml;
     testModeActive = false;
     document.body.classList.remove("test-mode");
@@ -4894,9 +5026,8 @@ function toggleTestMode() {
   document.getElementById("testModeBtn").classList.add("is-active");
   updateRandomOrderButton();
   afterTableOrderChanged();
-  startSpeechTestSession();
-  const firstQuestion = document.querySelector("#tableArea .test-answer-button");
-  if (firstQuestion) startSpeechTest(firstQuestion);
+  if (testParticipantConfirmed) beginTestQuestions();
+  else showTestStartPanel();
 }
 
 function updateRandomOrderButton() {
