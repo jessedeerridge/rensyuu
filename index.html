@@ -4283,12 +4283,34 @@ let speechAnswerTimeoutTimer = null;
 let activeSpeechSegments = new Map();
 let speechResultCount = 0;
 let activeSpeechStartIndex = 0;
+let speechRecognitionReady = false;
 let localSpeechAvailable = false;
 
 function clearSpeechAnswerTimeout() {
   if (speechAnswerTimeoutTimer === null) return;
   clearTimeout(speechAnswerTimeoutTimer);
   speechAnswerTimeoutTimer = null;
+}
+
+function armSpeechAnswerTimeout(button) {
+  clearSpeechAnswerTimeout();
+  speechAnswerTimeoutTimer = setTimeout(() => {
+    speechAnswerTimeoutTimer = null;
+    if (activeSpeechButton !== button) return;
+    button.className = "test-answer-button";
+    button.querySelector(".test-transcript").textContent = "もう一度タップして話してください";
+    button.querySelector(".test-status").textContent = "";
+    activeSpeechButton = null;
+    activeSpeechSegments.clear();
+  }, 7000);
+}
+
+function beginSpeechListening(button) {
+  if (activeSpeechButton !== button) return;
+  button.className = "test-answer-button listening";
+  button.querySelector(".test-transcript").textContent = "聞いています…";
+  button.querySelector(".test-status").textContent = "";
+  armSpeechAnswerTimeout(button);
 }
 
 function checkLocalSpeechAvailability() {
@@ -4543,6 +4565,7 @@ function stopSpeechRecognition() {
   activeSpeechSegments.clear();
   speechResultCount = 0;
   activeSpeechStartIndex = 0;
+  speechRecognitionReady = false;
   speechSessionError = "";
   clearSpeechAnswerTimeout();
   if (speechGradeTimer !== null) {
@@ -4587,19 +4610,13 @@ function startSpeechTest(button) {
     activeSpeechButton.classList.remove("listening");
   }
   activeSpeechButton = button;
-  button.className = "test-answer-button listening";
-  button.querySelector(".test-transcript").textContent = "聞いています…";
+  button.className = "test-answer-button";
+  button.querySelector(".test-transcript").textContent = speechRecognitionReady
+    ? "聞いています…"
+    : "マイクを準備しています…";
   button.querySelector(".test-status").textContent = "";
-  // 認識イベントが届かない場合も「聞いています…」のまま残さず、再回答できる状態へ戻す。
-  speechAnswerTimeoutTimer = setTimeout(() => {
-    speechAnswerTimeoutTimer = null;
-    if (activeSpeechButton !== button) return;
-    button.className = "test-answer-button";
-    button.querySelector(".test-transcript").textContent = "もう一度タップして話してください";
-    button.querySelector(".test-status").textContent = "";
-    activeSpeechButton = null;
-    activeSpeechSegments.clear();
-  }, 7000);
+  if (speechRecognitionReady) beginSpeechListening(button);
+  else armSpeechAnswerTimeout(button);
 }
 
 function gradeSpeechAnswer(target, onlyIfCorrect = false) {
@@ -4642,6 +4659,12 @@ function startSpeechTestSession() {
   if (localSpeechAvailable && "processLocally" in recognition) recognition.processLocally = true;
   let recognitionCanRestart = true;
 
+  recognition.onstart = () => {
+    if (speechRecognition !== recognition) return;
+    speechRecognitionReady = true;
+    if (activeSpeechButton) beginSpeechListening(activeSpeechButton);
+  };
+
   recognition.onresult = event => {
     speechResultCount = Math.max(speechResultCount, event.results.length);
     const target = activeSpeechButton;
@@ -4671,6 +4694,7 @@ function startSpeechTestSession() {
   };
   recognition.onerror = event => {
     const target = activeSpeechButton;
+    speechRecognitionReady = false;
     clearSpeechAnswerTimeout();
     if (speechGradeTimer !== null) {
       clearTimeout(speechGradeTimer);
@@ -4693,7 +4717,13 @@ function startSpeechTestSession() {
   };
   recognition.onend = () => {
     if (speechRecognition !== recognition) return;
+    speechRecognitionReady = false;
     if (testModeActive && recognitionCanRestart) {
+      if (activeSpeechButton) {
+        activeSpeechButton.className = "test-answer-button";
+        activeSpeechButton.querySelector(".test-transcript").textContent = "マイクを再準備しています…";
+        armSpeechAnswerTimeout(activeSpeechButton);
+      }
       // WebKit系は無音で連続認識を終了するため、許可済みの同じ認識器を待機状態へ戻す。
       speechRestartTimer = setTimeout(() => {
         speechRestartTimer = null;
@@ -4703,12 +4733,14 @@ function startSpeechTestSession() {
           speechResultCount = 0;
           activeSpeechStartIndex = 0;
           recognition.start();
-          if (activeSpeechButton) {
-            activeSpeechButton.classList.add("listening");
-            activeSpeechButton.querySelector(".test-transcript").textContent = "聞いています…";
-          }
         } catch (error) {
           speechSessionError = "音声認識を再開できませんでした。テストを押し直してください";
+          clearSpeechAnswerTimeout();
+          if (activeSpeechButton) {
+            activeSpeechButton.className = "test-answer-button";
+            activeSpeechButton.querySelector(".test-transcript").textContent = speechSessionError;
+            activeSpeechButton = null;
+          }
           speechRecognition = null;
         }
       }, 250);
