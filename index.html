@@ -4632,6 +4632,30 @@ function startSpeechTest(button) {
   else armSpeechAnswerTimeout(button);
 }
 
+function startNextSpeechQuestion(currentButton) {
+  const buttons = Array.from(document.querySelectorAll("#tableArea .test-answer-button"));
+  const nextButton = buttons[buttons.indexOf(currentButton) + 1];
+  if (nextButton) startSpeechTest(nextButton);
+}
+
+function isSpeechSkipRequest(transcript) {
+  const normalized = normalizeSpeechText(transcript);
+  return ["わかりません", "分かりません", "判りません"].some(request =>
+    normalized.includes(normalizeSpeechText(request))
+  );
+}
+
+function skipSpeechQuestion(target, transcript) {
+  if (activeSpeechButton !== target) return;
+  clearSpeechAnswerTimeout();
+  target.className = "test-answer-button";
+  target.querySelector(".test-transcript").textContent = transcript;
+  target.querySelector(".test-status").textContent = "";
+  activeSpeechButton = null;
+  activeSpeechSegments.clear();
+  startNextSpeechQuestion(target);
+}
+
 function gradeSpeechAnswer(target, onlyIfCorrect = false) {
   if (activeSpeechButton !== target) return false;
   const transcript = Array.from(activeSpeechSegments.values()).join("");
@@ -4654,6 +4678,7 @@ function gradeSpeechAnswer(target, onlyIfCorrect = false) {
   target.querySelector(".test-status").textContent = correct ? "" : "× もう一度";
   activeSpeechButton = null;
   activeSpeechSegments.clear();
+  if (correct) startNextSpeechQuestion(target);
   return correct;
 }
 
@@ -4691,6 +4716,10 @@ function startSpeechTestSession() {
     target.querySelector(".test-transcript").textContent = transcript;
     // 認識結果が届いている間は故障ではないため、無応答タイマーを延長する。
     armSpeechAnswerTimeout(target);
+    if (isSpeechSkipRequest(transcript)) {
+      skipSpeechQuestion(target, transcript);
+      return;
+    }
     if (speechGradeTimer !== null) {
       clearTimeout(speechGradeTimer);
       speechGradeTimer = null;
@@ -4817,6 +4846,8 @@ function toggleTestMode() {
   updateRandomOrderButton();
   afterTableOrderChanged();
   startSpeechTestSession();
+  const firstQuestion = document.querySelector("#tableArea .test-answer-button");
+  if (firstQuestion) startSpeechTest(firstQuestion);
 }
 
 function updateRandomOrderButton() {
