@@ -4285,7 +4285,15 @@ let speechResultCount = 0;
 let activeSpeechStartIndex = 0;
 let speechRecognitionReady = false;
 let speechRecoveryRequested = false;
+let activeSpeechWaitingForNewResult = false;
 let localSpeechAvailable = false;
+
+function setSpeechButtonClass(button, state = "") {
+  const classes = ["test-answer-button"];
+  if (button.dataset.correct === "true") classes.push("correct");
+  if (state) classes.push(state);
+  button.className = classes.join(" ");
+}
 
 function clearSpeechAnswerTimeout() {
   if (speechAnswerTimeoutTimer === null) return;
@@ -4298,7 +4306,7 @@ function armSpeechAnswerTimeout(button) {
   speechAnswerTimeoutTimer = setTimeout(() => {
     speechAnswerTimeoutTimer = null;
     if (activeSpeechButton !== button) return;
-    button.className = "test-answer-button";
+    setSpeechButtonClass(button);
     button.querySelector(".test-transcript").textContent = "もう一度タップして話してください";
     button.querySelector(".test-status").textContent = "";
     activeSpeechButton = null;
@@ -4319,7 +4327,8 @@ function armSpeechAnswerTimeout(button) {
 
 function beginSpeechListening(button) {
   if (activeSpeechButton !== button) return;
-  button.className = "test-answer-button listening";
+  activeSpeechWaitingForNewResult = false;
+  setSpeechButtonClass(button, "listening");
   button.querySelector(".test-transcript").textContent = "聞いています…";
   button.querySelector(".test-status").textContent = "";
   armSpeechAnswerTimeout(button);
@@ -4579,6 +4588,7 @@ function stopSpeechRecognition() {
   activeSpeechStartIndex = 0;
   speechRecognitionReady = false;
   speechRecoveryRequested = false;
+  activeSpeechWaitingForNewResult = false;
   speechSessionError = "";
   clearSpeechAnswerTimeout();
   if (speechGradeTimer !== null) {
@@ -4603,9 +4613,9 @@ function getSpeechErrorMessage(error) {
   return "聞き取れませんでした。もう一度タップしてください";
 }
 
-function startSpeechTest(button) {
+function startSpeechTest(button, waitForNewResult = false) {
   if (!speechRecognition || speechSessionError) {
-    button.className = "test-answer-button";
+    setSpeechButtonClass(button);
     button.querySelector(".test-transcript").textContent = speechSessionError || "テストを押し直してください";
     button.querySelector(".test-status").textContent = "";
     return;
@@ -4623,19 +4633,22 @@ function startSpeechTest(button) {
     activeSpeechButton.classList.remove("listening");
   }
   activeSpeechButton = button;
-  button.className = "test-answer-button";
-  button.querySelector(".test-transcript").textContent = speechRecognitionReady
+  activeSpeechWaitingForNewResult = waitForNewResult;
+  setSpeechButtonClass(button);
+  button.querySelector(".test-transcript").textContent = waitForNewResult
+    ? "次の回答を待っています…"
+    : speechRecognitionReady
     ? "聞いています…"
     : "マイクを準備しています…";
   button.querySelector(".test-status").textContent = "";
-  if (speechRecognitionReady) beginSpeechListening(button);
+  if (speechRecognitionReady && !waitForNewResult) beginSpeechListening(button);
   else armSpeechAnswerTimeout(button);
 }
 
 function startNextSpeechQuestion(currentButton) {
   const buttons = Array.from(document.querySelectorAll("#tableArea .test-answer-button"));
   const nextButton = buttons[buttons.indexOf(currentButton) + 1];
-  if (nextButton) startSpeechTest(nextButton);
+  if (nextButton) startSpeechTest(nextButton, true);
 }
 
 function isSpeechSkipRequest(transcript) {
@@ -4648,10 +4661,13 @@ function isSpeechSkipRequest(transcript) {
 function skipSpeechQuestion(target, transcript) {
   if (activeSpeechButton !== target) return;
   clearSpeechAnswerTimeout();
-  target.className = "test-answer-button";
-  target.querySelector(".test-transcript").textContent = transcript;
+  setSpeechButtonClass(target);
+  target.querySelector(".test-transcript").textContent = target.dataset.correct === "true"
+    ? target.dataset.answer
+    : transcript;
   target.querySelector(".test-status").textContent = "";
   activeSpeechButton = null;
+  activeSpeechWaitingForNewResult = false;
   activeSpeechSegments.clear();
   startNextSpeechQuestion(target);
 }
@@ -4673,12 +4689,16 @@ function gradeSpeechAnswer(target, onlyIfCorrect = false) {
   // 途中結果でも正解を含んだ時点で確定し、待機中のパルス表示をすぐ終了する。
   if (onlyIfCorrect && !correct) return false;
   clearSpeechAnswerTimeout();
-  target.className = `test-answer-button ${correct ? "correct" : "incorrect"}`;
-  if (correct) target.querySelector(".test-transcript").textContent = target.dataset.answer;
-  target.querySelector(".test-status").textContent = correct ? "" : "× もう一度";
+  const wasCorrect = target.dataset.correct === "true";
+  if (correct) target.dataset.correct = "true";
+  const staysCorrect = correct || wasCorrect;
+  setSpeechButtonClass(target, staysCorrect ? "" : "incorrect");
+  if (staysCorrect) target.querySelector(".test-transcript").textContent = target.dataset.answer;
+  target.querySelector(".test-status").textContent = staysCorrect ? "" : "× もう一度";
   activeSpeechButton = null;
+  activeSpeechWaitingForNewResult = false;
   activeSpeechSegments.clear();
-  if (correct) startNextSpeechQuestion(target);
+  if (staysCorrect) startNextSpeechQuestion(target);
   return correct;
 }
 
@@ -4712,6 +4732,7 @@ function startSpeechTestSession() {
       activeSpeechSegments.set(index, event.results[index][0].transcript);
     }
     if (!activeSpeechSegments.size) return;
+    if (activeSpeechWaitingForNewResult) beginSpeechListening(target);
     const transcript = Array.from(activeSpeechSegments.values()).join("");
     target.querySelector(".test-transcript").textContent = transcript;
     // 認識結果が届いている間は故障ではないため、無応答タイマーを延長する。
@@ -4737,6 +4758,7 @@ function startSpeechTestSession() {
     }, 1200);
   };
   recognition.onerror = event => {
+    if (speechRecognition !== recognition) return;
     if (event.error === "aborted" && speechRecoveryRequested) return;
     const target = activeSpeechButton;
     speechRecognitionReady = false;
@@ -4752,7 +4774,7 @@ function startSpeechTestSession() {
       recognitionCanRestart = false;
     }
     if (target) {
-      target.className = "test-answer-button";
+      setSpeechButtonClass(target);
       target.querySelector(".test-transcript").textContent = isSilence
         ? getSpeechErrorMessage(event.error)
         : speechSessionError;
@@ -4766,7 +4788,7 @@ function startSpeechTestSession() {
     speechRecoveryRequested = false;
     if (testModeActive && recognitionCanRestart) {
       if (activeSpeechButton) {
-        activeSpeechButton.className = "test-answer-button";
+        setSpeechButtonClass(activeSpeechButton);
         activeSpeechButton.querySelector(".test-transcript").textContent = "マイクを再準備しています…";
         armSpeechAnswerTimeout(activeSpeechButton);
       }
@@ -4783,7 +4805,7 @@ function startSpeechTestSession() {
           speechSessionError = "音声認識を再開できませんでした。テストを押し直してください";
           clearSpeechAnswerTimeout();
           if (activeSpeechButton) {
-            activeSpeechButton.className = "test-answer-button";
+            setSpeechButtonClass(activeSpeechButton);
             activeSpeechButton.querySelector(".test-transcript").textContent = speechSessionError;
             activeSpeechButton = null;
           }
@@ -8032,8 +8054,17 @@ window.addEventListener("load", () => {
   });
 });
 
-window.addEventListener("pagehide", flushQuestionStoreBeforeHide);
-window.addEventListener("beforeunload", flushQuestionStoreBeforeHide);
+function stopSpeechWhenPageIsHidden() {
+  if (document.visibilityState === "hidden") stopSpeechRecognition();
+}
+
+document.addEventListener("visibilitychange", stopSpeechWhenPageIsHidden);
+function handlePageExit() {
+  stopSpeechRecognition();
+  flushQuestionStoreBeforeHide();
+}
+window.addEventListener("pagehide", handlePageExit);
+window.addEventListener("beforeunload", handlePageExit);
 
 window.addEventListener("storage", e => {
   if (!e.key || !e.key.startsWith(QUESTION_STORAGE_PREFIX)) return;
