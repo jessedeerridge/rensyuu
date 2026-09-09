@@ -4284,6 +4284,7 @@ let activeSpeechSegments = new Map();
 let speechResultCount = 0;
 let activeSpeechStartIndex = 0;
 let speechRecognitionReady = false;
+let speechRecoveryRequested = false;
 let localSpeechAvailable = false;
 
 function clearSpeechAnswerTimeout() {
@@ -4302,7 +4303,18 @@ function armSpeechAnswerTimeout(button) {
     button.querySelector(".test-status").textContent = "";
     activeSpeechButton = null;
     activeSpeechSegments.clear();
-  }, 7000);
+    // UIだけを戻すのではなく、応答しなくなった認識器自体も作り直す。
+    if (speechRecognition && testModeActive) {
+      speechRecognitionReady = false;
+      speechRecoveryRequested = true;
+      try {
+        speechRecognition.abort();
+      } catch (error) {
+        speechRecoveryRequested = false;
+        speechSessionError = "音声認識を再開できませんでした。テストを押し直してください";
+      }
+    }
+  }, 4500);
 }
 
 function beginSpeechListening(button) {
@@ -4566,6 +4578,7 @@ function stopSpeechRecognition() {
   speechResultCount = 0;
   activeSpeechStartIndex = 0;
   speechRecognitionReady = false;
+  speechRecoveryRequested = false;
   speechSessionError = "";
   clearSpeechAnswerTimeout();
   if (speechGradeTimer !== null) {
@@ -4676,6 +4689,8 @@ function startSpeechTestSession() {
     if (!activeSpeechSegments.size) return;
     const transcript = Array.from(activeSpeechSegments.values()).join("");
     target.querySelector(".test-transcript").textContent = transcript;
+    // 認識結果が届いている間は故障ではないため、無応答タイマーを延長する。
+    armSpeechAnswerTimeout(target);
     if (speechGradeTimer !== null) {
       clearTimeout(speechGradeTimer);
       speechGradeTimer = null;
@@ -4693,6 +4708,7 @@ function startSpeechTestSession() {
     }, 1200);
   };
   recognition.onerror = event => {
+    if (event.error === "aborted" && speechRecoveryRequested) return;
     const target = activeSpeechButton;
     speechRecognitionReady = false;
     clearSpeechAnswerTimeout();
@@ -4718,6 +4734,7 @@ function startSpeechTestSession() {
   recognition.onend = () => {
     if (speechRecognition !== recognition) return;
     speechRecognitionReady = false;
+    speechRecoveryRequested = false;
     if (testModeActive && recognitionCanRestart) {
       if (activeSpeechButton) {
         activeSpeechButton.className = "test-answer-button";
