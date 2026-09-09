@@ -678,6 +678,16 @@
     z-index: 1;
   }
 
+  .test-congratulations-date {
+    display: block;
+    margin-top: 2px;
+    color: #999;
+    font-size: 10px;
+    font-weight: 500;
+    line-height: 1;
+    text-align: right;
+  }
+
   .test-congratulations-sakura {
     position: absolute;
     z-index: 0;
@@ -4558,13 +4568,13 @@ function getTestModeInfo() {
   };
 }
 
-function saveTestResult(percent, reason) {
+function saveTestResult(percent, reason, achievedAt = Date.now()) {
   if (testResultSaved) return;
   testResultSaved = true;
   const name = getSavedTestParticipantName();
   if (!name) return;
   const info = getTestModeInfo();
-  const result = { id: `${Date.now()}_${Math.random().toString(36).slice(2,8)}`, name, mode: info.mode, conjugation: info.conjugation, percent: Math.round(percent), reason, achievedAt: Date.now() };
+  const result = { id: `${achievedAt}_${Math.random().toString(36).slice(2,8)}`, name, mode: info.mode, conjugation: info.conjugation, percent: Math.round(percent), reason, achievedAt };
   const results = readTestStorage(TEST_RESULTS_STORAGE_KEY, []);
   results.push(result);
   writeTestStorage(TEST_RESULTS_STORAGE_KEY, results.slice(-500));
@@ -5195,8 +5205,11 @@ function finishTestSuccessfullyIfComplete() {
   testSessionEnded = true;
   stopSpeechRecognition();
   clearTestCountdown();
-  saveTestResult(100, "complete");
+  const achievedAt = Date.now();
+  saveTestResult(100, "complete", achievedAt);
   const name = getSavedTestParticipantName();
+  const achievedDate = new Date(achievedAt);
+  const achievedDateText = `${String(achievedDate.getFullYear()).slice(-2)}/${achievedDate.getMonth() + 1}/${achievedDate.getDate()}/${String(achievedDate.getHours()).padStart(2, "0")}:${String(achievedDate.getMinutes()).padStart(2, "0")}`;
   const sakura = Array.from({ length: 5 }, () => {
     const left = Math.round(Math.random() * 100);
     const top = Math.round(Math.random() * 100);
@@ -5206,7 +5219,7 @@ function finishTestSuccessfullyIfComplete() {
   }).join("");
   document.body.insertAdjacentHTML("beforeend", `
     <div class="test-start-overlay test-congratulations-overlay" id="testCongratulations" role="status">
-      <div class="test-start-panel test-congratulations">${sakura}<div class="test-congratulations-content">${escapeHtml(name)}さん、<br>すごいですね！</div></div>
+      <div class="test-start-panel test-congratulations">${sakura}<div class="test-congratulations-content">${escapeHtml(name)}さん、<br>すごいですね！<time class="test-congratulations-date" datetime="${achievedDate.toISOString()}">${achievedDateText}</time></div></div>
     </div>
   `);
   return true;
