@@ -21,8 +21,6 @@
 <link rel="manifest" href="manifest.webmanifest">
 
 <style>
-  @import url("https://fonts.googleapis.com/css2?family=Kosugi+Maru&family=Ma+Shan+Zheng&family=ZCOOL+KuaiLe&display=swap");
-
   * {
     box-sizing: border-box;
   }
@@ -41,6 +39,25 @@
     overflow-x: hidden;
     touch-action: manipulation;
   }
+
+  .firebase-control {
+    position: fixed;
+    top: max(8px, env(safe-area-inset-top));
+    right: 8px;
+    z-index: 200;
+    display: grid;
+    justify-items: center;
+    gap: 3px;
+  }
+
+  .firebase-state {
+    color: #888;
+    font-size: 15px;
+    font-weight: 900;
+    line-height: 1;
+  }
+
+  .firebase-state.connected { color: #fff; }
 
   .screen {
     min-height: 100vh;
@@ -519,7 +536,8 @@
     transform: scaleX(-1);
   }
 
-  .random-order-btn {
+  .random-order-btn,
+  .test-mode-btn {
     width: 48px;
     height: 48px;
     flex: 0 0 48px;
@@ -541,9 +559,249 @@
     -webkit-tap-highlight-color: transparent;
   }
 
-  .random-order-btn:active {
+  .random-order-btn:active,
+  .test-mode-btn:active {
     transform: scale(0.92);
     box-shadow: 0 2px 8px rgba(0,0,0,0.20);
+  }
+
+  .test-mode-btn.is-active {
+    background: #ff6fae;
+  }
+
+  body.test-mode .red-sheet {
+    display: none;
+  }
+
+  .test-table td:last-child {
+    color: #555;
+  }
+
+  .test-answer-cell {
+    padding: 5px;
+    position: relative;
+  }
+
+  .test-answer-button {
+    width: 100%;
+    min-height: 43px;
+    border: 2px dashed #ffd1e6;
+    border-radius: 12px;
+    background: #fff7fb;
+    color: #777;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .test-answer-button.selected,
+  .test-answer-button.listening {
+    border-color: #ff6fae;
+    background: #fff0f6;
+    color: #ff4f9e;
+  }
+
+  .test-answer-button.listening {
+    animation: slowPulse 1.2s ease-in-out infinite;
+  }
+
+  .test-answer-button.correct {
+    border-style: solid;
+    border-color: #69c779;
+    background: #edfff0;
+    color: #228b35;
+  }
+
+  .test-answer-button.incorrect {
+    border-style: solid;
+    border-color: #ee7777;
+    background: #fff0f0;
+    color: #c62828;
+  }
+
+  .test-answer-button.revealed {
+    border-style: solid;
+    border-color: #c8c8c8;
+    background: #f1f1f1;
+    color: #666;
+    animation: none;
+  }
+
+  .test-reveal-btn {
+    position: fixed;
+    left: 14px;
+    bottom: max(14px, env(safe-area-inset-bottom));
+    z-index: 80;
+    border: 0;
+    border-radius: 999px;
+    padding: 11px 18px;
+    background: #777;
+    color: #fff;
+    font: inherit;
+    font-weight: 800;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+  }
+
+  .test-timer-btn {
+    position: fixed;
+    left: 96px;
+    bottom: max(10px, env(safe-area-inset-bottom));
+    z-index: 80;
+    width: 58px;
+    height: 58px;
+    padding: 0;
+    border: 3px solid #fff;
+    border-radius: 50%;
+    background: #ff8ac2;
+    color: #fff;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 900;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    cursor: default;
+  }
+
+  .test-start-panel.test-congratulations {
+    position: relative;
+    overflow: hidden;
+    border-width: 6px;
+    text-align: center;
+    color: #ff4f9e;
+    font-size: 25px;
+    font-weight: 900;
+    line-height: 1.55;
+  }
+
+  .test-congratulations-content {
+    position: relative;
+    z-index: 1;
+  }
+
+  .test-congratulations-sakura {
+    position: absolute;
+    z-index: 0;
+    opacity: 0.13;
+    font-size: 76px;
+    line-height: 1;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .test-start-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 120;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    background: rgba(255,255,255,0.9);
+  }
+
+  .test-start-overlay.test-congratulations-overlay {
+    background: transparent;
+    pointer-events: none;
+  }
+
+  .test-start-panel {
+    width: min(340px, 100%);
+    padding: 24px;
+    border: 2px solid #ffd1e6;
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.16);
+  }
+
+  .test-start-panel label,
+  .test-start-panel input,
+  .test-start-panel button {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    font: inherit;
+  }
+
+  .test-start-panel input {
+    margin: 10px 0 16px;
+    padding: 11px 12px;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+  }
+
+  .test-start-panel button {
+    border: 0;
+    border-radius: 999px;
+    padding: 11px;
+    background: #ff6fae;
+    color: #fff;
+    font-weight: 800;
+  }
+
+  .speech-input-inline {
+    position: absolute;
+    inset: 5px;
+    z-index: 2;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 12px;
+    background: #fff7fb;
+  }
+
+  .speech-input-prompt {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    color: #777;
+    font-size: 14px;
+    font-weight: 700;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+  }
+
+  .speech-input-mic {
+    width: 15px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.8;
+  }
+
+  .speech-input-inline input:not(:placeholder-shown) + .speech-input-prompt {
+    opacity: 0;
+  }
+
+  .speech-input-inline input {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 43px;
+    margin: 0;
+    padding: 5px 8px;
+    border: 2px dashed #ff6fae;
+    border-radius: 12px;
+    background: #fff7fb;
+    color: #555;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .test-transcript {
+    display: block;
+    overflow-wrap: anywhere;
+  }
+
+  .test-status {
+    display: block;
+    margin-top: 3px;
+    font-size: 11px;
   }
 
   .table-title {
@@ -1944,7 +2202,8 @@
 
   /* ===== 位置詞：机と虫眼鏡で読む練習 ===== */
   body.position-vocab .red-sheet,
-  body.position-vocab .random-order-btn {
+  body.position-vocab .random-order-btn,
+  body.position-vocab .test-mode-btn {
     display: none;
   }
 
@@ -2215,12 +2474,26 @@
 
 <body class="home-mode">
 
+<div class="firebase-control">
+  <span id="firebaseState" class="firebase-state" role="status" aria-label="Firebase 非接続">╌/╌</span>
+</div>
+
 <div id="startNotice" class="start-notice-overlay" onclick="closeStartNotice()" role="button" aria-label="説明を閉じる">
   <table class="start-notice-table">
     <tr>
-      <td>请务必不要只在脑中练习，而是一定要大声说出来进行练习。通过按照规则连续口头表达，让头脑和嘴巴都逐渐适应。
-“？”仅保存在同一浏览器内。
-      到初级页面后，会用<strong>句子</strong>进行口语热身，并以会话为目标。</td>
+      <td>不要只在脑中练习，一定要大声说出来练习！
+
+按照规则连续说出来，让自己的大脑和嘴巴都逐渐适应吧。
+
+标有“？”的表达只会保存在同一个浏览器中。</td>
+    </tr>
+  </table>
+</div>
+
+<div id="conjugationLevelNotice" class="start-notice-overlay" onclick="closeConjugationLevelNotice()" role="button" aria-label="説明を閉じる" style="display: none;">
+  <table class="start-notice-table">
+    <tr>
+      <td>从「活用・初级1」开始，请练习把内容组成句子并大声说出来。</td>
     </tr>
   </table>
 </div>
@@ -2313,6 +2586,7 @@
   <div class="top-bar">
     <button class="back-btn" onclick="backMenu()" aria-label="戻る"><span class="back-arrow-icon" aria-hidden="true">➜</span></button>
     <div class="table-title" id="tableTitle">Vます</div>
+    <button class="test-mode-btn" id="testModeBtn" type="button" onclick="toggleTestMode()" aria-label="15問の発音テストを始める">测试</button>
     <button class="random-order-btn" id="randomOrderBtn" type="button" onclick="toggleRandomOrder()" aria-label="表をランダムに並べ替える">随机</button>
   </div>
 
@@ -2330,6 +2604,16 @@ function closeStartNotice() {
   if (notice) {
     notice.style.display = "none";
   }
+}
+
+function showConjugationLevelNotice() {
+  const notice = document.getElementById("conjugationLevelNotice");
+  if (notice) notice.style.display = "flex";
+}
+
+function closeConjugationLevelNotice() {
+  const notice = document.getElementById("conjugationLevelNotice");
+  if (notice) notice.style.display = "none";
 }
 
 
@@ -2589,7 +2873,7 @@ const speakPracticeData = [
   ["📝🎉", "もう <ruby>終<rt>お</rt></ruby>わりました。"],
   ["あ！🐟～", "あ！<ruby>魚<rt>さかな</rt></ruby>が <ruby>泳<rt>およ</rt></ruby>いでいます。"],
   ["あ！🐒🍌", "あ！サルが バナナを <ruby>食<rt>た</rt></ruby>べています。"],
-  ["あ！🏃‍♂️", "あ！<ruby>子<rt>こ</rt></ruby>どもが <ruby>走<rt>はし</rt></ruby>っています。"],
+  ["あ！子ども🏃‍♂️", "あ！<ruby>子<rt>こ</rt></ruby>どもが <ruby>走<rt>はし</rt></ruby>っています。"],
   ["💊👍", "<ruby>薬<rt>くすり</rt></ruby>を <ruby>飲<rt>の</rt></ruby>んだほうがいいですよ。"],
   ["🛏️👍", "<ruby>休<rt>やす</rt></ruby>んだほうがいいですよ。"],
   ["🍺❌", "お<ruby>酒<rt>さけ</rt></ruby>を <ruby>飲<rt>の</rt></ruby>まないほうがいいですよ。"],
@@ -2657,7 +2941,7 @@ const connectPracticeData = [
     ]
   },
   {
-    title: "～ので（理由）",
+    title: "～から・ので（理由）",
     rows: [
       ["雨が降っている・傘を持っていきます。", "雨が降っているから、傘を持っていきます。"],
       ["お腹がすいた・ご飯を買ってきます。", "お腹がすいたから、ご飯を買ってきます。"],
@@ -2815,6 +3099,7 @@ function openConjugationMenu() {
   document.getElementById("leftPageNav").style.display = "flex";
   document.getElementById("rightPageNav").style.display = "flex";
   updateMenuPage();
+  if (currentMenuPage === 1) showConjugationLevelNotice();
   requestAnimationFrame(renderQuestionMemoLayer);
   window.scrollTo(0, 0);
 }
@@ -3006,6 +3291,7 @@ function changeMenuPage(direction) {
   if (nextPage < 0 || nextPage >= menuPageNames.length) return;
   currentMenuPage = nextPage;
   updateMenuPage();
+  if (currentSection === "conjugation" && currentMenuPage === 1) showConjugationLevelNotice();
   renderQuestionMemoLayer();
   window.scrollTo(0, 0);
 }
@@ -3153,6 +3439,7 @@ const teFormData = [
   ["<ruby>教<rt>おし</rt></ruby>える", "<ruby>教<rt>おし</rt></ruby>えて", "te-ichidan"],
 
   ["<ruby>来<rt>く</rt></ruby>る", "<ruby>来<rt>き</rt></ruby>て", ""],
+  ["<ruby>持<rt>も</rt></ruby>ってくる", "<ruby>持<rt>も</rt></ruby>ってきて", ""],
   ["する", "して", ""],
   ["<ruby>勉強<rt>べんきょう</rt></ruby>する", "<ruby>勉強<rt>べんきょう</rt></ruby>して", ""]
 ];
@@ -3203,6 +3490,7 @@ const taFormData = [
   ["<ruby>教<rt>おし</rt></ruby>える", "<ruby>教<rt>おし</rt></ruby>えた", "te-ichidan"],
 
   ["<ruby>来<rt>く</rt></ruby>る", "<ruby>来<rt>き</rt></ruby>た", ""],
+  ["<ruby>持<rt>も</rt></ruby>ってくる", "<ruby>持<rt>も</rt></ruby>ってきた", ""],
   ["する", "した", ""],
   ["<ruby>勉強<rt>べんきょう</rt></ruby>する", "<ruby>勉強<rt>べんきょう</rt></ruby>した", ""]
 ];
@@ -4211,6 +4499,1443 @@ let tableVisible = false;
 let masuSwapped = false;
 let tableRandomized = false;
 let sequentialTableHtml = "";
+let testModeActive = false;
+const TEST_PARTICIPANT_NAME_KEY = "rensyuuTestParticipantName_v1";
+const TEST_RESULTS_STORAGE_KEY = "rensyuuQuizResults_v1";
+const TEST_PENDING_STORAGE_KEY = "rensyuuQuizPending_v1";
+let testParticipantConfirmed = false;
+let speechRecognition = null;
+let activeSpeechButton = null;
+let speechSessionError = "";
+let speechGradeTimer = null;
+let speechAnswerTimeoutTimer = null;
+let speechNextQuestionTimer = null;
+let speechRetryCount = 0;
+let activeSpeechSegments = new Map();
+let localSpeechAvailable = false;
+let speechInputFallbackMode = false;
+let speechInputFallbackButton = null;
+let speechInputFallbackAcceptAfter = 0;
+let speechInputFallbackMismatchTimer = null;
+let speechInputFallbackCompositionTimer = null;
+let testCountdownTimer = null;
+let testCountdownDeadline = 0;
+let testSessionEnded = false;
+let testResultSaved = false;
+let firebaseConnected = false;
+let firebaseEnabled = false;
+let firebaseDatabase = null;
+let firebaseApi = null;
+let firebaseConnectionUnsubscribe = null;
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCaLCM4TXURROKyDKD_Mga8ZnWr1-Wk9Wg",
+  authDomain: "database-s-9e4b3.firebaseapp.com",
+  databaseURL: "https://database-s-9e4b3-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "database-s-9e4b3",
+  storageBucket: "database-s-9e4b3.firebasestorage.app",
+  messagingSenderId: "13648984683",
+  appId: "1:13648984683:web:c782d2963c253df69b8f2e"
+};
+
+function safeFirebaseKey(value) {
+  return encodeURIComponent(String(value).trim()).replaceAll(".", "%2E").replaceAll("#", "%23").replaceAll("$", "%24").replaceAll("[", "%5B").replaceAll("]", "%5D").replaceAll("/", "%2F");
+}
+
+function readTestStorage(key, fallback) {
+  try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); }
+  catch (error) { return fallback; }
+}
+
+function writeTestStorage(key, value) {
+  try { localStorage.setItem(key, JSON.stringify(value)); } catch (error) { /* メモリ外でもゲームは継続する。 */ }
+}
+
+function getTestModeInfo() {
+  return {
+    mode: currentSection === "conjugation" ? "活用" : currentTableType,
+    conjugation: currentSection === "conjugation" ? currentTableType : ""
+  };
+}
+
+function saveTestResult(percent, reason) {
+  if (testResultSaved) return;
+  testResultSaved = true;
+  const name = getSavedTestParticipantName();
+  if (!name) return;
+  const info = getTestModeInfo();
+  const result = { id: `${Date.now()}_${Math.random().toString(36).slice(2,8)}`, name, mode: info.mode, conjugation: info.conjugation, percent: Math.round(percent), reason, achievedAt: Date.now() };
+  const results = readTestStorage(TEST_RESULTS_STORAGE_KEY, []);
+  results.push(result);
+  writeTestStorage(TEST_RESULTS_STORAGE_KEY, results.slice(-500));
+  const pending = readTestStorage(TEST_PENDING_STORAGE_KEY, []);
+  pending.push(result);
+  writeTestStorage(TEST_PENDING_STORAGE_KEY, pending);
+  if (firebaseConnected) flushPendingTestResults();
+}
+
+async function flushPendingTestResults() {
+  if (!firebaseConnected || !firebaseDatabase || !firebaseApi) return;
+  const pending = readTestStorage(TEST_PENDING_STORAGE_KEY, []);
+  for (const result of pending.slice()) {
+    const studentKey = `name_${safeFirebaseKey(result.name)}`;
+    const resultPath = `students/${studentKey}/quizResults/${safeFirebaseKey(result.id)}`;
+    try {
+      // 既存の学生データと同じ students 配下へ保存する。新しいルート直下の
+      // quizResults はDatabase Rulesで許可されない構成でも、ここなら同期できる。
+      await firebaseApi.update(firebaseApi.ref(firebaseDatabase), {
+        [`students/${studentKey}/studentKey`]: studentKey,
+        [`students/${studentKey}/name`]: result.name,
+        [resultPath]: result
+      });
+      const remaining = readTestStorage(TEST_PENDING_STORAGE_KEY, []).filter(item => item.id !== result.id);
+      writeTestStorage(TEST_PENDING_STORAGE_KEY, remaining);
+    } catch (error) {
+      if (firebaseApi && firebaseDatabase) firebaseApi.goOffline(firebaseDatabase);
+      setFirebaseConnectionUi(false);
+      break;
+    }
+  }
+}
+
+function setFirebaseConnectionUi(connected) {
+  firebaseConnected = connected;
+  const state = document.getElementById("firebaseState");
+  state?.classList.toggle("connected", connected);
+  if (state) {
+    state.textContent = connected ? "╌✧╌" : "╌/╌";
+    state.setAttribute("aria-label", `Firebase ${connected ? "接続" : "非接続"}`);
+  }
+}
+
+async function connectFirebase() {
+  if (firebaseEnabled) return;
+  firebaseEnabled = true;
+  try {
+    const [appModule, databaseModule] = await Promise.all([
+      import("https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"),
+      import("https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js")
+    ]);
+    const app = appModule.getApps().length ? appModule.getApp() : appModule.initializeApp(firebaseConfig);
+    firebaseDatabase = databaseModule.getDatabase(app);
+    firebaseApi = databaseModule;
+    databaseModule.goOnline(firebaseDatabase);
+    firebaseConnectionUnsubscribe = databaseModule.onValue(databaseModule.ref(firebaseDatabase, ".info/connected"), snapshot => {
+      const connected = firebaseEnabled && snapshot.val() === true;
+      setFirebaseConnectionUi(connected);
+      if (connected) flushPendingTestResults();
+    });
+  } catch (error) {
+    firebaseEnabled = false;
+    setFirebaseConnectionUi(false);
+  }
+}
+
+function setSpeechButtonClass(button, state = "") {
+  const classes = ["test-answer-button"];
+  if (button.dataset.correct === "true") classes.push("correct");
+  else if (button.dataset.revealed === "true") classes.push("revealed");
+  if (button.dataset.selected === "true") classes.push("selected");
+  if (state) classes.push(state);
+  button.className = classes.join(" ");
+}
+
+function selectSpeechTestQuestion(button) {
+  document.querySelectorAll("#tableArea .test-answer-button").forEach(answerButton => {
+    answerButton.dataset.selected = answerButton === button ? "true" : "false";
+    answerButton.setAttribute("aria-pressed", answerButton === button ? "true" : "false");
+    answerButton.classList.toggle("selected", answerButton === button);
+  });
+}
+
+function setSpeechButtonMessage(button, message) {
+  button.querySelector(".test-transcript").textContent = button.dataset.correct === "true" || button.dataset.revealed === "true"
+    ? button.dataset.answer
+    : message;
+}
+
+function clearSpeechTimers() {
+  if (speechGradeTimer !== null) clearTimeout(speechGradeTimer);
+  if (speechAnswerTimeoutTimer !== null) clearTimeout(speechAnswerTimeoutTimer);
+  if (speechNextQuestionTimer !== null) clearTimeout(speechNextQuestionTimer);
+  speechGradeTimer = null;
+  speechAnswerTimeoutTimer = null;
+  speechNextQuestionTimer = null;
+}
+
+function abortCurrentSpeechRecognition() {
+  const recognition = speechRecognition;
+  speechRecognition = null;
+  if (!recognition) return;
+  try {
+    recognition.abort();
+  } catch (error) {
+    // すでに終了した認識器はそのまま破棄する。
+  }
+}
+
+function checkLocalSpeechAvailability() {
+  const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (typeof Recognition?.available !== "function") return;
+  Recognition.available({ langs: ["ja-JP"], processLocally: true })
+    .then(availability => {
+      localSpeechAvailable = availability === "available";
+    })
+    .catch(() => {
+      localSpeechAvailable = false;
+    });
+}
+
+function japaneseNumeralToArabic(token) {
+  if (/^\d+$/.test(token)) return token;
+  const digits = { "〇": 0, "零": 0, "一": 1, "二": 2, "三": 3, "四": 4, "五": 5, "六": 6, "七": 7, "八": 8, "九": 9 };
+  if (!/[十百千万]/.test(token)) return Array.from(token, character => digits[character]).join("");
+
+  let total = 0;
+  let section = 0;
+  let number = 0;
+  for (const character of token) {
+    if (character in digits) {
+      number = digits[character];
+    } else if (character === "万") {
+      section += number;
+      total += (section || 1) * 10000;
+      section = 0;
+      number = 0;
+    } else {
+      const unit = { "十": 10, "百": 100, "千": 1000 }[character];
+      section += (number || 1) * unit;
+      number = 0;
+    }
+  }
+  return String(total + section + number);
+}
+
+function normalizeSpeechText(value) {
+  return String(value || "")
+    .normalize("NFKC")
+    .toLocaleLowerCase("ja-JP")
+    // 漢数字・全角数字・半角数字を同じ半角数字へ統一する。
+    .replace(/[〇零一二三四五六七八九十百千万]+|\d+/g, japaneseNumeralToArabic)
+    // 音声認識が補う句読点・疑問符などは、位置や全角・半角を問わず採点対象外。
+    .replace(/[\s\p{P}\p{S}]/gu, "");
+}
+
+
+const SPEECH_EQUIVALENT_GROUPS = [
+  ["陳", "珍"],
+  // 「会います」がカタカナや漢字・かな混じりで認識された場合も許容する。
+  ["会います", "あいます", "アイマス", "アイます"],
+  // 全モードで「おいし」と「美味し」の表記揺れを許容する。
+  ["おいし", "美味し"],
+  // 全モードで「誰」と「だれ」の表記揺れを許容する。
+  ["誰", "だれ"],
+  ["日本", "旅行"],
+  ["このケーキ屋", "ケーキ屋", "このけーきや", "けーきや"],
+  ["とき", "時"],
+  ["方", "ほう", "法"],
+  [
+    "くらいです", "ぐらいです", "です",
+    "くらいかかります", "ぐらいかかります", "かかります", "位かかります", "位です"
+  ],
+  // 音声認識で「お城」が「白」と書き出される場合を許容する。
+  ["城", "お城", "しろ", "おしろ", "白"],
+  ["二時間", "2時間", "２時間", "にじかん"],
+  ["お祭り", "おまつり", "花火", "はなび"],
+  ["テスト", "試験", "考査", "こうさ", "しけん"],
+  ["家", "いえ", "うち"],
+  ["弟", "兄", "父", "お父さん", "おとうと", "あに", "ちち", "おとうさん"],
+  ["妹", "姉", "母", "お母さん", "いもうと", "あね", "はは", "おかあさん"],
+  ["車", "くるま", "タクシー"],
+  ["かく", "書く", "描く", "掻く"],
+  ["友だち", "友達", "ともだち"],
+  ["サル", "猿", "さる"],
+  ["子ども", "子供", "こども"],
+  ["お酒", "おさけ", "ビール", "さけ"],
+  ["夜", "よる", "夜は", "よるは", "夜に", "よるに"],
+  ["スマホ", "携帯", "けいたい", "携帯電話", "けいたいでんわ", "電話", "でんわ"],
+  [
+    "人が多いと思います", "ひとがおおいとおもいます",
+    "人が多そうです", "ひとがおおそうです",
+    "込みそうです", "混みそうです", "こみそうです",
+    "込むと思います", "混むと思います", "こむとおもいます"
+  ],
+  ["ひいた", "引いた", "弾いた", "轢いた"],
+  ["明日は", "あしたは", "明日", "あした"],
+  ["名前を", "なまえを", "名前は", "なまえは"],
+  ["住んで", "すんで", "済んで"],
+  ["すいた", "空いた"],
+  // 接続助詞の「けど／が」は、格助詞の「が」と混同しないよう述語末ごとに許容する。
+  ["ですけど", "ですが"],
+  ["でしたけど", "でしたが"],
+  ["ますけど", "ますが"],
+  ["ましたけど", "ましたが"],
+  ["ませんけど", "ませんが"],
+  ["ませんでしたけど", "ませんでしたが"],
+  ["はたらき", "働き"],
+  ["待てます", "まてます", "待ってます", "まってます"],
+  ["行かなくてもいいです", "いかなくてもいいです", "来なくてもいいです", "こなくてもいいです"],
+  [
+    "雨が降るそうです", "あめがふるそうです", "雨が降るらしいです", "あめがふるらしいです",
+    "雨が降るみたいです", "あめがふるみたいです", "雨が降るようです", "あめがふるようです",
+    "雨だそうです", "あめだそうです", "雨らしいです", "あめらしいです",
+    "雨みたいです", "あめみたいです", "雨のようです", "あめのようです"
+  ],
+  [
+    "人気だそうです", "にんきだそうです", "人気のようです", "にんきのようです",
+    "人気みたいです", "にんきみたいです", "人気らしいです", "にんきらしいです",
+    "人気があるそうです", "にんきがあるそうです", "人気があるようです", "にんきがあるようです",
+    "人気があるみたいです", "にんきがあるみたいです", "人気があるらしいです", "にんきがあるらしいです",
+    "有名だそうです", "ゆうめいだそうです", "有名なようです", "ゆうめいなようです",
+    "有名みたいです", "ゆうめいみたいです", "有名らしいです", "ゆうめいらしいです"
+  ],
+  [
+    "友だちが靴をくれました", "友だちがくつをくれました", "友だちに靴をもらいました",
+    "友だちに靴を貰いました", "友だちにくつをもらいました", "友だちにくつを貰いました",
+    "友だちから靴をもらいました", "友だちから靴を貰いました", "友だちからくつをもらいました",
+    "友だちからくつを貰いました", "友達が靴をくれました", "友達がくつをくれました",
+    "友達に靴をもらいました", "友達に靴を貰いました", "友達にくつをもらいました",
+    "友達にくつを貰いました", "友達から靴をもらいました", "友達から靴を貰いました",
+    "友達からくつをもらいました", "友達からくつを貰いました", "ともだちが靴をくれました",
+    "ともだちがくつをくれました", "ともだちに靴をもらいました", "ともだちに靴を貰いました",
+    "ともだちにくつをもらいました", "ともだちにくつを貰いました", "ともだちから靴をもらいました",
+    "ともだちから靴を貰いました", "ともだちからくつをもらいました", "ともだちからくつを貰いました"
+  ],
+  [
+    "友だちがパソコンをくれました", "友だちがぱそこんをくれました", "友だちにパソコンをもらいました",
+    "友だちにパソコンを貰いました", "友だちにぱそこんをもらいました", "友だちにぱそこんを貰いました",
+    "友だちからパソコンをもらいました", "友だちからパソコンを貰いました", "友だちからぱそこんをもらいました",
+    "友だちからぱそこんを貰いました", "友達がパソコンをくれました", "友達がぱそこんをくれました",
+    "友達にパソコンをもらいました", "友達にパソコンを貰いました", "友達にぱそこんをもらいました",
+    "友達にぱそこんを貰いました", "友達からパソコンをもらいました", "友達からパソコンを貰いました",
+    "友達からぱそこんをもらいました", "友達からぱそこんを貰いました", "ともだちがパソコンをくれました",
+    "ともだちがぱそこんをくれました", "ともだちにパソコンをもらいました", "ともだちにパソコンを貰いました",
+    "ともだちにぱそこんをもらいました", "ともだちにぱそこんを貰いました", "ともだちからパソコンをもらいました",
+    "ともだちからパソコンを貰いました", "ともだちからぱそこんをもらいました", "ともだちからぱそこんを貰いました"
+  ],
+  ["新しい服", "あたらしいふく", "新しいふく", "あたらしい服", "服", "ふく"],
+  ["へ", "に"],
+  ["ほしい", "欲しい"],
+  [
+    "風邪を引いたそうです", "かぜをひいたそうです", "風邪を引いたようです", "かぜをひいたようです",
+    "風邪を引いたみたいです", "かぜをひいたみたいです", "風邪を引いたらしいです", "かぜをひいたらしいです",
+    "風邪だそうです", "かぜだそうです", "風邪のようです", "かぜのようです",
+    "風邪みたいです", "かぜみたいです", "風邪らしいです", "かぜらしいです",
+    "風だそうです", "風のようです", "風みたいです", "風らしいです",
+    "病気だそうです", "びょうきだそうです", "病気のようです", "びょうきのようです",
+    "病気みたいです", "びょうきみたいです", "病気らしいです", "びょうきらしいです"
+  ],
+  [
+    "暑いと思います", "あついとおもいます", "暑そうです", "あつそうです",
+    "厚いと思います", "厚そうです", "熱いと思います", "熱そうです",
+    "晴れると思います", "はれるとおもいます", "晴れだと思います", "はれだとおもいます", "晴れそうです", "はれそうです",
+    "天気がいいと思います", "てんきがいいとおもいます", "天気がよさそうです", "てんきがよさそうです",
+    "いい天気だと思います", "いいてんきだとおもいます", "いい天気になりそうです", "いいてんきになりそうです",
+    "天気がよくなると思います", "てんきがよくなるとおもいます", "天気がよくなりそうです", "てんきがよくなりそうです",
+    "いい天気になると思います", "いいてんきになるとおもいます"
+  ],
+  [
+    "飛行機で行った方がいいと思います", "飛行機で行った方がいいとおもいます", "ひこうきでいったほうがいいとおもいます",
+    "飛行機で行った方がよさそうです", "ひこうきでいったほうがよさそうです",
+    "飛行機の方がいいと思います", "飛行機の方がいいとおもいます", "ひこうきのほうがいいとおもいます",
+    "飛行機の方がよさそうです", "ひこうきのほうがよさそうです"
+  ],
+  ["かかなくても", "書かなくても", "描かなくても"],
+  ["ひとり", "1人", "一人"],
+  ["にまい", "2枚", "二枚"],
+  ["スーパー", "デパート"],
+  ["終わりました", "できました"],
+  ["休んだ", "寝た", "やすんだ", "ねた"],
+  ["ています", "てます"],
+  ["ていません", "てません"],
+  ["でいます", "でます"],
+  ["カレー", "カレー屋", "カレーや"],
+  ["という", "と言う", "とゆう"],
+  ["チェック", "確認"],
+  ["どういう", "どう言う", "どうゆう"],
+  ["どうやって", "どう"],
+  ["どこにありますか", "どこですか"],
+  ["住んでいますか", "住んでいるんですか"],
+  ["もらいましたか", "もらったんですか"],
+  ["持って来ましたか", "持ってきましたか", "持って来たんですか", "持ってきたんですか"],
+  ["いますか", "いるんですか"],
+  ["していますか", "しているんですか"],
+  ["海外", "外国", "かいがい", "がいこく"],
+  ["もう一度", "もう一回", "もういちど", "もういっかい"],
+  [
+    "安い肉を売っているお店", "安い肉を売っている店", "安い肉のお店", "安い肉の店",
+    "肉が安い店", "肉が安いお店", "やすいにくをうっているおみせ", "やすいにくをうっているみせ",
+    "やすいにくのおみせ", "やすいにくのみせ", "にくがやすいみせ", "にくがやすいおみせ"
+  ],
+  ["お店", "店", "みせ", "おみせ"],
+  ["体", "健康", "からだ", "けんこう"],
+  ["ジュース", "飲み物", "のみもの"],
+  ["何", "なに"],
+  [
+    "もう宿題をしましたか", "もう宿題はしましたか", "宿題をもうしましたか", "宿題はもうしましたか",
+    "もう宿題を終わりましたか", "もう宿題は終わりましたか", "宿題をもう終わりましたか", "宿題はもう終わりましたか",
+    "もう宿題をしていますか", "もう宿題はしていますか", "宿題をもうしていますか", "宿題はもうしていますか",
+    "もう宿題を終わっていますか", "もう宿題は終わっていますか", "宿題をもう終わっていますか", "宿題はもう終わっていますか",
+    "もう終わっていますか", "もう終わりましたか", "もうしましたか",
+    "もうしゅくだいをしましたか", "もうしゅくだいはしましたか", "しゅくだいをもうしましたか", "しゅくだいはもうしましたか",
+    "もうしゅくだいをおわりましたか", "もうしゅくだいはおわりましたか", "しゅくだいをもうおわりましたか", "しゅくだいはもうおわりましたか",
+    "もうしゅくだいをしていますか", "もうしゅくだいはしていますか", "しゅくだいをもうしていますか", "しゅくだいはもうしていますか",
+    "もうしゅくだいをおわっていますか", "もうしゅくだいはおわっていますか", "しゅくだいをもうおわっていますか", "しゅくだいはもうおわっていますか",
+    "もうおわっていますか", "もうおわりましたか", "もうしましたか"
+  ],
+  [
+    "もうご飯を食べましたか", "もうご飯は食べましたか", "ご飯をもう食べましたか", "ご飯はもう食べましたか", "もう食べましたか",
+    "もうごはんをたべましたか", "もうごはんはたべましたか", "ごはんをもうたべましたか", "ごはんはもうたべましたか", "もうたべましたか"
+  ],
+  [
+    "トイレに行ってもいいですか", "トイレに行って来てもいいですか", "トイレに行ってきてもいいですか",
+    "といれにいってもいいですか", "といれにいってきてもいいですか"
+  ],
+  // 「つなぐ」テストで、音声認識の漢字・かな・カタカナ表記の揺れを許容する。
+  ["わか", "分か"],
+  ["嬉し", "うれし"],
+  ["疲れ", "つかれ"],
+  ["面白", "おもしろ"],
+  ["始め", "初め", "はじめ"],
+  ["綺麗", "きれい"],
+  ["成", "な"],
+  ["安", "やす"],
+  ["蟹", "かに", "カニ"],
+  ["海老", "蝦", "えび", "エビ"],
+  ["良", "よ"],
+  ["要", "い"],
+  ["賑やか", "にぎやか"]
+];
+
+// 「つなぐ」だけで許容する言い換え。各グループは全体の表記揺れと組み合わせられる。
+const CONNECT_SPEECH_EQUIVALENT_GROUPS = [
+  ["ので", "から"],
+  ["食べてから", "食べた後で", "食べた後", "たべてから", "たべたあとで", "たべたあと"],
+  ["お風呂に入って", "お風呂に入ってから", "お風呂に入った後で", "お風呂に入った後", "お風呂に入ったら", "おふろにはいって", "おふろにはいってから", "おふろにはいったあとで", "おふろにはいったあと", "おふろにはいったら"],
+  ["買い物をして", "買い物をしてから", "買い物をした後で", "買い物をした後", "かいものをして", "かいものをしてから", "かいものをしたあとで", "かいものをしたあと"],
+  ["家に帰って", "家に帰った後", "家に帰った後で", "家に帰ってから", "いえにかえって", "いえにかえったあと", "いえにかえったあとで", "いえにかえってから"],
+  ["合格できて", "合格できたので", "合格できたから", "ごうかくできて", "ごうかくできたので", "ごうかくできたから"],
+  ["友達に会えて", "友だちに会えて", "友達に会えたから", "友だちに会えたから", "友達に会えたので", "友だちに会えたので", "ともだちにあえて", "ともだちにあえたから", "ともだちにあえたので"],
+  ["食べられて", "食べられたから", "食べられたので", "たべられて", "たべられたから", "たべられたので"],
+  ["間に合って", "間に合ったので", "間に合ったから", "まにあって", "まにあったので", "まにあったから"],
+  ["雨が降って", "雨が降ったから", "雨が降ったので", "あめがふって", "あめがふったから", "あめがふったので"],
+  ["合えなくて", "会えなくて", "合えないので", "会えないので", "合えないから", "会えないから", "あえなくて", "あえないので", "あえないから"],
+  ["仕事が多くて", "仕事が多いので", "仕事が多いから", "しごとがおおくて", "しごとがおおいので", "しごとがおおいから"]
+];
+
+const SPEECH_EQUIVALENT_ALIASES = SPEECH_EQUIVALENT_GROUPS
+  .flatMap((group, groupIndex) => group.map(value => ({
+    alias: normalizeSpeechText(value),
+    canonical: `speechgroup${groupIndex}`
+  })))
+  .sort((a, b) => b.alias.length - a.alias.length);
+
+const CONNECT_SPEECH_EQUIVALENT_ALIASES = CONNECT_SPEECH_EQUIVALENT_GROUPS
+  .flatMap((group, groupIndex) => group.map(value => ({
+    alias: normalizeSpeechText(value),
+    canonical: `connectspeechgroup${groupIndex}`
+  })))
+  .sort((a, b) => b.alias.length - a.alias.length);
+
+const CONJUGATION_READING_GROUPS = [
+  ["買", "勝", "変", "か"],
+  ["書", "描", "掻", "か"],
+  ["話", "離", "放", "はな"],
+  ["行", "言", "い"],
+  ["合", "会", "あ"],
+  ["立", "建", "た"],
+  ["読", "呼", "よ"],
+  ["聞", "効", "聴", "き"],
+  ["取", "捕", "撮", "と"],
+  ["貸", "課", "か"],
+  ["着", "来", "き"],
+  ["帰", "変", "かえ"],
+  ["乗", "載", "の"],
+  ["暑", "熱", "厚", "あつ"],
+  ["早", "速", "はや"],
+  ["自己", "事故", "じこ"],
+  ["優し", "やさし"],
+  ["嬉し", "うれし"],
+  ["良", "よ"],
+  ["綺麗", "きれい"],
+  ["賑やか", "にぎやか"],
+  ["嫌い", "きらい"]
+];
+
+const CONJUGATION_FORM_GROUPS = [
+  ["買おう", "顔", "飼おう", "花王"],
+  ["とろう", "取ろう", "捕ろう", "撮ろう", "トロ―"],
+  ["聞こう", "機構", "気候"],
+  ["しよう", "使用", "仕様", "私用"],
+  ["来よう", "雇用"],
+  ["行こう", "以降", "意向", "移行"],
+  ["乗ろう", "呪う"],
+  ["書こう", "加工", "掻こう", "描こう", "囲う", "河口", "下降", "火口"],
+  ["泳ごう", "及ぼう"],
+  ["借りよう", "カリオ", "狩り用"],
+  ["寝た", "ネタ"],
+  ["来た", "キタ"]
+];
+
+const CONJUGATION_FORM_ALIASES = CONJUGATION_FORM_GROUPS
+  .flatMap((group, groupIndex) => group.map(value => ({
+    alias: normalizeSpeechText(value),
+    canonical: `conjugationform${groupIndex}`
+  })))
+  .sort((a, b) => b.alias.length - a.alias.length);
+
+const CONJUGATION_READING_ALIASES = CONJUGATION_READING_GROUPS
+  .flatMap(group => group.slice(0, -1).map(value => ({
+    alias: normalizeSpeechText(value),
+    reading: normalizeSpeechText(group[group.length - 1])
+  })))
+  .sort((a, b) => b.alias.length - a.alias.length);
+
+function replaceSpeechEquivalentAliases(value) {
+  return SPEECH_EQUIVALENT_ALIASES.reduce(
+    (text, { alias, canonical }) => text.replaceAll(alias, canonical),
+    normalizeSpeechText(value)
+  );
+}
+
+function replaceConnectSpeechEquivalentAliases(value) {
+  return CONNECT_SPEECH_EQUIVALENT_ALIASES.reduce(
+    (text, { alias, canonical }) => text.replaceAll(alias, canonical),
+    normalizeSpeechText(value)
+  );
+}
+
+function replaceConjugationVariants(value) {
+  const protectedForms = CONJUGATION_FORM_ALIASES.reduce(
+    (text, { alias, canonical }) => text.replaceAll(alias, canonical),
+    normalizeSpeechText(value)
+  );
+  return CONJUGATION_READING_ALIASES.reduce(
+    (text, { alias, reading }) => text.replaceAll(alias, reading),
+    protectedForms
+  )
+    .replace(/よい/g, "いい")
+    .replace(/られ/g, "れ");
+}
+
+function getCellKanjiReadingMap(cell) {
+  const readings = new Map();
+  cell.querySelectorAll("ruby").forEach(ruby => {
+    const copy = ruby.cloneNode(true);
+    copy.querySelectorAll("rt").forEach(node => node.remove());
+    const kanji = normalizeSpeechText(copy.textContent);
+    const reading = normalizeSpeechText(Array.from(ruby.querySelectorAll(":scope > rt"))
+      .map(rt => rt.textContent)
+      .join(""));
+    if (kanji && reading && kanji !== reading) readings.set(kanji, reading);
+  });
+  return Array.from(readings.entries()).sort((a, b) => b[0].length - a[0].length);
+}
+
+function replaceKnownKanjiWithReadings(value, kanjiReadingMap = []) {
+  return kanjiReadingMap.reduce(
+    (text, [kanji, reading]) => text.replaceAll(kanji, reading),
+    normalizeSpeechText(value)
+  );
+}
+
+function normalizeSpeechForComparison(value, kanjiReadingMap = [], isConjugation = false, isConnect = false) {
+  // 完全な言い換え候補を先に保護してから、この問題固有のルビを適用する。
+  // 例：「友達」の「友」だけが先に「とも」になると「とも達」になり、候補と一致しなくなる。
+  const modeNormalized = isConjugation ? replaceConjugationVariants(value) : value;
+  const connectNormalized = isConnect ? replaceConnectSpeechEquivalentAliases(modeNormalized) : modeNormalized;
+  const protectedAliases = replaceSpeechEquivalentAliases(connectNormalized);
+  const withReadings = replaceKnownKanjiWithReadings(protectedAliases, kanjiReadingMap);
+  const globalNormalized = replaceSpeechEquivalentAliases(withReadings);
+  const normalized = isConnect ? replaceConnectSpeechEquivalentAliases(globalNormalized) : globalNormalized;
+  return isConjugation ? replaceConjugationVariants(normalized) : normalized;
+}
+
+function isOrderedSpeechMatch(transcript, answer) {
+  const negations = ["ませんでした", "なかった", "ません", "ない", "なく"];
+  if (negations.some(negative => transcript.includes(negative) && !answer.includes(negative))) {
+    return false;
+  }
+  const answerCharacters = Array.from(answer);
+  let answerIndex = 0;
+  for (const character of transcript) {
+    if (character === answerCharacters[answerIndex]) answerIndex += 1;
+    if (answerIndex === answerCharacters.length) return true;
+  }
+  return false;
+}
+
+const CONJUGATION_ANSWER_VARIANTS = new Map([
+  ["会って", ["って"]],
+  ["立って", ["って"]],
+  ["会った", ["った"]],
+  ["立った", ["った"]],
+  ["来て", ["来", "き"]],
+  ["来た", ["来", "き"]]
+]);
+
+function getSpeechAnswerVariants(answer, isConjugation = false) {
+  const source = String(answer || "");
+  const variants = [source, source.replace(/^\s*あ[!！]\s*/, "")];
+  const normalized = normalizeSpeechText(source);
+  // 「陳さん」の体調を伝える問題は、主語を省略した回答も正解にする。
+  if (["陳さんは風邪をひいたそうです", "ちんさんはかぜをひいたそうです"].includes(normalized)) {
+    variants.push(normalized.replace(/^(?:陳|ちん)さんは/, ""));
+  }
+  if (isConjugation) variants.push(...(CONJUGATION_ANSWER_VARIANTS.get(normalized) || []));
+  if (["まだジュースがありますか", "まだカレーがありますか"].includes(normalized)) {
+    variants.push("まだありますか");
+  }
+  return variants;
+}
+
+function isSpeechAnswerCorrect(transcript, answers, kanjiReadingMap = [], isConjugation = false, isConnect = false) {
+  const normalizedTranscript = normalizeSpeechForComparison(transcript, kanjiReadingMap, isConjugation, isConnect);
+  return answers.some(answer => {
+    // 問題文の注意喚起として付けた冒頭の「あ！」は、発話しなくても採点に影響させない。
+    const answerVariants = getSpeechAnswerVariants(answer, isConjugation);
+    return answerVariants.some(answerVariant => {
+      const normalizedAnswer = normalizeSpeechForComparison(answerVariant, kanjiReadingMap, isConjugation, isConnect);
+      if (!normalizedAnswer) return false;
+      return isConjugation
+        ? normalizedTranscript.includes(normalizedAnswer)
+        : isOrderedSpeechMatch(normalizedTranscript, normalizedAnswer);
+    });
+  });
+}
+
+function getCellAnswerText(cell) {
+  const copy = cell.cloneNode(true);
+  copy.querySelectorAll("rt, .answer-mask-cover, .reason-kara-note").forEach(node => node.remove());
+  return copy.textContent.trim();
+}
+
+function getCellAnswerReading(cell) {
+  const copy = cell.cloneNode(true);
+  copy.querySelectorAll(".answer-mask-cover, .reason-kara-note").forEach(node => node.remove());
+  copy.querySelectorAll("ruby").forEach(ruby => {
+    const reading = Array.from(ruby.querySelectorAll(":scope > rt"))
+      .map(rt => rt.textContent)
+      .join("");
+    if (reading) ruby.replaceWith(document.createTextNode(reading));
+  });
+  copy.querySelectorAll("rt").forEach(node => node.remove());
+  return copy.textContent.trim();
+}
+
+function stopSpeechRecognition() {
+  clearSpeechTimers();
+  speechRetryCount = 0;
+  activeSpeechButton = null;
+  activeSpeechSegments.clear();
+  speechSessionError = "";
+  abortCurrentSpeechRecognition();
+  closeSpeechInputFallback();
+}
+
+function clearTestCountdown(removeButton = true) {
+  if (testCountdownTimer !== null) clearInterval(testCountdownTimer);
+  testCountdownTimer = null;
+  if (removeButton) document.getElementById("testTimerBtn")?.remove();
+}
+
+function updateTestCountdown() {
+  const button = document.getElementById("testTimerBtn");
+  if (!button || !testCountdownDeadline) return;
+  const remainingSeconds = Math.max(0, Math.ceil((testCountdownDeadline - Date.now()) / 1000));
+  const minutes = Math.floor(remainingSeconds / 60);
+  const seconds = String(remainingSeconds % 60).padStart(2, "0");
+  button.textContent = `${minutes}:${seconds}`;
+  button.setAttribute("aria-label", `残り時間 ${minutes}分${seconds}秒`);
+  if (remainingSeconds === 0) finishTestAtTimeout();
+}
+
+function getCurrentTestPercent() {
+  const buttons = Array.from(document.querySelectorAll("#tableArea .test-answer-button"));
+  if (!buttons.length) return 0;
+  return buttons.filter(button => button.dataset.correct === "true").length / buttons.length * 100;
+}
+
+function recordCurrentTestResult(reason) {
+  if (!testModeActive || testResultSaved) return;
+  const buttons = document.querySelectorAll("#tableArea .test-answer-button");
+  if (!buttons.length) return;
+  saveTestResult(getCurrentTestPercent(), reason);
+}
+
+function finishTestAtTimeout() {
+  if (testResultSaved) return;
+  recordCurrentTestResult("timeup");
+  clearTestCountdown();
+}
+
+function startTestCountdown() {
+  clearTestCountdown(false);
+  const durationSeconds = currentSection === "conjugation" ? 80 : 180;
+  testCountdownDeadline = Date.now() + durationSeconds * 1000;
+  updateTestCountdown();
+  testCountdownTimer = setInterval(updateTestCountdown, 250);
+}
+
+function finishTestSuccessfullyIfComplete() {
+  const buttons = Array.from(document.querySelectorAll("#tableArea .test-answer-button"));
+  if (!buttons.length || buttons.some(button => button.dataset.correct !== "true")) return false;
+
+  testSessionEnded = true;
+  stopSpeechRecognition();
+  clearTestCountdown();
+  saveTestResult(100, "complete");
+  const name = getSavedTestParticipantName();
+  const sakura = Array.from({ length: 5 }, () => {
+    const left = Math.round(Math.random() * 100);
+    const top = Math.round(Math.random() * 100);
+    const rotation = Math.round(Math.random() * 90 - 45);
+    const scale = (0.75 + Math.random() * 0.65).toFixed(2);
+    return `<span class="test-congratulations-sakura" aria-hidden="true" style="left:${left}%;top:${top}%;transform:translate(-50%,-50%) rotate(${rotation}deg) scale(${scale})">🌸</span>`;
+  }).join("");
+  document.body.insertAdjacentHTML("beforeend", `
+    <div class="test-start-overlay test-congratulations-overlay" id="testCongratulations" role="status">
+      <div class="test-start-panel test-congratulations">${sakura}<div class="test-congratulations-content">${escapeHtml(name)}さん、<br>すごいですね！</div></div>
+    </div>
+  `);
+  return true;
+}
+
+function closeSpeechInputFallback(clearTarget = true) {
+  clearSpeechInputFallbackMismatchTimer();
+  clearSpeechInputFallbackCompositionTimer();
+  speechInputFallbackAcceptAfter = 0;
+  const input = document.getElementById("speechInputFallbackText");
+  if (input) {
+    input.value = "";
+    input.blur();
+  }
+  document.getElementById("speechInputFallbackEditor")?.remove();
+  speechInputFallbackButton?.setAttribute("aria-expanded", "false");
+  if (clearTarget) {
+    if (activeSpeechButton === speechInputFallbackButton) activeSpeechButton = null;
+    speechInputFallbackButton = null;
+  }
+}
+
+function openSpeechInputFallback(button) {
+  closeSpeechInputFallback();
+  speechInputFallbackButton = button;
+  activeSpeechButton = button;
+  selectSpeechTestQuestion(button);
+  button.setAttribute("aria-expanded", "true");
+  button.insertAdjacentHTML("afterend", `
+    <form class="speech-input-inline" id="speechInputFallbackEditor" onsubmit="submitSpeechInputFallback(event)">
+      <input id="speechInputFallbackText" lang="ja" inputmode="text" autocomplete="off" enterkeyhint="done" required aria-label="音声入力された答え。キーボードの右下のマイクボタンを押して開始" placeholder=" ">
+      <span class="speech-input-prompt" aria-hidden="true">
+        <span>右下の</span>
+        <svg class="speech-input-mic" viewBox="0 0 16 22">
+          <rect x="5" y="1" width="6" height="12" rx="3"></rect>
+          <path d="M2.5 10.5v.8a5.5 5.5 0 0 0 11 0v-.8M8 16.8V21M5.3 21h5.4"></path>
+        </svg>
+        <span>を押して開始</span>
+      </span>
+    </form>
+  `);
+  const input = document.getElementById("speechInputFallbackText");
+  speechInputFallbackAcceptAfter = 0;
+  bindSpeechInputFallbackInput(input);
+  input?.focus();
+}
+
+function bindSpeechInputFallbackInput(input) {
+  if (!input) return;
+  const rememberInputLocale = event => {
+    const locale = String(event.locale || "").trim().toLowerCase();
+    if (locale) input.dataset.inputLocale = locale;
+  };
+  input.addEventListener("input", event => {
+    if (!input.isConnected || input !== document.getElementById("speechInputFallbackText")) return;
+    handleSpeechInputFallbackInput(input, event.isComposing);
+  });
+  input.addEventListener("compositionstart", rememberInputLocale);
+  input.addEventListener("compositionupdate", event => {
+    rememberInputLocale(event);
+    queueMicrotask(() => {
+      // Baidu keyboard keeps dictated text in an IME composition. Correct answers
+      // may be accepted immediately, but partial text must not be graded as wrong.
+      if (input.isConnected) handleSpeechInputFallbackInput(input, true);
+    });
+  });
+  input.addEventListener("compositionend", event => {
+    rememberInputLocale(event);
+    if (!input.isConnected || input !== document.getElementById("speechInputFallbackText")) return;
+    handleSpeechInputFallbackInput(input);
+  });
+}
+
+function resetSpeechInputFallbackInput() {
+  clearSpeechInputFallbackMismatchTimer();
+  clearSpeechInputFallbackCompositionTimer();
+  const input = document.getElementById("speechInputFallbackText");
+  if (!input) return null;
+  // Replacing the focused element terminates the old IME composition. Clearing
+  // input.value alone lets Baidu keyboard restore its pending transcription.
+  const replacement = input.cloneNode();
+  replacement.value = "";
+  replacement.removeAttribute("data-input-locale");
+  input.replaceWith(replacement);
+  bindSpeechInputFallbackInput(replacement);
+  replacement.focus();
+  return replacement;
+}
+
+function moveSpeechInputFallback(button) {
+  const editor = document.getElementById("speechInputFallbackEditor");
+  const input = document.getElementById("speechInputFallbackText");
+  if (!editor || !input) {
+    openSpeechInputFallback(button);
+    return;
+  }
+  speechInputFallbackButton?.setAttribute("aria-expanded", "false");
+  const resetInput = resetSpeechInputFallbackInput();
+  // キーボード音声入力の終了直後に届く前問の末尾は、次問の回答として受け付けない。
+  speechInputFallbackAcceptAfter = Date.now() + 400;
+  speechInputFallbackButton = button;
+  activeSpeechButton = button;
+  selectSpeechTestQuestion(button);
+  button.setAttribute("aria-expanded", "true");
+  button.insertAdjacentElement("afterend", editor);
+  // 同じイベント内で新しいinputへフォーカスを移し、キーボードを表示したままにする。
+  resetInput?.focus();
+}
+
+function clearSpeechInputFallbackMismatchTimer() {
+  if (speechInputFallbackMismatchTimer !== null) clearTimeout(speechInputFallbackMismatchTimer);
+  speechInputFallbackMismatchTimer = null;
+}
+
+function clearSpeechInputFallbackCompositionTimer() {
+  if (speechInputFallbackCompositionTimer !== null) clearTimeout(speechInputFallbackCompositionTimer);
+  speechInputFallbackCompositionTimer = null;
+}
+
+function armSpeechInputFallbackCompositionTimer(input) {
+  clearSpeechInputFallbackCompositionTimer();
+  const expectedButton = speechInputFallbackButton;
+  const expectedTranscript = input?.value.trim() || "";
+  if (!expectedTranscript) return;
+
+  // 一部のキーボードでは最初の音声入力だけcompositionendが届かず、
+  // 「録音保留」のままになる。入力が止まったら確定済みの文字として処理し、
+  // 正答途中であっても一度採点して、同じ問題のマイクを再開できるようにする。
+  speechInputFallbackCompositionTimer = setTimeout(() => {
+    speechInputFallbackCompositionTimer = null;
+    if (input !== document.getElementById("speechInputFallbackText")
+      || speechInputFallbackButton !== expectedButton
+      || input.value.trim() !== expectedTranscript) return;
+    handleSpeechInputFallbackInput(input, false, true);
+  }, 1800);
+}
+
+function getSpeechInputFallbackAnswers(button) {
+  let kanjiReadingMap = [];
+  try {
+    kanjiReadingMap = JSON.parse(button?.dataset.kanjiReadingMap || "[]");
+  } catch (error) {
+    kanjiReadingMap = [];
+  }
+  const isConjugation = button?.dataset.conjugation === "true";
+  const isConnect = button?.dataset.connect === "true";
+  return [button?.dataset.answer, button?.dataset.answerReading]
+    .filter(Boolean)
+    .flatMap(answer => getSpeechAnswerVariants(answer, isConjugation))
+    .map(answer => normalizeSpeechForComparison(answer, kanjiReadingMap, isConjugation, isConnect))
+    .filter(Boolean);
+}
+
+function getSpeechInputFallbackPotentialAnswers(button) {
+  const answers = getSpeechInputFallbackAnswers(button);
+  const aliases = button?.dataset.conjugation === "true"
+    ? [...SPEECH_EQUIVALENT_ALIASES, ...CONJUGATION_FORM_ALIASES]
+    : button?.dataset.connect === "true"
+      ? [...SPEECH_EQUIVALENT_ALIASES, ...CONNECT_SPEECH_EQUIVALENT_ALIASES]
+      : SPEECH_EQUIVALENT_ALIASES;
+  const potentialAnswers = new Set(answers);
+
+  // 完成した許容候補は正規化時にcanonicalへ置き換わるが、入力途中の候補は
+  // まだ置き換わらない。「タク」（許容候補「タクシー」の途中）なども
+  // 正答の途中として扱えるよう、正答中のcanonicalを各候補へ戻した形も比較する。
+  answers.forEach(answer => {
+    aliases.forEach(({ alias, canonical }) => {
+      if (answer.includes(canonical)) potentialAnswers.add(answer.replaceAll(canonical, alias));
+    });
+  });
+  return Array.from(potentialAnswers);
+}
+
+function isSpeechInputFallbackPotentialMatch(transcript, button = speechInputFallbackButton) {
+  if (!button) return false;
+  let kanjiReadingMap = [];
+  try {
+    kanjiReadingMap = JSON.parse(button.dataset.kanjiReadingMap || "[]");
+  } catch (error) {
+    kanjiReadingMap = [];
+  }
+  const normalizedTranscript = normalizeSpeechForComparison(
+    transcript,
+    kanjiReadingMap,
+    button.dataset.conjugation === "true",
+    button.dataset.connect === "true"
+  );
+  if (!normalizedTranscript) return true;
+
+  const isConjugation = button.dataset.conjugation === "true";
+  return getSpeechInputFallbackPotentialAnswers(button).some(answer => {
+    // 入力全体が正解の先頭なら、まだ発話の途中なので録音を続ける。
+    if (answer.startsWith(normalizedTranscript)) return true;
+
+    // 許容候補の途中にも、別の完成済み許容語が含まれることがあるため、
+    // 候補の各途中形も入力と同じ方法で正規化してから比較する。
+    for (let length = 1; length <= answer.length; length += 1) {
+      const prefix = normalizeSpeechForComparison(answer.slice(0, length), kanjiReadingMap, isConjugation, button.dataset.connect === "true");
+      if (!prefix) continue;
+      if (normalizedTranscript === prefix) return true;
+
+      // キーボード音声入力が直前の候補を残した場合も、末尾が正解候補の
+      // 先頭に2文字以上かすっていれば候補が確定するまで待つ。
+      const requiredOverlap = Math.min(2, answer.length);
+      if (prefix.length >= requiredOverlap && normalizedTranscript.endsWith(prefix)) return true;
+    }
+    return false;
+  });
+}
+
+function shouldPromptForJapaneseKeyboard(transcript, input = null) {
+  const text = String(transcript || "").trim();
+  const inputLocale = String(input?.dataset.inputLocale || "").toLowerCase();
+  if (/^zh(?:-|$)/.test(inputLocale)) return true;
+  if (!text || /[\u3040-\u30ff]/.test(text)) return false;
+  // 指定された中国語判定文字が一つでも含まれていれば、中国語入力として扱う。
+  if (/[这很也没呢吧吗您哪谁怎啥挺跟把说话们还过进车门问间听见现觉让给对从为书买卖东乐习语汉认识请谢欢边远运动饭饿饱钱贵药爱亲长师时后开关电脑网飞头发厅楼层厕厨历纸笔读课练题错难简单记讲帮找该总]/.test(text)) return true;
+  if (/[\u3400-\u9fff]/.test(text)) return false;
+  return /[a-z0-9]/i.test(text);
+}
+
+function handleSpeechInputFallbackInput(input, isComposing = false, compositionTimedOut = false) {
+  clearSpeechInputFallbackMismatchTimer();
+  if (!isComposing) clearSpeechInputFallbackCompositionTimer();
+  if (Date.now() < speechInputFallbackAcceptAfter) {
+    input.value = "";
+    return;
+  }
+  const transcript = input?.value.trim() || "";
+  if (transcript && (isSpeechSkipRequest(transcript) || isSpeechInputFallbackAnswerCorrect(transcript))) {
+    submitSpeechInputFallback();
+    return;
+  }
+  if (!transcript) return;
+  if (isComposing) {
+    armSpeechInputFallbackCompositionTimer(input);
+    return;
+  }
+  if (!compositionTimedOut && isSpeechInputFallbackPotentialMatch(transcript)) {
+    armSpeechInputFallbackCompositionTimer(input);
+    return;
+  }
+
+  // 正解の先頭と末尾がかすっていない状態が続いた時だけ誤答にする。
+  // 短時間の変換候補や発話途中の揺れでマイクを切らないよう、入力停止後に再確認する。
+  const expectedButton = speechInputFallbackButton;
+  const expectedTranscript = transcript;
+  speechInputFallbackMismatchTimer = setTimeout(() => {
+    speechInputFallbackMismatchTimer = null;
+    if (input !== document.getElementById("speechInputFallbackText")
+      || speechInputFallbackButton !== expectedButton
+      || input.value.trim() !== expectedTranscript
+      || isSpeechInputFallbackPotentialMatch(expectedTranscript, expectedButton)) return;
+    if (shouldPromptForJapaneseKeyboard(expectedTranscript, input)) {
+      resetSpeechInputFallbackInput();
+      window.alert("请切换到日语键盘。");
+      return;
+    }
+    submitSpeechInputFallback();
+  }, 700);
+}
+
+function isSpeechInputFallbackAnswerCorrect(transcript) {
+  const button = speechInputFallbackButton;
+  if (!button) return false;
+  let kanjiReadingMap = [];
+  try {
+    kanjiReadingMap = JSON.parse(button.dataset.kanjiReadingMap || "[]");
+  } catch (error) {
+    kanjiReadingMap = [];
+  }
+  return isSpeechAnswerCorrect(
+    transcript,
+    [button.dataset.answer, button.dataset.answerReading],
+    kanjiReadingMap,
+    button.dataset.conjugation === "true",
+    button.dataset.connect === "true"
+  );
+}
+
+function submitSpeechInputFallback(event) {
+  event?.preventDefault();
+  const button = speechInputFallbackButton;
+  const input = document.getElementById("speechInputFallbackText");
+  const transcript = input?.value.trim() || "";
+  if (!button || !transcript) {
+    input?.reportValidity();
+    return;
+  }
+  activeSpeechButton = button;
+  activeSpeechSegments.clear();
+  activeSpeechSegments.set(0, transcript);
+  setSpeechButtonMessage(button, transcript);
+  if (isSpeechSkipRequest(transcript)) {
+    skipSpeechQuestion(button, transcript);
+    return;
+  }
+  gradeSpeechAnswer(button);
+}
+
+function enableSpeechInputFallback(button, _reason, openImmediately = false) {
+  speechInputFallbackMode = true;
+  document.querySelectorAll("#tableArea .test-answer-button").forEach(answerButton => {
+    if (answerButton.dataset.correct !== "true") answerButton.dataset.speechFallback = "true";
+  });
+  setSpeechButtonClass(button);
+  setSpeechButtonMessage(button, "");
+  button.querySelector(".test-status").textContent = "";
+  activeSpeechButton = null;
+  if (openImmediately) openSpeechInputFallback(button);
+}
+
+function getSpeechErrorMessage(error) {
+  const messages = {
+    "not-allowed": "マイクの使用が拒否されています。端末とサイトのマイク権限を許可してください",
+    "service-not-allowed": "このブラウザーでは音声認識サービスの使用が許可されていません。別のブラウザーでお試しください",
+    "no-speech": "制限時間内に声を検出できませんでした。マイクに近づいてもう一度お話しください",
+    "audio-capture": "マイクから音声を取得できません。端末のマイク設定や他のアプリで使用中でないか確認してください",
+    "network": "音声認識サービスへ接続できません。インターネット接続や利用地域の通信制限を確認してください",
+    "language-not-supported": "この端末またはブラウザーは日本語（ja-JP）の音声認識に対応していません",
+    "bad-grammar": "音声認識の文法設定を読み込めませんでした。ページを再読み込みしてください",
+    "phrases-not-supported": "このブラウザーは音声認識のフレーズ指定に対応していません",
+    "aborted": "音声認識が中断されました。問題をもう一度タップしてください"
+  };
+  return messages[error] || `音声認識で不明なエラーが発生しました（${error || "詳細なし"}）。別のブラウザーでもお試しください`;
+}
+
+function getSpeechStartErrorMessage(error) {
+  if (error?.name === "NotAllowedError" || error?.name === "SecurityError") {
+    return "ブラウザーがマイクの開始を拒否しました。HTTPSで開き、端末とサイトのマイク権限を許可してください";
+  }
+  if (error?.name === "InvalidStateError") {
+    return "音声認識はすでに開始されています。少し待ってから問題をもう一度タップしてください";
+  }
+  if (error?.name === "AbortError") {
+    return "音声認識の開始が中断されました。問題をもう一度タップしてください";
+  }
+  return `音声認識を開始できませんでした（${error?.name || "原因不明"}）。ページを再読み込みするか、別のブラウザーでお試しください`;
+}
+
+function retrySpeechQuestion(button) {
+  if (!testModeActive || activeSpeechButton !== button) return;
+  if (speechGradeTimer !== null) clearTimeout(speechGradeTimer);
+  if (speechAnswerTimeoutTimer !== null) clearTimeout(speechAnswerTimeoutTimer);
+  speechGradeTimer = null;
+  speechAnswerTimeoutTimer = null;
+  activeSpeechSegments.clear();
+  abortCurrentSpeechRecognition();
+  if (speechRetryCount >= 1) {
+    setSpeechButtonClass(button);
+    setSpeechButtonMessage(button, "問題をもう一度タップしてください");
+    activeSpeechButton = null;
+    return;
+  }
+  speechRetryCount += 1;
+  // 「もう一度」になった瞬間からパルスを戻し、新しい認識器を直ちに開始する。
+  setSpeechButtonClass(button, "listening");
+  setSpeechButtonMessage(button, "聞いています…");
+  startSpeechRecognitionForButton(button);
+  if (speechRecognition) armSpeechAnswerTimeout(button, speechRecognition);
+}
+
+function armSpeechAnswerTimeout(button, recognition) {
+  if (speechAnswerTimeoutTimer !== null) clearTimeout(speechAnswerTimeoutTimer);
+  speechAnswerTimeoutTimer = setTimeout(() => {
+    speechAnswerTimeoutTimer = null;
+    if (activeSpeechButton !== button || speechRecognition !== recognition) return;
+    setSpeechButtonClass(button);
+    setSpeechButtonMessage(button, "4.5秒以内に音声を検出できませんでした。問題をもう一度タップしてお話しください");
+    button.querySelector(".test-status").textContent = "";
+    activeSpeechButton = null;
+    activeSpeechSegments.clear();
+    abortCurrentSpeechRecognition();
+  }, 4500);
+}
+
+function beginSpeechListening(button, recognition) {
+  if (activeSpeechButton !== button || speechRecognition !== recognition) return;
+  setSpeechButtonClass(button, "listening");
+  setSpeechButtonMessage(button, "聞いています…");
+  button.querySelector(".test-status").textContent = "";
+  armSpeechAnswerTimeout(button, recognition);
+}
+
+function startNextSpeechQuestion(currentButton) {
+  if (testSessionEnded) return;
+  const buttons = Array.from(document.querySelectorAll("#tableArea .test-answer-button"));
+  const nextButton = buttons
+    .slice(buttons.indexOf(currentButton) + 1)
+    .find(button => button.dataset.correct !== "true");
+  if (!nextButton) {
+    if (speechInputFallbackMode) closeSpeechInputFallback();
+    return;
+  }
+  if (speechInputFallbackMode) {
+    nextButton.dataset.speechFallback = "true";
+    moveSpeechInputFallback(nextButton);
+    return;
+  }
+  setSpeechButtonMessage(nextButton, "マイクを準備しています…");
+  // 前問の音声の末尾を新しい認識器が拾わないよう、マイクを切ってから少し待って開始する。
+  speechNextQuestionTimer = setTimeout(() => {
+    speechNextQuestionTimer = null;
+    if (testModeActive && nextButton.dataset.correct !== "true") startSpeechTest(nextButton);
+  }, 400);
+}
+
+function isSpeechSkipRequest(transcript) {
+  const normalized = normalizeSpeechText(transcript);
+  return ["わかりません", "分かりません", "判りません"].some(request =>
+    normalized.includes(normalizeSpeechText(request))
+  );
+}
+
+function skipSpeechQuestion(target, transcript) {
+  if (activeSpeechButton !== target) return;
+  clearSpeechTimers();
+  setSpeechButtonClass(target);
+  target.querySelector(".test-transcript").textContent = target.dataset.correct === "true"
+    ? target.dataset.answer
+    : "";
+  target.querySelector(".test-status").textContent = "";
+  activeSpeechButton = null;
+  activeSpeechSegments.clear();
+  abortCurrentSpeechRecognition();
+  startNextSpeechQuestion(target);
+}
+
+function gradeSpeechAnswer(target, onlyIfCorrect = false) {
+  if (activeSpeechButton !== target) return false;
+  const transcript = Array.from(activeSpeechSegments.values()).join("");
+  let kanjiReadingMap = [];
+  try {
+    kanjiReadingMap = JSON.parse(target.dataset.kanjiReadingMap || "[]");
+  } catch (error) {
+    kanjiReadingMap = [];
+  }
+  const correct = isSpeechAnswerCorrect(
+    transcript,
+    [target.dataset.answer, target.dataset.answerReading],
+    kanjiReadingMap,
+    target.dataset.conjugation === "true",
+    target.dataset.connect === "true"
+  );
+  if (onlyIfCorrect && !correct) return false;
+
+  clearSpeechTimers();
+  const wasCorrect = target.dataset.correct === "true";
+  if (correct) target.dataset.correct = "true";
+  const staysCorrect = correct || wasCorrect;
+  setSpeechButtonClass(target, staysCorrect ? "" : "incorrect");
+  if (staysCorrect) target.querySelector(".test-transcript").textContent = target.dataset.answer;
+  target.querySelector(".test-status").textContent = staysCorrect ? "" : "× もう一度";
+  activeSpeechButton = null;
+  activeSpeechSegments.clear();
+  abortCurrentSpeechRecognition();
+  if (staysCorrect) {
+    if (!finishTestSuccessfullyIfComplete()) startNextSpeechQuestion(target);
+  } else {
+    if (target.dataset.speechFallback === "true") {
+      // 誤答表示を残さず、空欄で同じ問題を再開する。
+      setSpeechButtonClass(target);
+      setSpeechButtonMessage(target, "");
+      target.querySelector(".test-status").textContent = "";
+      moveSpeechInputFallback(target);
+      return correct;
+    }
+    // 誤答表示で一度閉じた後、次のイベントループですぐ同じ問題を再開する。
+    speechRetryCount = 0;
+    activeSpeechButton = target;
+    speechGradeTimer = setTimeout(() => {
+      speechGradeTimer = null;
+      retrySpeechQuestion(target);
+    }, 0);
+  }
+  return correct;
+}
+
+function startSpeechRecognitionForButton(button) {
+  const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!Recognition) {
+    speechSessionError = window.isSecureContext
+      ? "このブラウザーはWeb音声認識に対応していません。対応する別のブラウザーでお試しください"
+      : "安全でない接続（HTTP）のため音声認識を使用できません。HTTPSでページを開いてください";
+    enableSpeechInputFallback(button, speechSessionError, true);
+    return;
+  }
+
+  const recognition = new Recognition();
+  speechRecognition = recognition;
+  recognition.lang = "ja-JP";
+  recognition.interimResults = true;
+  recognition.continuous = false;
+  if (localSpeechAvailable && "processLocally" in recognition) recognition.processLocally = true;
+
+  recognition.onstart = () => beginSpeechListening(button, recognition);
+  recognition.onresult = event => {
+    if (speechRecognition !== recognition || activeSpeechButton !== button) return;
+    for (let index = event.resultIndex; index < event.results.length; index += 1) {
+      activeSpeechSegments.set(index, event.results[index][0].transcript);
+    }
+    const transcript = Array.from(activeSpeechSegments.values()).join("");
+    if (!transcript) return;
+    speechRetryCount = 0;
+    setSpeechButtonMessage(button, transcript);
+    armSpeechAnswerTimeout(button, recognition);
+    if (isSpeechSkipRequest(transcript)) {
+      skipSpeechQuestion(button, transcript);
+      return;
+    }
+    if (gradeSpeechAnswer(button, true)) return;
+    const latestResult = event.results[event.results.length - 1];
+    if (!latestResult.isFinal) {
+      const answerLength = Math.min(
+        normalizeSpeechText(button.dataset.answer || "").length || Infinity,
+        normalizeSpeechText(button.dataset.answerReading || "").length || Infinity
+      );
+      if (answerLength <= 4) {
+        if (speechGradeTimer !== null) clearTimeout(speechGradeTimer);
+        speechGradeTimer = setTimeout(() => {
+          speechGradeTimer = null;
+          if (activeSpeechButton === button && speechRecognition === recognition) gradeSpeechAnswer(button);
+        }, 250);
+      }
+      return;
+    }
+    gradeSpeechAnswer(button);
+  };
+  recognition.onerror = event => {
+    if (speechRecognition !== recognition) return;
+    clearSpeechTimers();
+    speechRecognition = null;
+    activeSpeechSegments.clear();
+    const message = getSpeechErrorMessage(event.error);
+    if (["service-not-allowed", "network", "language-not-supported"].includes(event.error)) {
+      enableSpeechInputFallback(button, message);
+    } else {
+      setSpeechButtonClass(button);
+      setSpeechButtonMessage(button, message);
+      button.querySelector(".test-status").textContent = "";
+      if (activeSpeechButton === button) activeSpeechButton = null;
+    }
+  };
+  recognition.onend = () => {
+    if (speechRecognition !== recognition) return;
+    clearSpeechTimers();
+    speechRecognition = null;
+    activeSpeechSegments.clear();
+    if (activeSpeechButton !== button) return;
+    retrySpeechQuestion(button);
+  };
+
+  try {
+    recognition.start();
+  } catch (error) {
+    speechRecognition = null;
+    activeSpeechButton = null;
+    setSpeechButtonClass(button);
+    setSpeechButtonMessage(button, getSpeechStartErrorMessage(error));
+  }
+}
+
+function startSpeechTest(button) {
+  if (testSessionEnded) return;
+  selectSpeechTestQuestion(button);
+  if (speechInputFallbackMode || button.dataset.speechFallback === "true") {
+    openSpeechInputFallback(button);
+    return;
+  }
+  clearSpeechTimers();
+  speechRetryCount = 0;
+  abortCurrentSpeechRecognition();
+  activeSpeechSegments.clear();
+  if (activeSpeechButton && activeSpeechButton !== button) {
+    setSpeechButtonClass(activeSpeechButton);
+  }
+  activeSpeechButton = button;
+  // 認識開始を待たず、選んだ問題がすぐ分かるように選択表示にする。
+  setSpeechButtonClass(button, "listening");
+  setSpeechButtonMessage(button, "マイクを準備しています…");
+  button.querySelector(".test-status").textContent = "";
+  startSpeechRecognitionForButton(button);
+  if (speechRecognition) armSpeechAnswerTimeout(button, speechRecognition);
+}
+
+function startSpeechTestSession() {
+  speechInputFallbackMode = false;
+  speechInputFallbackButton = null;
+  const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  speechSessionError = Recognition
+    ? ""
+    : window.isSecureContext
+      ? "このブラウザーはWeb音声認識に対応していません。対応する別のブラウザーでお試しください"
+      : "安全でない接続（HTTP）のため音声認識を使用できません。HTTPSでページを開いてください";
+}
+
+function getSavedTestParticipantName() {
+  try {
+    return localStorage.getItem(TEST_PARTICIPANT_NAME_KEY) || "";
+  } catch (error) {
+    return "";
+  }
+}
+
+function beginTestQuestions() {
+  testSessionEnded = false;
+  testResultSaved = false;
+  startSpeechTestSession();
+  startTestCountdown();
+  const firstQuestion = document.querySelector("#tableArea .test-answer-button");
+  if (firstQuestion) {
+    // ソフトウェアキーボードは、ユーザー操作中に入力欄へ直接フォーカスしないと
+    // 起動しない端末があるため、疑似クリックを介さずここで入力欄を開く。
+    enableSpeechInputFallback(firstQuestion, "", true);
+  }
+}
+
+function confirmTestParticipant(event) {
+  event.preventDefault();
+  const input = document.getElementById("testParticipantName");
+  const name = input ? input.value.trim() : "";
+  if (!name) {
+    if (input) {
+      input.setCustomValidity("名前を入力してください");
+      input.reportValidity();
+    }
+    return;
+  }
+  input.setCustomValidity("");
+  try {
+    localStorage.setItem(TEST_PARTICIPANT_NAME_KEY, name);
+  } catch (error) {
+    // 保存できない環境でも、現在のページ内ではテストを開始できる。
+  }
+  testParticipantConfirmed = true;
+  document.getElementById("testStartOverlay")?.remove();
+  beginTestQuestions();
+}
+
+function showTestStartPanel() {
+  const savedName = getSavedTestParticipantName();
+  document.body.insertAdjacentHTML("beforeend", `
+    <div class="test-start-overlay" id="testStartOverlay">
+      <form class="test-start-panel" onsubmit="confirmTestParticipant(event)">
+        <label for="testParticipantName">名前</label>
+        <input id="testParticipantName" name="participantName" value="${escapeHtml(savedName)}" autocomplete="name" required>
+        <button type="submit">はじめる</button>
+      </form>
+    </div>
+  `);
+  document.getElementById("testParticipantName")?.focus();
+}
+
+function revealTestAnswers() {
+  recordCurrentTestResult("reveal");
+  testSessionEnded = true;
+  stopSpeechRecognition();
+  clearTestCountdown();
+  document.querySelectorAll("#tableArea .test-answer-button").forEach(button => {
+    if (button.dataset.correct === "true") return;
+    button.dataset.revealed = "true";
+    button.className = "test-answer-button revealed";
+    button.querySelector(".test-transcript").textContent = button.dataset.answer;
+    button.querySelector(".test-status").textContent = "";
+  });
+}
+
+function makeTestTable() {
+  const sourceTable = document.querySelector("#tableArea table");
+  if (!sourceTable) return false;
+  const rows = Array.from(sourceTable.querySelectorAll("tr"))
+    .filter(row => !row.querySelector("th") && !row.classList.contains("group-row"))
+    .filter(row => row.cells.length >= 2)
+    .filter(row => !row.hasAttribute("data-test-excluded"))
+    // Vますのテストでは、ませんか・ましょうか・ましょうの練習行を出題しない。
+    .filter(row => currentTableType !== "Vます" || getCellAnswerText(row.cells[row.cells.length - 1]).endsWith("ます"))
+    // 中国語の固有名詞を含む歌手の問題は、聞くモードの音声テストには出題しない。
+    .filter(row => currentTableType !== "聞く" || !getCellAnswerText(row.cells[row.cells.length - 1]).includes("歌手を知っていますか"));
+  if (!rows.length) return false;
+  const isConjugation = currentSection === "conjugation";
+  const isConnect = currentTableType === "つなぐ";
+
+  const selected = shuffleArray(rows).slice(0, Math.min(15, rows.length)).map(row => {
+    const answerCell = row.cells[row.cells.length - 1];
+    return {
+      row,
+      answer: getCellAnswerText(answerCell),
+      answerReading: getCellAnswerReading(answerCell)
+    };
+  });
+  if (isConjugation && selected.length > 1) {
+    // 音声で答えるテストなので、漢字の字数ではなく読みの文字数で最長を決める。
+    const answerLength = item => Array.from(normalizeSpeechText(item.answerReading)).length;
+    const longestAnswerIndex = selected.reduce(
+      (longestIndex, item, index, items) => answerLength(item) > answerLength(items[longestIndex]) ? index : longestIndex,
+      0
+    );
+    selected.unshift(...selected.splice(longestAnswerIndex, 1));
+  }
+  const body = selected.map(({ row, answer, answerReading }, index) => {
+    const prompt = row.cells[0].cloneNode(true);
+    prompt.querySelectorAll(".question-box").forEach(node => node.remove());
+    const kanjiReadingMap = getCellKanjiReadingMap(row.cells[row.cells.length - 1]);
+    return `<tr><td>${prompt.innerHTML}</td><td class="test-answer-cell"><button class="test-answer-button" type="button" data-answer="${escapeHtml(answer)}" data-answer-reading="${escapeHtml(answerReading)}" data-kanji-reading-map="${escapeHtml(JSON.stringify(kanjiReadingMap))}" data-conjugation="${isConjugation}" data-connect="${isConnect}" data-selected="false" aria-pressed="false" onclick="startSpeechTest(this)" aria-label="${index + 1}問目を音声で答える"><span class="test-transcript"></span><span class="test-status"></span></button></td></tr>`;
+  }).join("");
+  document.getElementById("tableArea").innerHTML = `<table class="test-table"><tr><th>問題</th><th>あなたの答え</th></tr>${body}</table><button class="test-reveal-btn" type="button" onclick="revealTestAnswers()">答え</button><button class="test-timer-btn" id="testTimerBtn" type="button" aria-label="タイマー">${isConjugation ? "1:20" : "3:00"}</button><div class="scroll-extra-y"></div>`;
+  return true;
+}
+
+function toggleTestMode() {
+  if (testModeActive) {
+    recordCurrentTestResult("leave");
+    testSessionEnded = true;
+    stopSpeechRecognition();
+    clearTestCountdown();
+    document.getElementById("testStartOverlay")?.remove();
+    document.getElementById("testCongratulations")?.remove();
+    document.getElementById("tableArea").innerHTML = sequentialTableHtml;
+    testModeActive = false;
+    document.body.classList.remove("test-mode");
+    document.getElementById("testModeBtn").classList.remove("is-active");
+    afterTableOrderChanged();
+    return;
+  }
+  // Vますは入れ替え表示中でも、辞書形を問題、～ますを答えにしてテストを作る。
+  if (currentTableType === "Vます" && masuSwapped) {
+    masuSwapped = false;
+    makeMasuTable();
+  }
+  rememberSequentialTable();
+  if (!makeTestTable()) return;
+  testModeActive = true;
+  tableRandomized = false;
+  document.body.classList.add("test-mode");
+  document.getElementById("testModeBtn").classList.add("is-active");
+  updateRandomOrderButton();
+  afterTableOrderChanged();
+  if (testParticipantConfirmed) beginTestQuestions();
+  else showTestStartPanel();
+}
 
 function updateRandomOrderButton() {
   const button = document.getElementById("randomOrderBtn");
@@ -4268,6 +5993,7 @@ function randomizeCurrentTable() {
 }
 
 function toggleRandomOrder() {
+  if (testModeActive) return;
   const area = document.getElementById("tableArea");
   if (!area) return;
 
@@ -4540,7 +6266,7 @@ function makeConnectSeparator(groupTitle, rowIndex = 0) {
   if (groupTitle === "～で") return `<span class="connect-separator connect-separator-square connect-separator-fast"><span>▶</span><span>▶</span></span>`;
   if (groupTitle === "～けど・ですが" || groupTitle === "ですけど・ですが") return `<span class="connect-separator connect-separator-square connect-separator-contrast"><span class="bidi-arrow"><span class="bidi-arrow-left"></span><span class="bidi-arrow-right"></span></span></span>`;
   if (groupTitle === "Vて（順序）" || groupTitle === "➡") return `<span class="connect-separator connect-separator-bold-arrow">➡</span>`;
-  if (groupTitle === "～ので（理由）" || groupTitle === "理由") return `<span class="connect-separator connect-separator-square connect-separator-fast connect-separator-soft-blue"><span>▶</span><span>▶</span></span>`;
+  if (groupTitle === "～から・ので（理由）" || groupTitle === "理由") return `<span class="connect-separator connect-separator-square connect-separator-fast connect-separator-soft-blue"><span>▶</span><span>▶</span></span>`;
   if (groupTitle === "～前に・～てから" || groupTitle === "前に・てから") {
     const isBefore = rowIndex < 2;
     return `<span class="connect-separator connect-separator-before-after ${isBefore ? "is-before" : "is-after"}"><span class="connect-separator-before-after-label">${isBefore ? "before" : "after"}</span></span>`;
@@ -4615,7 +6341,7 @@ function makeConnectTable() {
 
     group.rows.forEach(([prompt, answer], rowIndex) => {
       const answerHtml = addFurigana(compactJapanese(escapeHtml(answer)));
-      const isReasonGroup = group.title === "～ので（理由）" || group.title === "理由";
+      const isReasonGroup = group.title === "～から・ので（理由）" || group.title === "理由";
       const displayedAnswer = isReasonGroup ? addReasonKaraNote(answerHtml) : answerHtml;
 
       html += `
@@ -4650,6 +6376,11 @@ function showPlaceholderTable(title, message, returnSection = "home") {
 }
 
 function showTable(type, focusKey = "") {
+  recordCurrentTestResult("leave");
+  stopSpeechRecognition();
+  clearTestCountdown();
+  document.getElementById("testCongratulations")?.remove();
+  testSessionEnded = true;
   stopPageOpenTracker();
   document.body.classList.remove("home-mode", "menu-mode", "sheet-high", "table-start-lowered", "position-vocab");
   if (type === "Vて" || type === "Vた" || type === "聞く" || type === "話す" || type === "つなぐ" || vocabCategories.includes(type)) {
@@ -4661,6 +6392,9 @@ function showTable(type, focusKey = "") {
   document.getElementById("tableTitle").textContent = type;
   document.body.classList.toggle("position-vocab", type === "位置詞");
   currentTableType = type;
+  testModeActive = false;
+  document.body.classList.remove("test-mode");
+  document.getElementById("testModeBtn").classList.remove("is-active");
   tableRandomized = false;
   sequentialTableHtml = "";
   updateRandomOrderButton();
@@ -4792,6 +6526,13 @@ function scrollToQuestionKey(key) {
 }
 
 function backMenu() {
+  recordCurrentTestResult("leave");
+  stopSpeechRecognition();
+  clearTestCountdown();
+  document.getElementById("testCongratulations")?.remove();
+  testSessionEnded = true;
+  testModeActive = false;
+  document.body.classList.remove("test-mode");
   document.body.classList.remove("sheet-high", "table-start-lowered", "position-vocab");
   tableVisible = false;
   stopPageOpenTracker();
@@ -5028,8 +6769,9 @@ function makeTeTable() {
 
   teFormData.forEach(row => {
     const rowClass = row[2] ? ` class="${row[2]}"` : "";
+    const testExcluded = row[0] === "する" || row[0] === "<ruby>来<rt>く</rt></ruby>る" ? " data-test-excluded" : "";
     html += `
-      <tr${rowClass}>
+      <tr${rowClass}${testExcluded}>
         <td>${makeWordCell(row[0])}</td>
         <td><span class="answer-text">${row[1]}</span></td>
       </tr>
@@ -5061,8 +6803,9 @@ function makeTaTable() {
 
   taFormData.forEach(row => {
     const rowClass = row[2] ? ` class="${row[2]}"` : "";
+    const testExcluded = row[0] === "する" || row[0] === "<ruby>来<rt>く</rt></ruby>る" ? " data-test-excluded" : "";
     html += `
-      <tr${rowClass}>
+      <tr${rowClass}${testExcluded}>
         <td>${makeWordCell(row[0])}</td>
         <td><span class="answer-text">${row[1]}</span></td>
       </tr>
@@ -7374,6 +9117,10 @@ window.addEventListener("orientationchange", () => {
 });
 
 window.addEventListener("load", () => {
+  // Firebaseの成否を待たずに画面を初期化する。接続できない環境でも、
+  // 結果はローカルへ保存され、次に接続できたとき同期される。
+  connectFirebase();
+  checkLocalSpeechAvailability();
   bootstrapQuestionStorePersistence();
   setHomeMenu("main");
   updateMenuPage();
@@ -7385,8 +9132,23 @@ window.addEventListener("load", () => {
   });
 });
 
-window.addEventListener("pagehide", flushQuestionStoreBeforeHide);
-window.addEventListener("beforeunload", flushQuestionStoreBeforeHide);
+function stopSpeechWhenPageIsHidden() {
+  if (document.visibilityState === "hidden") {
+    recordCurrentTestResult("hidden");
+    clearTestCountdown();
+    stopSpeechRecognition();
+  }
+}
+
+document.addEventListener("visibilitychange", stopSpeechWhenPageIsHidden);
+function handlePageExit() {
+  recordCurrentTestResult("pagehide");
+  clearTestCountdown();
+  stopSpeechRecognition();
+  flushQuestionStoreBeforeHide();
+}
+window.addEventListener("pagehide", handlePageExit);
+window.addEventListener("beforeunload", handlePageExit);
 
 window.addEventListener("storage", e => {
   if (!e.key || !e.key.startsWith(QUESTION_STORAGE_PREFIX)) return;
