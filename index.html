@@ -4279,7 +4279,6 @@ let activeSpeechButton = null;
 let speechSessionError = "";
 let speechGradeTimer = null;
 let speechAnswerTimeoutTimer = null;
-let speechRetryTimer = null;
 let speechRetryCount = 0;
 let activeSpeechSegments = new Map();
 let localSpeechAvailable = false;
@@ -4300,10 +4299,8 @@ function setSpeechButtonMessage(button, message) {
 function clearSpeechTimers() {
   if (speechGradeTimer !== null) clearTimeout(speechGradeTimer);
   if (speechAnswerTimeoutTimer !== null) clearTimeout(speechAnswerTimeoutTimer);
-  if (speechRetryTimer !== null) clearTimeout(speechRetryTimer);
   speechGradeTimer = null;
   speechAnswerTimeoutTimer = null;
-  speechRetryTimer = null;
 }
 
 function abortCurrentSpeechRecognition() {
@@ -4665,14 +4662,11 @@ function retrySpeechQuestion(button) {
     return;
   }
   speechRetryCount += 1;
-  setSpeechButtonClass(button);
-  setSpeechButtonMessage(button, "マイクを再準備しています…");
-  speechRetryTimer = setTimeout(() => {
-    speechRetryTimer = null;
-    if (!testModeActive || activeSpeechButton !== button) return;
-    startSpeechRecognitionForButton(button);
-    if (speechRecognition) armSpeechAnswerTimeout(button, speechRecognition);
-  }, 250);
+  // 「もう一度」になった瞬間からパルスを戻し、新しい認識器を直ちに開始する。
+  setSpeechButtonClass(button, "listening");
+  setSpeechButtonMessage(button, "聞いています…");
+  startSpeechRecognitionForButton(button);
+  if (speechRecognition) armSpeechAnswerTimeout(button, speechRecognition);
 }
 
 function armSpeechAnswerTimeout(button, recognition) {
@@ -4697,7 +4691,9 @@ function beginSpeechListening(button, recognition) {
 
 function startNextSpeechQuestion(currentButton) {
   const buttons = Array.from(document.querySelectorAll("#tableArea .test-answer-button"));
-  const nextButton = buttons[buttons.indexOf(currentButton) + 1];
+  const nextButton = buttons
+    .slice(buttons.indexOf(currentButton) + 1)
+    .find(button => button.dataset.correct !== "true");
   if (nextButton) startSpeechTest(nextButton);
 }
 
