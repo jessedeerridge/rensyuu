@@ -4492,6 +4492,7 @@ const CONJUGATION_READING_GROUPS = [
   ["立", "建", "た"],
   ["読", "呼", "よ"],
   ["聞", "効", "聴", "き"],
+  ["取", "捕", "撮", "と"],
   ["貸", "課", "か"],
   ["着", "来", "き"],
   ["帰", "変", "かえ"],
@@ -4505,6 +4506,21 @@ const CONJUGATION_READING_GROUPS = [
   ["賑やか", "にぎやか"],
   ["嫌い", "きらい"]
 ];
+
+const CONJUGATION_FORM_GROUPS = [
+  ["とろう", "取ろう", "捕ろう", "撮ろう", "トロ―"],
+  ["聞こう", "機構", "気候"],
+  ["しよう", "使用", "仕様", "私用"],
+  ["来よう", "雇用"],
+  ["行こう", "以降", "意向", "移行"]
+];
+
+const CONJUGATION_FORM_ALIASES = CONJUGATION_FORM_GROUPS
+  .flatMap((group, groupIndex) => group.map(value => ({
+    alias: normalizeSpeechText(value),
+    canonical: `conjugationform${groupIndex}`
+  })))
+  .sort((a, b) => b.alias.length - a.alias.length);
 
 const CONJUGATION_READING_ALIASES = CONJUGATION_READING_GROUPS
   .flatMap(group => group.slice(0, -1).map(value => ({
@@ -4521,9 +4537,13 @@ function replaceSpeechEquivalentAliases(value) {
 }
 
 function replaceConjugationVariants(value) {
+  const protectedForms = CONJUGATION_FORM_ALIASES.reduce(
+    (text, { alias, canonical }) => text.replaceAll(alias, canonical),
+    normalizeSpeechText(value)
+  );
   return CONJUGATION_READING_ALIASES.reduce(
     (text, { alias, reading }) => text.replaceAll(alias, reading),
-    normalizeSpeechText(value)
+    protectedForms
   )
     .replace(/よい/g, "いい")
     .replace(/られ/g, "れ");
