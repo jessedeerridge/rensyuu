@@ -4277,15 +4277,9 @@ let testModeActive = false;
 let speechRecognition = null;
 let activeSpeechButton = null;
 let speechSessionError = "";
-let speechRestartTimer = null;
 let speechGradeTimer = null;
 let speechAnswerTimeoutTimer = null;
 let activeSpeechSegments = new Map();
-let speechResultCount = 0;
-let activeSpeechStartIndex = 0;
-let speechRecognitionReady = false;
-let speechRecoveryRequested = false;
-let activeSpeechWaitingForNewResult = false;
 let localSpeechAvailable = false;
 
 function setSpeechButtonClass(button, state = "") {
@@ -4295,43 +4289,22 @@ function setSpeechButtonClass(button, state = "") {
   button.className = classes.join(" ");
 }
 
-function clearSpeechAnswerTimeout() {
-  if (speechAnswerTimeoutTimer === null) return;
-  clearTimeout(speechAnswerTimeoutTimer);
+function clearSpeechTimers() {
+  if (speechGradeTimer !== null) clearTimeout(speechGradeTimer);
+  if (speechAnswerTimeoutTimer !== null) clearTimeout(speechAnswerTimeoutTimer);
+  speechGradeTimer = null;
   speechAnswerTimeoutTimer = null;
 }
 
-function armSpeechAnswerTimeout(button) {
-  clearSpeechAnswerTimeout();
-  speechAnswerTimeoutTimer = setTimeout(() => {
-    speechAnswerTimeoutTimer = null;
-    if (activeSpeechButton !== button) return;
-    setSpeechButtonClass(button);
-    button.querySelector(".test-transcript").textContent = "もう一度タップして話してください";
-    button.querySelector(".test-status").textContent = "";
-    activeSpeechButton = null;
-    activeSpeechSegments.clear();
-    // UIだけを戻すのではなく、応答しなくなった認識器自体も作り直す。
-    if (speechRecognition && testModeActive) {
-      speechRecognitionReady = false;
-      speechRecoveryRequested = true;
-      try {
-        speechRecognition.abort();
-      } catch (error) {
-        speechRecoveryRequested = false;
-        speechSessionError = "音声認識を再開できませんでした。テストを押し直してください";
-      }
-    }
-  }, 4500);
-}
-
-function beginSpeechListening(button) {
-  if (activeSpeechButton !== button) return;
-  activeSpeechWaitingForNewResult = false;
-  setSpeechButtonClass(button, "listening");
-  button.querySelector(".test-transcript").textContent = "聞いています…";
-  button.querySelector(".test-status").textContent = "";
-  armSpeechAnswerTimeout(button);
+function abortCurrentSpeechRecognition() {
+  const recognition = speechRecognition;
+  speechRecognition = null;
+  if (!recognition) return;
+  try {
+    recognition.abort();
+  } catch (error) {
+    // すでに終了した認識器はそのまま破棄する。
+  }
 }
 
 function checkLocalSpeechAvailability() {
@@ -4582,73 +4555,48 @@ function getCellAnswerReading(cell) {
 }
 
 function stopSpeechRecognition() {
+  clearSpeechTimers();
   activeSpeechButton = null;
   activeSpeechSegments.clear();
-  speechResultCount = 0;
-  activeSpeechStartIndex = 0;
-  speechRecognitionReady = false;
-  speechRecoveryRequested = false;
-  activeSpeechWaitingForNewResult = false;
   speechSessionError = "";
-  clearSpeechAnswerTimeout();
-  if (speechGradeTimer !== null) {
-    clearTimeout(speechGradeTimer);
-    speechGradeTimer = null;
-  }
-  if (speechRestartTimer !== null) {
-    clearTimeout(speechRestartTimer);
-    speechRestartTimer = null;
-  }
-  if (!speechRecognition) return;
-  speechRecognition.abort();
-  speechRecognition = null;
+  abortCurrentSpeechRecognition();
 }
 
 function getSpeechErrorMessage(error) {
-  if (error === "not-allowed" || error === "service-not-allowed") return "マイクを許可してください";
-  if (error === "no-speech") return "声が聞こえませんでした。もう一度タップしてください";
-  if (error === "audio-capture") return "マイクを使用できません";
-  if (error === "network") return "音声認識に接続できません。端末の音声入力を確認してください";
+  if (error === "not-allowed" || error === "service-not-allowed") return "問題をタップしてマイクを許可してください";
+  if (error === "no-speech") return "声が聞こえませんでした。問題をもう一度タップしてください";
+  if (error === "audio-capture") return "マイクを使用できません。問題をもう一度タップしてください";
+  if (error === "network") return "音声認識に接続できません。問題をもう一度タップしてください";
   if (error === "language-not-supported") return "日本語の音声認識を使用できません";
-  return "聞き取れませんでした。もう一度タップしてください";
+  return "聞き取れませんでした。問題をもう一度タップしてください";
 }
 
-function startSpeechTest(button, waitForNewResult = false) {
-  if (!speechRecognition || speechSessionError) {
+function armSpeechAnswerTimeout(button, recognition) {
+  if (speechAnswerTimeoutTimer !== null) clearTimeout(speechAnswerTimeoutTimer);
+  speechAnswerTimeoutTimer = setTimeout(() => {
+    speechAnswerTimeoutTimer = null;
+    if (activeSpeechButton !== button || speechRecognition !== recognition) return;
     setSpeechButtonClass(button);
-    button.querySelector(".test-transcript").textContent = speechSessionError || "テストを押し直してください";
+    button.querySelector(".test-transcript").textContent = "問題をもう一度タップしてください";
     button.querySelector(".test-status").textContent = "";
-    return;
-  }
+    activeSpeechButton = null;
+    activeSpeechSegments.clear();
+    abortCurrentSpeechRecognition();
+  }, 4500);
+}
 
-  if (speechGradeTimer !== null) {
-    clearTimeout(speechGradeTimer);
-    speechGradeTimer = null;
-  }
-  clearSpeechAnswerTimeout();
-  activeSpeechSegments.clear();
-  // これまでの結果番号を境界にし、前の問題の遅れて届いた更新を次へ引き継がない。
-  activeSpeechStartIndex = speechResultCount;
-  if (activeSpeechButton && activeSpeechButton !== button) {
-    activeSpeechButton.classList.remove("listening");
-  }
-  activeSpeechButton = button;
-  activeSpeechWaitingForNewResult = waitForNewResult;
-  setSpeechButtonClass(button);
-  button.querySelector(".test-transcript").textContent = waitForNewResult
-    ? "次の回答を待っています…"
-    : speechRecognitionReady
-    ? "聞いています…"
-    : "マイクを準備しています…";
+function beginSpeechListening(button, recognition) {
+  if (activeSpeechButton !== button || speechRecognition !== recognition) return;
+  setSpeechButtonClass(button, "listening");
+  button.querySelector(".test-transcript").textContent = "聞いています…";
   button.querySelector(".test-status").textContent = "";
-  if (speechRecognitionReady && !waitForNewResult) beginSpeechListening(button);
-  else armSpeechAnswerTimeout(button);
+  armSpeechAnswerTimeout(button, recognition);
 }
 
 function startNextSpeechQuestion(currentButton) {
   const buttons = Array.from(document.querySelectorAll("#tableArea .test-answer-button"));
   const nextButton = buttons[buttons.indexOf(currentButton) + 1];
-  if (nextButton) startSpeechTest(nextButton, true);
+  if (nextButton) startSpeechTest(nextButton);
 }
 
 function isSpeechSkipRequest(transcript) {
@@ -4660,15 +4608,15 @@ function isSpeechSkipRequest(transcript) {
 
 function skipSpeechQuestion(target, transcript) {
   if (activeSpeechButton !== target) return;
-  clearSpeechAnswerTimeout();
+  clearSpeechTimers();
   setSpeechButtonClass(target);
   target.querySelector(".test-transcript").textContent = target.dataset.correct === "true"
     ? target.dataset.answer
     : transcript;
   target.querySelector(".test-status").textContent = "";
   activeSpeechButton = null;
-  activeSpeechWaitingForNewResult = false;
   activeSpeechSegments.clear();
+  abortCurrentSpeechRecognition();
   startNextSpeechQuestion(target);
 }
 
@@ -4686,9 +4634,9 @@ function gradeSpeechAnswer(target, onlyIfCorrect = false) {
     [target.dataset.answer, target.dataset.answerReading],
     kanjiReadingMap
   );
-  // 途中結果でも正解を含んだ時点で確定し、待機中のパルス表示をすぐ終了する。
   if (onlyIfCorrect && !correct) return false;
-  clearSpeechAnswerTimeout();
+
+  clearSpeechTimers();
   const wasCorrect = target.dataset.correct === "true";
   if (correct) target.dataset.correct = "true";
   const staysCorrect = correct || wasCorrect;
@@ -4696,16 +4644,19 @@ function gradeSpeechAnswer(target, onlyIfCorrect = false) {
   if (staysCorrect) target.querySelector(".test-transcript").textContent = target.dataset.answer;
   target.querySelector(".test-status").textContent = staysCorrect ? "" : "× もう一度";
   activeSpeechButton = null;
-  activeSpeechWaitingForNewResult = false;
   activeSpeechSegments.clear();
+  abortCurrentSpeechRecognition();
   if (staysCorrect) startNextSpeechQuestion(target);
   return correct;
 }
 
-function startSpeechTestSession() {
+function startSpeechRecognitionForButton(button) {
   const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!Recognition) {
     speechSessionError = "このブラウザーは音声認識に対応していません";
+    setSpeechButtonClass(button);
+    button.querySelector(".test-transcript").textContent = speechSessionError;
+    activeSpeechButton = null;
     return;
   }
 
@@ -4713,119 +4664,78 @@ function startSpeechTestSession() {
   speechRecognition = recognition;
   recognition.lang = "ja-JP";
   recognition.interimResults = true;
-  recognition.continuous = true;
+  recognition.continuous = false;
   if (localSpeechAvailable && "processLocally" in recognition) recognition.processLocally = true;
-  let recognitionCanRestart = true;
 
-  recognition.onstart = () => {
-    if (speechRecognition !== recognition) return;
-    speechRecognitionReady = true;
-    if (activeSpeechButton) beginSpeechListening(activeSpeechButton);
-  };
-
+  recognition.onstart = () => beginSpeechListening(button, recognition);
   recognition.onresult = event => {
-    speechResultCount = Math.max(speechResultCount, event.results.length);
-    const target = activeSpeechButton;
-    if (!target) return;
-    const firstNewResult = Math.max(event.resultIndex, activeSpeechStartIndex);
-    for (let index = firstNewResult; index < event.results.length; index += 1) {
+    if (speechRecognition !== recognition || activeSpeechButton !== button) return;
+    for (let index = event.resultIndex; index < event.results.length; index += 1) {
       activeSpeechSegments.set(index, event.results[index][0].transcript);
     }
-    if (!activeSpeechSegments.size) return;
-    if (activeSpeechWaitingForNewResult) beginSpeechListening(target);
     const transcript = Array.from(activeSpeechSegments.values()).join("");
-    target.querySelector(".test-transcript").textContent = transcript;
-    // 認識結果が届いている間は故障ではないため、無応答タイマーを延長する。
-    armSpeechAnswerTimeout(target);
+    if (!transcript) return;
+    button.querySelector(".test-transcript").textContent = transcript;
+    armSpeechAnswerTimeout(button, recognition);
     if (isSpeechSkipRequest(transcript)) {
-      skipSpeechQuestion(target, transcript);
+      skipSpeechQuestion(button, transcript);
       return;
     }
-    if (speechGradeTimer !== null) {
-      clearTimeout(speechGradeTimer);
-      speechGradeTimer = null;
-    }
-    if (gradeSpeechAnswer(target, true)) {
-      return;
-    }
+    if (gradeSpeechAnswer(button, true)) return;
     const latestResult = event.results[event.results.length - 1];
     if (!latestResult.isFinal) return;
-    // continuous モードは一文を複数の final result に分割することがある。
-    // 最初の断片だけで採点せず、短い無音まで全断片を結合してから採点する。
-    speechGradeTimer = setTimeout(() => {
-      speechGradeTimer = null;
-      gradeSpeechAnswer(target);
-    }, 1200);
+    gradeSpeechAnswer(button);
   };
   recognition.onerror = event => {
     if (speechRecognition !== recognition) return;
-    if (event.error === "aborted" && speechRecoveryRequested) return;
-    const target = activeSpeechButton;
-    speechRecognitionReady = false;
-    clearSpeechAnswerTimeout();
-    if (speechGradeTimer !== null) {
-      clearTimeout(speechGradeTimer);
-      speechGradeTimer = null;
-    }
+    clearSpeechTimers();
+    speechRecognition = null;
     activeSpeechSegments.clear();
-    const isSilence = event.error === "no-speech";
-    if (!isSilence) {
-      speechSessionError = getSpeechErrorMessage(event.error);
-      recognitionCanRestart = false;
-    }
-    if (target) {
-      setSpeechButtonClass(target);
-      target.querySelector(".test-transcript").textContent = isSilence
-        ? getSpeechErrorMessage(event.error)
-        : speechSessionError;
-      target.querySelector(".test-status").textContent = "";
-    }
-    activeSpeechButton = null;
+    setSpeechButtonClass(button);
+    button.querySelector(".test-transcript").textContent = getSpeechErrorMessage(event.error);
+    button.querySelector(".test-status").textContent = "";
+    if (activeSpeechButton === button) activeSpeechButton = null;
   };
   recognition.onend = () => {
     if (speechRecognition !== recognition) return;
-    speechRecognitionReady = false;
-    speechRecoveryRequested = false;
-    if (testModeActive && recognitionCanRestart) {
-      if (activeSpeechButton) {
-        setSpeechButtonClass(activeSpeechButton);
-        activeSpeechButton.querySelector(".test-transcript").textContent = "マイクを再準備しています…";
-        armSpeechAnswerTimeout(activeSpeechButton);
-      }
-      // WebKit系は無音で連続認識を終了するため、許可済みの同じ認識器を待機状態へ戻す。
-      speechRestartTimer = setTimeout(() => {
-        speechRestartTimer = null;
-        if (!testModeActive || speechRecognition !== recognition) return;
-        try {
-          activeSpeechSegments.clear();
-          speechResultCount = 0;
-          activeSpeechStartIndex = 0;
-          recognition.start();
-        } catch (error) {
-          speechSessionError = "音声認識を再開できませんでした。テストを押し直してください";
-          clearSpeechAnswerTimeout();
-          if (activeSpeechButton) {
-            setSpeechButtonClass(activeSpeechButton);
-            activeSpeechButton.querySelector(".test-transcript").textContent = speechSessionError;
-            activeSpeechButton = null;
-          }
-          speechRecognition = null;
-        }
-      }, 250);
-      return;
-    }
-    if (activeSpeechButton) activeSpeechButton.classList.remove("listening");
-    activeSpeechButton = null;
+    clearSpeechTimers();
     speechRecognition = null;
+    activeSpeechSegments.clear();
+    if (activeSpeechButton !== button) return;
+    setSpeechButtonClass(button);
+    button.querySelector(".test-transcript").textContent = "問題をもう一度タップしてください";
+    button.querySelector(".test-status").textContent = "";
+    activeSpeechButton = null;
   };
+
   try {
-    // 初回の音声認識開始は、ユーザーがテストボタンを押した操作内で行う。
-    // getUserMedia を併用すると別系統の許可ダイアログが増えるため使用しない。
     recognition.start();
   } catch (error) {
-    speechSessionError = "開始できませんでした。テストを押し直してください";
     speechRecognition = null;
+    activeSpeechButton = null;
+    setSpeechButtonClass(button);
+    button.querySelector(".test-transcript").textContent = "問題をもう一度タップしてください";
   }
+}
+
+function startSpeechTest(button) {
+  clearSpeechTimers();
+  abortCurrentSpeechRecognition();
+  activeSpeechSegments.clear();
+  if (activeSpeechButton && activeSpeechButton !== button) {
+    setSpeechButtonClass(activeSpeechButton);
+  }
+  activeSpeechButton = button;
+  setSpeechButtonClass(button);
+  button.querySelector(".test-transcript").textContent = "マイクを準備しています…";
+  button.querySelector(".test-status").textContent = "";
+  startSpeechRecognitionForButton(button);
+  if (speechRecognition) armSpeechAnswerTimeout(button, speechRecognition);
+}
+
+function startSpeechTestSession() {
+  const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  speechSessionError = Recognition ? "" : "このブラウザーは音声認識に対応していません";
 }
 
 function makeTestTable() {
