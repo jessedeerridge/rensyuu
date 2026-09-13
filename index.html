@@ -662,22 +662,6 @@
     cursor: default;
   }
 
-  .test-elapsed-time {
-    position: fixed;
-    left: 162px;
-    bottom: max(29px, calc(env(safe-area-inset-bottom) + 19px));
-    z-index: 80;
-    color: #777;
-    font-size: 13px;
-    font-weight: 900;
-    line-height: 1;
-    white-space: nowrap;
-  }
-
-  .test-elapsed-time.untimed {
-    left: 96px;
-  }
-
   .test-start-panel.test-congratulations {
     position: relative;
     overflow: hidden;
@@ -2905,8 +2889,8 @@ function isHomeLevelMemoItem(item, level) {
 const speakPracticeData = [
   ["大阪🏠", "<ruby>大阪<rt>おおさか</rt></ruby>に <ruby>住<rt>す</rt></ruby>んでいます。"],
   ["<span class=\"speak-route\"><span class=\"speak-route-start\">🏠</span><span class=\"speak-route-top\">２ｈ</span><span class=\"speak-route-line\"></span><span class=\"speak-route-bottom\">🚃</span><span class=\"speak-route-end\">🏫</span></span>", "<ruby>家<rt>いえ</rt></ruby>から <ruby>学校<rt>がっこう</rt></ruby>まで <ruby>電車<rt>でんしゃ</rt></ruby>で <ruby>二時間<rt>にじかん</rt></ruby>くらいです。"],
-  ["<span class=\"speak-route\"><span class=\"speak-route-start\">🚉</span><span class=\"speak-route-top\">10分</span><span class=\"speak-route-line\"></span><span class=\"speak-route-bottom flip\">🚗</span><span class=\"speak-route-end\">🏫</span></span>", "<ruby>駅<rt>えき</rt></ruby>から <ruby>学校<rt>がっこう</rt></ruby>まで <ruby>車<rt>くるま</rt></ruby>で10<ruby>分<rt>ぷん</rt></ruby>くらいです。"],
-  ["<span class=\"speak-route\"><span class=\"speak-route-start\">🏫</span><span class=\"speak-route-top\">15分</span><span class=\"speak-route-line\"></span><span class=\"speak-route-bottom flip\">🚶</span><span class=\"speak-route-end\">🚉</span></span>", "<ruby>学校<rt>がっこう</rt></ruby>から <ruby>駅<rt>えき</rt></ruby>まで <ruby>歩<rt>ある</rt></ruby>いて15<ruby>分<rt>ふん</rt></ruby>くらいです。"],
+  ["<span class=\"speak-route\"><span class=\"speak-route-start\">🚉</span><span class=\"speak-route-top\">10<ruby>分<rt>ぷん</rt></ruby></span><span class=\"speak-route-line\"></span><span class=\"speak-route-bottom flip\">🚗</span><span class=\"speak-route-end\">🏫</span></span>", "<ruby>駅<rt>えき</rt></ruby>から <ruby>学校<rt>がっこう</rt></ruby>まで <ruby>車<rt>くるま</rt></ruby>で10<ruby>分<rt>ぷん</rt></ruby>くらいです。"],
+  ["<span class=\"speak-route\"><span class=\"speak-route-start\">🏫</span><span class=\"speak-route-top\">15<ruby>分<rt>ふん</rt></ruby></span><span class=\"speak-route-line\"></span><span class=\"speak-route-bottom flip\">🚶</span><span class=\"speak-route-end\">🚉</span></span>", "<ruby>学校<rt>がっこう</rt></ruby>から <ruby>駅<rt>えき</rt></ruby>まで <ruby>歩<rt>ある</rt></ruby>いて15<ruby>分<rt>ふん</rt></ruby>くらいです。"],
   ["🐶１", "<ruby>犬<rt>いぬ</rt></ruby>が <ruby>一匹<rt>いっぴき</rt></ruby>います。"],
   ["👨１👦１", "<ruby>兄<rt>あに</rt></ruby>が<ruby>1人<rt>ひとり</rt></ruby>と <ruby>弟<rt>おとうと</rt></ruby>が<ruby>1人<rt>ひとり</rt></ruby>います。"],
   ["<span class=\"speak-ticket-tilt left\">🎫</span><span class=\"speak-ticket-tilt right\">🎫</span>", "チケットが<ruby>2枚<rt>にまい</rt></ruby>あります。"],
@@ -4581,7 +4565,6 @@ let speechInputFallbackMismatchTimer = null;
 let speechInputFallbackCompositionTimer = null;
 let testCountdownTimer = null;
 let testCountdownDeadline = 0;
-let testElapsedStartedAt = 0;
 let testInputMode = "";
 let testSessionEnded = false;
 let testResultSaved = false;
@@ -4778,6 +4761,8 @@ function normalizeSpeechText(value) {
   return String(value || "")
     .normalize("NFKC")
     .toLocaleLowerCase("ja-JP")
+    // カタカナ・ひらがなの違いは採点対象外にする（半角カナもNFKC後に変換）。
+    .replace(/[ァ-ヶ]/g, character => String.fromCharCode(character.charCodeAt(0) - 0x60))
     // 漢数字・全角数字・半角数字を同じ半角数字へ統一する。
     .replace(/[〇零一二三四五六七八九十百千万]+|\d+/g, japaneseNumeralToArabic)
     // 音声認識が補う句読点・疑問符などは、位置や全角・半角を問わず採点対象外。
@@ -5212,20 +5197,11 @@ function clearTestCountdown(removeButton = true) {
   testCountdownTimer = null;
   if (removeButton) {
     document.getElementById("testTimerBtn")?.remove();
-    document.getElementById("testElapsedTime")?.remove();
   }
 }
 
 function updateTestCountdown() {
   const button = document.getElementById("testTimerBtn");
-  const elapsed = document.getElementById("testElapsedTime");
-  if (elapsed && testElapsedStartedAt) {
-    const elapsedSeconds = Math.max(0, Math.floor((Date.now() - testElapsedStartedAt) / 1000));
-    const elapsedMinutes = Math.floor(elapsedSeconds / 60);
-    const elapsedRemainder = String(elapsedSeconds % 60).padStart(2, "0");
-    elapsed.textContent = `(${elapsedMinutes}:${elapsedRemainder})`;
-    elapsed.setAttribute("aria-label", `経過時間 ${elapsedMinutes}分${elapsedRemainder}秒`);
-  }
   if (!button || !testCountdownDeadline) return;
   const remainingSeconds = Math.max(0, Math.ceil((testCountdownDeadline - Date.now()) / 1000));
   const minutes = Math.floor(remainingSeconds / 60);
@@ -5256,16 +5232,15 @@ function finishTestAtTimeout() {
 
 function startTestCountdown() {
   clearTestCountdown(false);
-  testElapsedStartedAt = Date.now();
-  if (nonConjugationQuestionTypes.has(currentTableType)) {
+  if (nonConjugationQuestionTypes.has(currentTableType) && testInputMode !== "keyboard") {
     document.getElementById("testTimerBtn")?.remove();
     testCountdownDeadline = 0;
-    updateTestCountdown();
-    testCountdownTimer = setInterval(updateTestCountdown, 250);
     return;
   }
-  const durationSeconds = currentSection === "conjugation"
-    ? (testInputMode === "keyboard" ? 140 : 80)
+  const durationSeconds = nonConjugationQuestionTypes.has(currentTableType)
+    ? 300
+    : currentSection === "conjugation"
+    ? (testInputMode === "keyboard" ? 120 : 80)
     : 180;
   testCountdownDeadline = Date.now() + durationSeconds * 1000;
   updateTestCountdown();
@@ -6003,12 +5978,8 @@ function makeTestTable() {
     const kanjiReadingMap = getCellKanjiReadingMap(row.cells[row.cells.length - 1]);
     return `<tr><td>${prompt.innerHTML}</td><td class="test-answer-cell"><button class="test-answer-button" type="button" data-answer="${escapeHtml(answer)}" data-answer-reading="${escapeHtml(answerReading)}" data-kanji-reading-map="${escapeHtml(JSON.stringify(kanjiReadingMap))}" data-conjugation="${isConjugation}" data-connect="${isConnect}" data-selected="false" aria-pressed="false" onclick="startSpeechTest(this)" aria-label="${index + 1}問目を音声で答える"><span class="test-transcript"></span><span class="test-status"></span></button></td></tr>`;
   }).join("");
-  const isUntimed = nonConjugationQuestionTypes.has(currentTableType);
-  const timer = isUntimed
-    ? ""
-    : `<button class="test-timer-btn" id="testTimerBtn" type="button" aria-label="タイマー">${isConjugation ? "1:20" : "3:00"}</button>`;
-  const elapsed = `<span class="test-elapsed-time${isUntimed ? " untimed" : ""}" id="testElapsedTime" aria-label="経過時間 0分00秒">(0:00)</span>`;
-  document.getElementById("tableArea").innerHTML = `<table class="test-table"><tr><th>問題</th><th>あなたの答え</th></tr>${body}</table><button class="test-reveal-btn" type="button" onclick="revealTestAnswers()">答え</button>${timer}${elapsed}<div class="scroll-extra-y"></div>`;
+  const timer = `<button class="test-timer-btn" id="testTimerBtn" type="button" aria-label="タイマー">${isConjugation ? "1:20" : nonConjugationQuestionTypes.has(currentTableType) ? "5:00" : "3:00"}</button>`;
+  document.getElementById("tableArea").innerHTML = `<table class="test-table"><tr><th>問題</th><th>あなたの答え</th></tr>${body}</table><button class="test-reveal-btn" type="button" onclick="revealTestAnswers()">答え</button>${timer}<div class="scroll-extra-y"></div>`;
   return true;
 }
 
@@ -6217,6 +6188,27 @@ function compactJapanese(html) {
 }
 
 const rubyTextMap = {
+  "二時間": "<ruby>二時間<rt>にじかん</rt></ruby>",
+  "大阪": "<ruby>大阪<rt>おおさか</rt></ruby>",
+  "公園": "<ruby>公園<rt>こうえん</rt></ruby>",
+  "東京": "<ruby>東京<rt>とうきょう</rt></ruby>",
+  "子ども": "<ruby>子<rt>こ</rt></ruby>ども",
+  "名前": "<ruby>名前<rt>なまえ</rt></ruby>",
+  "年末": "<ruby>年末<rt>ねんまつ</rt></ruby>",
+  "陳": "<ruby>陳<rt>ちん</rt></ruby>",
+  "一匹": "<ruby>一匹<rt>いっぴき</rt></ruby>",
+  "弟": "<ruby>弟<rt>おとうと</rt></ruby>",
+  "姉": "<ruby>姉<rt>あね</rt></ruby>",
+  "父": "<ruby>父<rt>ちち</rt></ruby>",
+  "背": "<ruby>背<rt>せ</rt></ruby>",
+  "髪": "<ruby>髪<rt>かみ</rt></ruby>",
+  "手": "<ruby>手<rt>て</rt></ruby>",
+  "長": "<ruby>長<rt>なが</rt></ruby>",
+  "大": "<ruby>大<rt>おお</rt></ruby>",
+  "新": "<ruby>新<rt>あたら</rt></ruby>",
+  "服": "<ruby>服<rt>ふく</rt></ruby>",
+  "思": "<ruby>思<rt>おも</rt></ruby>",
+  "泳": "<ruby>泳<rt>およ</rt></ruby>",
   "友だち": "<ruby>友<rt>とも</rt></ruby>だち",
   "お兄さん": "お<ruby>兄<rt>にい</rt></ruby>さん",
   "ご飯": "ご<ruby>飯<rt>はん</rt></ruby>",
@@ -6350,6 +6342,24 @@ const rubyTextPattern = new RegExp(Object.keys(rubyTextMap)
 
 function addFurigana(html) {
   return String(html || "").replace(rubyTextPattern, text => rubyTextMap[text] || text);
+}
+
+function addMissingTableFurigana(root = document.getElementById("tableArea")) {
+  if (!root) return;
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  const targets = [];
+  while (walker.nextNode()) {
+    const node = walker.currentNode;
+    if (!node.parentElement?.closest("ruby, rt") && rubyTextPattern.test(node.nodeValue || "")) targets.push(node);
+    rubyTextPattern.lastIndex = 0;
+  }
+  targets.forEach(node => {
+    const html = addFurigana(escapeHtml(node.nodeValue || ""));
+    if (html === escapeHtml(node.nodeValue || "")) return;
+    const template = document.createElement("template");
+    template.innerHTML = html;
+    node.replaceWith(template.content);
+  });
 }
 
 function makeTwoLineHint(hint, showThoughtBubble = false) {
@@ -6597,6 +6607,8 @@ function showTable(type, focusKey = "") {
     showPlaceholder(type);
   }
 
+  // 既存のルビを壊さず、全モードの表に残った漢字へ読みを補う。
+  addMissingTableFurigana();
   rememberSequentialTable();
   window.scrollTo(0, 0);
 
