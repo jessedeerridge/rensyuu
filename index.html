@@ -662,6 +662,22 @@
     cursor: default;
   }
 
+  .test-elapsed-time {
+    position: fixed;
+    left: 162px;
+    bottom: max(29px, calc(env(safe-area-inset-bottom) + 19px));
+    z-index: 80;
+    color: #777;
+    font-size: 13px;
+    font-weight: 900;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .test-elapsed-time.untimed {
+    left: 96px;
+  }
+
   .test-start-panel.test-congratulations {
     position: relative;
     overflow: hidden;
@@ -4565,6 +4581,7 @@ let speechInputFallbackMismatchTimer = null;
 let speechInputFallbackCompositionTimer = null;
 let testCountdownTimer = null;
 let testCountdownDeadline = 0;
+let testElapsedStartedAt = 0;
 let testInputMode = "";
 let testSessionEnded = false;
 let testResultSaved = false;
@@ -5193,11 +5210,22 @@ function stopSpeechRecognition() {
 function clearTestCountdown(removeButton = true) {
   if (testCountdownTimer !== null) clearInterval(testCountdownTimer);
   testCountdownTimer = null;
-  if (removeButton) document.getElementById("testTimerBtn")?.remove();
+  if (removeButton) {
+    document.getElementById("testTimerBtn")?.remove();
+    document.getElementById("testElapsedTime")?.remove();
+  }
 }
 
 function updateTestCountdown() {
   const button = document.getElementById("testTimerBtn");
+  const elapsed = document.getElementById("testElapsedTime");
+  if (elapsed && testElapsedStartedAt) {
+    const elapsedSeconds = Math.max(0, Math.floor((Date.now() - testElapsedStartedAt) / 1000));
+    const elapsedMinutes = Math.floor(elapsedSeconds / 60);
+    const elapsedRemainder = String(elapsedSeconds % 60).padStart(2, "0");
+    elapsed.textContent = `(${elapsedMinutes}:${elapsedRemainder})`;
+    elapsed.setAttribute("aria-label", `経過時間 ${elapsedMinutes}分${elapsedRemainder}秒`);
+  }
   if (!button || !testCountdownDeadline) return;
   const remainingSeconds = Math.max(0, Math.ceil((testCountdownDeadline - Date.now()) / 1000));
   const minutes = Math.floor(remainingSeconds / 60);
@@ -5228,9 +5256,12 @@ function finishTestAtTimeout() {
 
 function startTestCountdown() {
   clearTestCountdown(false);
+  testElapsedStartedAt = Date.now();
   if (nonConjugationQuestionTypes.has(currentTableType)) {
     document.getElementById("testTimerBtn")?.remove();
     testCountdownDeadline = 0;
+    updateTestCountdown();
+    testCountdownTimer = setInterval(updateTestCountdown, 250);
     return;
   }
   const durationSeconds = currentSection === "conjugation"
@@ -5972,10 +6003,12 @@ function makeTestTable() {
     const kanjiReadingMap = getCellKanjiReadingMap(row.cells[row.cells.length - 1]);
     return `<tr><td>${prompt.innerHTML}</td><td class="test-answer-cell"><button class="test-answer-button" type="button" data-answer="${escapeHtml(answer)}" data-answer-reading="${escapeHtml(answerReading)}" data-kanji-reading-map="${escapeHtml(JSON.stringify(kanjiReadingMap))}" data-conjugation="${isConjugation}" data-connect="${isConnect}" data-selected="false" aria-pressed="false" onclick="startSpeechTest(this)" aria-label="${index + 1}問目を音声で答える"><span class="test-transcript"></span><span class="test-status"></span></button></td></tr>`;
   }).join("");
-  const timer = nonConjugationQuestionTypes.has(currentTableType)
+  const isUntimed = nonConjugationQuestionTypes.has(currentTableType);
+  const timer = isUntimed
     ? ""
     : `<button class="test-timer-btn" id="testTimerBtn" type="button" aria-label="タイマー">${isConjugation ? "1:20" : "3:00"}</button>`;
-  document.getElementById("tableArea").innerHTML = `<table class="test-table"><tr><th>問題</th><th>あなたの答え</th></tr>${body}</table><button class="test-reveal-btn" type="button" onclick="revealTestAnswers()">答え</button>${timer}<div class="scroll-extra-y"></div>`;
+  const elapsed = `<span class="test-elapsed-time${isUntimed ? " untimed" : ""}" id="testElapsedTime" aria-label="経過時間 0分00秒">(0:00)</span>`;
+  document.getElementById("tableArea").innerHTML = `<table class="test-table"><tr><th>問題</th><th>あなたの答え</th></tr>${body}</table><button class="test-reveal-btn" type="button" onclick="revealTestAnswers()">答え</button>${timer}${elapsed}<div class="scroll-extra-y"></div>`;
   return true;
 }
 
