@@ -747,6 +747,41 @@
     font-weight: 800;
   }
 
+  .test-input-mode-panel {
+    display: flex;
+    justify-content: center;
+    gap: 28px;
+    width: min(340px, 100%);
+  }
+
+  .test-start-panel .test-input-mode-btn {
+    display: grid;
+    place-items: center;
+    width: 112px;
+    height: 112px;
+    padding: 18px;
+    border: 2px solid #ffd1e6;
+    border-radius: 18px;
+    background: #fff;
+    color: #ff5da7;
+    box-shadow: 0 7px 22px rgba(0,0,0,0.14);
+    cursor: pointer;
+  }
+
+  .test-input-mode-btn:active {
+    transform: scale(0.95);
+  }
+
+  .test-input-mode-icon {
+    width: 54px;
+    height: 54px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2;
+  }
+
   .speech-input-inline {
     position: absolute;
     inset: 5px;
@@ -4530,6 +4565,7 @@ let speechInputFallbackMismatchTimer = null;
 let speechInputFallbackCompositionTimer = null;
 let testCountdownTimer = null;
 let testCountdownDeadline = 0;
+let testInputMode = "";
 let testSessionEnded = false;
 let testResultSaved = false;
 let firebaseConnected = false;
@@ -5192,7 +5228,14 @@ function finishTestAtTimeout() {
 
 function startTestCountdown() {
   clearTestCountdown(false);
-  const durationSeconds = currentSection === "conjugation" ? 80 : 180;
+  if (nonConjugationQuestionTypes.has(currentTableType)) {
+    document.getElementById("testTimerBtn")?.remove();
+    testCountdownDeadline = 0;
+    return;
+  }
+  const durationSeconds = currentSection === "conjugation"
+    ? (testInputMode === "keyboard" ? 110 : 80)
+    : 180;
   testCountdownDeadline = Date.now() + durationSeconds * 1000;
   updateTestCountdown();
   testCountdownTimer = setInterval(updateTestCountdown, 250);
@@ -5453,32 +5496,8 @@ function handleSpeechInputFallbackInput(input, isComposing = false, compositionT
     return;
   }
   if (!transcript) return;
-  if (isComposing) {
-    armSpeechInputFallbackCompositionTimer(input);
-    return;
-  }
-  if (!compositionTimedOut && isSpeechInputFallbackPotentialMatch(transcript)) {
-    armSpeechInputFallbackCompositionTimer(input);
-    return;
-  }
-
-  // 正解の先頭と末尾がかすっていない状態が続いた時だけ誤答にする。
-  // 短時間の変換候補や発話途中の揺れでマイクを切らないよう、入力停止後に再確認する。
-  const expectedButton = speechInputFallbackButton;
-  const expectedTranscript = transcript;
-  speechInputFallbackMismatchTimer = setTimeout(() => {
-    speechInputFallbackMismatchTimer = null;
-    if (input !== document.getElementById("speechInputFallbackText")
-      || speechInputFallbackButton !== expectedButton
-      || input.value.trim() !== expectedTranscript
-      || isSpeechInputFallbackPotentialMatch(expectedTranscript, expectedButton)) return;
-    if (shouldPromptForJapaneseKeyboard(expectedTranscript, input)) {
-      resetSpeechInputFallbackInput();
-      window.alert("请切换到日语键盘。");
-      return;
-    }
-    submitSpeechInputFallback();
-  }, 700);
+  // キーボードモードでは誤入力を消さず、利用者がその場で直せるようにする。
+  // 正解（余分な文字を含む許容回答を含む）だけは上で即時採点して次へ進む。
 }
 
 function isSpeechInputFallbackAnswerCorrect(transcript) {
@@ -5679,11 +5698,10 @@ function gradeSpeechAnswer(target, onlyIfCorrect = false) {
     if (!finishTestSuccessfullyIfComplete()) startNextSpeechQuestion(target);
   } else {
     if (target.dataset.speechFallback === "true") {
-      // 誤答表示を残さず、空欄で同じ問題を再開する。
-      setSpeechButtonClass(target);
-      setSpeechButtonMessage(target, "");
-      target.querySelector(".test-status").textContent = "";
-      moveSpeechInputFallback(target);
+      // キーボードの誤答は自動削除せず、同じ入力欄で修正できるようにする。
+      activeSpeechButton = target;
+      speechInputFallbackButton = target;
+      document.getElementById("speechInputFallbackText")?.focus();
       return correct;
     }
     // 誤答表示で一度閉じた後、次のイベントループですぐ同じ問題を再開する。
@@ -5823,17 +5841,40 @@ function getSavedTestParticipantName() {
   }
 }
 
-function beginTestQuestions() {
+function beginTestQuestions(mode) {
+  testInputMode = mode;
   testSessionEnded = false;
   testResultSaved = false;
   startSpeechTestSession();
   startTestCountdown();
   const firstQuestion = document.querySelector("#tableArea .test-answer-button");
-  if (firstQuestion) {
+  if (firstQuestion && mode === "keyboard") {
     // ソフトウェアキーボードは、ユーザー操作中に入力欄へ直接フォーカスしないと
     // 起動しない端末があるため、疑似クリックを介さずここで入力欄を開く。
     enableSpeechInputFallback(firstQuestion, "", true);
+  } else if (firstQuestion) {
+    startSpeechTest(firstQuestion);
   }
+}
+
+function chooseTestInputMode(mode) {
+  document.getElementById("testInputModeOverlay")?.remove();
+  beginTestQuestions(mode);
+}
+
+function showTestInputModePanel() {
+  document.body.insertAdjacentHTML("beforeend", `
+    <div class="test-start-overlay" id="testInputModeOverlay">
+      <div class="test-start-panel test-input-mode-panel" role="group" aria-label="回答方法を選ぶ">
+        <button class="test-input-mode-btn" type="button" onclick="chooseTestInputMode('speech')" aria-label="マイクで答える">
+          <svg class="test-input-mode-icon" viewBox="0 0 48 48" aria-hidden="true"><rect x="17" y="5" width="14" height="25" rx="7"></rect><path d="M11 24v2a13 13 0 0 0 26 0v-2M24 39v6M17 45h14"></path></svg>
+        </button>
+        <button class="test-input-mode-btn" type="button" onclick="chooseTestInputMode('keyboard')" aria-label="キーボードで答える">
+          <svg class="test-input-mode-icon" viewBox="0 0 48 48" aria-hidden="true"><rect x="4" y="10" width="40" height="28" rx="3"></rect><path d="M10 17h2m6 0h2m6 0h2m6 0h2M10 24h2m6 0h2m6 0h2m6 0h2M12 31h24"></path></svg>
+        </button>
+      </div>
+    </div>
+  `);
 }
 
 function confirmTestParticipant(event) {
@@ -5855,7 +5896,7 @@ function confirmTestParticipant(event) {
   }
   testParticipantConfirmed = true;
   document.getElementById("testStartOverlay")?.remove();
-  beginTestQuestions();
+  showTestInputModePanel();
 }
 
 function showTestStartPanel() {
@@ -5924,7 +5965,10 @@ function makeTestTable() {
     const kanjiReadingMap = getCellKanjiReadingMap(row.cells[row.cells.length - 1]);
     return `<tr><td>${prompt.innerHTML}</td><td class="test-answer-cell"><button class="test-answer-button" type="button" data-answer="${escapeHtml(answer)}" data-answer-reading="${escapeHtml(answerReading)}" data-kanji-reading-map="${escapeHtml(JSON.stringify(kanjiReadingMap))}" data-conjugation="${isConjugation}" data-connect="${isConnect}" data-selected="false" aria-pressed="false" onclick="startSpeechTest(this)" aria-label="${index + 1}問目を音声で答える"><span class="test-transcript"></span><span class="test-status"></span></button></td></tr>`;
   }).join("");
-  document.getElementById("tableArea").innerHTML = `<table class="test-table"><tr><th>問題</th><th>あなたの答え</th></tr>${body}</table><button class="test-reveal-btn" type="button" onclick="revealTestAnswers()">答え</button><button class="test-timer-btn" id="testTimerBtn" type="button" aria-label="タイマー">${isConjugation ? "1:20" : "3:00"}</button><div class="scroll-extra-y"></div>`;
+  const timer = nonConjugationQuestionTypes.has(currentTableType)
+    ? ""
+    : `<button class="test-timer-btn" id="testTimerBtn" type="button" aria-label="タイマー">${isConjugation ? "1:20" : "3:00"}</button>`;
+  document.getElementById("tableArea").innerHTML = `<table class="test-table"><tr><th>問題</th><th>あなたの答え</th></tr>${body}</table><button class="test-reveal-btn" type="button" onclick="revealTestAnswers()">答え</button>${timer}<div class="scroll-extra-y"></div>`;
   return true;
 }
 
@@ -5935,6 +5979,7 @@ function toggleTestMode() {
     stopSpeechRecognition();
     clearTestCountdown();
     document.getElementById("testStartOverlay")?.remove();
+    document.getElementById("testInputModeOverlay")?.remove();
     document.getElementById("testCongratulations")?.remove();
     document.getElementById("tableArea").innerHTML = sequentialTableHtml;
     testModeActive = false;
@@ -5956,7 +6001,7 @@ function toggleTestMode() {
   document.getElementById("testModeBtn").classList.add("is-active");
   updateRandomOrderButton();
   afterTableOrderChanged();
-  if (testParticipantConfirmed) beginTestQuestions();
+  if (testParticipantConfirmed) showTestInputModePanel();
   else showTestStartPanel();
 }
 
@@ -6403,6 +6448,7 @@ function showTable(type, focusKey = "") {
   stopSpeechRecognition();
   clearTestCountdown();
   document.getElementById("testCongratulations")?.remove();
+  document.getElementById("testInputModeOverlay")?.remove();
   testSessionEnded = true;
   stopPageOpenTracker();
   document.body.classList.remove("home-mode", "menu-mode", "sheet-high", "table-start-lowered", "position-vocab");
@@ -6553,6 +6599,7 @@ function backMenu() {
   stopSpeechRecognition();
   clearTestCountdown();
   document.getElementById("testCongratulations")?.remove();
+  document.getElementById("testInputModeOverlay")?.remove();
   testSessionEnded = true;
   testModeActive = false;
   document.body.classList.remove("test-mode");
