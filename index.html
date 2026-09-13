@@ -5265,7 +5265,7 @@ function startTestCountdown() {
     return;
   }
   const durationSeconds = currentSection === "conjugation"
-    ? (testInputMode === "keyboard" ? 110 : 80)
+    ? (testInputMode === "keyboard" ? 140 : 80)
     : 180;
   testCountdownDeadline = Date.now() + durationSeconds * 1000;
   updateTestCountdown();
