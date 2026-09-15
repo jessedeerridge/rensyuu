@@ -5464,6 +5464,13 @@ function finishTestSuccessfullyIfComplete() {
   const buttons = Array.from(document.querySelectorAll("#tableArea .test-answer-button"));
   if (!buttons.length || buttons.some(button => button.dataset.correct !== "true")) return false;
 
+  // タイマー表示の更新より先に最後の回答が採点される場合もあるため、
+  // 実時刻でも判定し、制限時間後の完答では「すごいですね」を表示しない。
+  if (testResultSaved || !testCountdownDeadline || Date.now() >= testCountdownDeadline) {
+    if (!testResultSaved) finishTestAtTimeout();
+    return false;
+  }
+
   testSessionEnded = true;
   stopSpeechRecognition();
   clearTestCountdown();
