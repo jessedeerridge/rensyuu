@@ -5943,7 +5943,7 @@ function gradeSpeechAnswer(target, onlyIfCorrect = false) {
     speechGradeTimer = setTimeout(() => {
       speechGradeTimer = null;
       retrySpeechQuestion(target);
-    }, 1000);
+    }, 3000);
   }
   return correct;
 }
