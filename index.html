@@ -259,6 +259,20 @@
     font-size: 6px;
   }
 
+  .achievement-stamps {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .achievement-stamp {
+    position: absolute;
+    object-fit: contain;
+    transform: rotate(calc(var(--stamp-angle) * 1deg));
+    filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.12));
+  }
+
   .menu-btn:active {
     transform: translateY(4px);
     box-shadow: 0 1px 0 #ffd1e6, 0 4px 8px rgba(0,0,0,0.08);
@@ -2570,49 +2584,49 @@
 
   <div id="menuButtonGrid" class="button-grid">
     <div class="menu-page active" data-page="0">
-      <button class="menu-btn basic-verb-btn" onclick="showTable('Vます')">Vます</button>
-      <button class="menu-btn basic-verb-btn" onclick="showTable('Vて')">Vて</button>
-      <button class="menu-btn basic-verb-btn" onclick="showTable('Vた')">Vた</button>
-      <button class="menu-btn basic-verb-btn" onclick="showTable('Vない')">Vない</button>
-      <button class="menu-btn basic-verb-btn" onclick="showTable('Vよう')">Vよう</button>
-      <button class="menu-btn basic-verb-btn" onclick="showTable('V可能')">V可能</button>
-      <button class="menu-btn basic-adjective-btn" onclick="showTable('形-て')">形-て</button>
-      <button class="menu-btn basic-adjective-btn" onclick="showTable('形-た')">形-た</button>
-      <button class="menu-btn basic-adjective-btn" onclick="showTable('形-ない')">形-ない</button>
-      <button class="menu-btn basic-adjective-btn" onclick="showTable('形-なかった')">形-なかった</button>
-      <button class="menu-btn" onclick="showTable('とき')">とき</button>
+      <button class="menu-btn basic-verb-btn" data-achievement-mode="Vます" onclick="showTable('Vます')">Vます</button>
+      <button class="menu-btn basic-verb-btn" data-achievement-mode="Vて" onclick="showTable('Vて')">Vて</button>
+      <button class="menu-btn basic-verb-btn" data-achievement-mode="Vた" onclick="showTable('Vた')">Vた</button>
+      <button class="menu-btn basic-verb-btn" data-achievement-mode="Vない" onclick="showTable('Vない')">Vない</button>
+      <button class="menu-btn basic-verb-btn" data-achievement-mode="Vよう" onclick="showTable('Vよう')">Vよう</button>
+      <button class="menu-btn basic-verb-btn" data-achievement-mode="V可能" onclick="showTable('V可能')">V可能</button>
+      <button class="menu-btn basic-adjective-btn" data-achievement-mode="形-て" onclick="showTable('形-て')">形-て</button>
+      <button class="menu-btn basic-adjective-btn" data-achievement-mode="形-た" onclick="showTable('形-た')">形-た</button>
+      <button class="menu-btn basic-adjective-btn" data-achievement-mode="形-ない" onclick="showTable('形-ない')">形-ない</button>
+      <button class="menu-btn basic-adjective-btn" data-achievement-mode="形-なかった" onclick="showTable('形-なかった')">形-なかった</button>
+      <button class="menu-btn" data-achievement-mode="とき" onclick="showTable('とき')">とき</button>
     </div>
 
     <div class="menu-page" data-page="1">
-      <button class="menu-btn" onclick="showTable('形-なる')">形-なる</button>
-      <button class="menu-btn" onclick="showTable('Vたいです')">Vたいです</button>
-      <button class="menu-btn" onclick="showTable('Vてください')">Vてください</button>
-      <button class="menu-btn" onclick="showTable('Vています')">Vています</button>
-      <button class="menu-btn" onclick="showTable('Vてきます')">Vてきます</button>
-      <button class="menu-btn menu-btn-small" onclick="showTable('Vてもいいですか')">Vてもいいですか</button>
-      <button class="menu-btn menu-btn-small" onclick="showTable('Vないでください')">Vないでください</button>
-      <button class="menu-btn menu-btn-xsmall" onclick="showTable('Vたことがあります')">Vたことがあります</button>
-      <button class="menu-btn" onclick="showTable('Vたり')">Vたり</button>
-      <button class="menu-btn" onclick="showTable('Vたら')">Vたら</button>
+      <button class="menu-btn" data-achievement-mode="形-なる" onclick="showTable('形-なる')">形-なる</button>
+      <button class="menu-btn" data-achievement-mode="Vたいです" onclick="showTable('Vたいです')">Vたいです</button>
+      <button class="menu-btn" data-achievement-mode="Vてください" onclick="showTable('Vてください')">Vてください</button>
+      <button class="menu-btn" data-achievement-mode="Vています" onclick="showTable('Vています')">Vています</button>
+      <button class="menu-btn" data-achievement-mode="Vてきます" onclick="showTable('Vてきます')">Vてきます</button>
+      <button class="menu-btn menu-btn-small" data-achievement-mode="Vてもいいですか" onclick="showTable('Vてもいいですか')">Vてもいいですか</button>
+      <button class="menu-btn menu-btn-small" data-achievement-mode="Vないでください" onclick="showTable('Vないでください')">Vないでください</button>
+      <button class="menu-btn menu-btn-xsmall" data-achievement-mode="Vたことがあります" onclick="showTable('Vたことがあります')">Vたことがあります</button>
+      <button class="menu-btn" data-achievement-mode="Vたり" onclick="showTable('Vたり')">Vたり</button>
+      <button class="menu-btn" data-achievement-mode="Vたら" onclick="showTable('Vたら')">Vたら</button>
     </div>
 
     <div class="menu-page disabled-page" data-page="2" aria-disabled="true">
-      <button disabled class="menu-btn" onclick="showTable('おいしそう')">おいしそう</button>
-      <button disabled class="menu-btn menu-btn-small" onclick="showTable('おいしいそう 听说')">おいしいそう 听说</button>
-      <button disabled class="menu-btn" onclick="showTable('-やすい')">-やすい</button>
-      <button disabled class="menu-btn" onclick="showTable('-すぎ')">-すぎ</button>
-      <button disabled class="menu-btn" onclick="showTable('Vておきます')">Vておきます</button>
-      <button disabled class="menu-btn menu-btn-small" onclick="showTable('Vたらいいですか')">Vたらいいですか</button>
-      <button disabled class="menu-btn" onclick="showTable('Vてしまった')">Vてしまった</button>
-      <button disabled class="menu-btn menu-btn-small" onclick="showTable('Vてもらいました')">Vてもらいました</button>
-      <button disabled class="menu-btn menu-btn-xsmall" onclick="showTable('Vなければならない')">Vなければならない</button>
-      <button disabled class="menu-btn menu-btn-xsmall" onclick="showTable('Vてもらえませんか')">Vてもらえませんか</button>
+      <button disabled class="menu-btn" data-achievement-mode="おいしそう" onclick="showTable('おいしそう')">おいしそう</button>
+      <button disabled class="menu-btn menu-btn-small" data-achievement-mode="おいしいそう 听说" onclick="showTable('おいしいそう 听说')">おいしいそう 听说</button>
+      <button disabled class="menu-btn" data-achievement-mode="-やすい" onclick="showTable('-やすい')">-やすい</button>
+      <button disabled class="menu-btn" data-achievement-mode="-すぎ" onclick="showTable('-すぎ')">-すぎ</button>
+      <button disabled class="menu-btn" data-achievement-mode="Vておきます" onclick="showTable('Vておきます')">Vておきます</button>
+      <button disabled class="menu-btn menu-btn-small" data-achievement-mode="Vたらいいですか" onclick="showTable('Vたらいいですか')">Vたらいいですか</button>
+      <button disabled class="menu-btn" data-achievement-mode="Vてしまった" onclick="showTable('Vてしまった')">Vてしまった</button>
+      <button disabled class="menu-btn menu-btn-small" data-achievement-mode="Vてもらいました" onclick="showTable('Vてもらいました')">Vてもらいました</button>
+      <button disabled class="menu-btn menu-btn-xsmall" data-achievement-mode="Vなければならない" onclick="showTable('Vなければならない')">Vなければならない</button>
+      <button disabled class="menu-btn menu-btn-xsmall" data-achievement-mode="Vてもらえませんか" onclick="showTable('Vてもらえませんか')">Vてもらえませんか</button>
     </div>
 
     <div class="menu-page disabled-page" data-page="3" aria-disabled="true">
-      <button disabled class="menu-btn" onclick="showTable('Vられる')">Vられる</button>
-      <button disabled class="menu-btn" onclick="showTable('Vさせる')">Vさせる</button>
-      <button disabled class="menu-btn menu-btn-medium" onclick="showTable('Vさせられる')">Vさせられる</button>
+      <button disabled class="menu-btn" data-achievement-mode="Vられる" onclick="showTable('Vられる')">Vられる</button>
+      <button disabled class="menu-btn" data-achievement-mode="Vさせる" onclick="showTable('Vさせる')">Vさせる</button>
+      <button disabled class="menu-btn menu-btn-medium" data-achievement-mode="Vさせられる" onclick="showTable('Vさせられる')">Vさせられる</button>
     </div>
   </div>
 
@@ -2804,14 +2818,15 @@ function setHomeMenu(menuName = "main") {
 
   if (menuName === "vocab") {
     title.innerHTML = `<span class="title-emoji left">🐢</span> 語彙 <span class="title-emoji right">🐢</span>`;
-    actions.innerHTML = vocabCategories.map(category => `<button class="home-btn connect-btn" type="button" onclick="openVocabTable('${category}')">${category}</button>`).join("");
+    actions.innerHTML = vocabCategories.map(category => `<button class="home-btn connect-btn" data-achievement-mode="${category}" type="button" onclick="openVocabTable('${category}')">${category}</button>`).join("");
   } else {
     const menu = homeMenus[currentHomeLevel] || homeMenus[1];
     title.innerHTML = `<span class="title-emoji left">🐢</span> 日本語れんしゅう <span class="title-emoji right">🐢</span><span class="home-title-subtitle">（${menu.title}）</span>`;
-    actions.innerHTML = menu.buttons.map(button => `<button class="home-btn ${button.className}" type="button" onclick="${button.action}">${button.label}${makeOpenCountBadge(currentHomeLevel, button.label)}</button>`).join("");
+    actions.innerHTML = menu.buttons.map(button => `<button class="home-btn ${button.className}" data-achievement-mode="${button.label}" type="button" onclick="${button.action}">${button.label}${makeOpenCountBadge(currentHomeLevel, button.label)}</button>`).join("");
   }
   updateHomeNav();
   updateOpenCountBadges(actions);
+  renderAchievementStamps(actions);
 }
 
 function updateHomeNav() {
@@ -2851,9 +2866,10 @@ function openVocabMenu() {
   document.getElementById("tableScreen").style.display = "none";
   document.getElementById("menuScreen").style.display = "block";
   document.getElementById("menuTitle").innerHTML = `<span class="title-emoji left">🐢</span> 語彙 <span class="title-emoji right">🐢</span>`;
-  document.getElementById("menuButtonGrid").innerHTML = `<div class="menu-page active" data-page="0">${vocabCategories.map(category => `<button class="menu-btn" type="button" onclick="openVocabTable('${category}')">${category}</button>`).join("")}</div>`;
+  document.getElementById("menuButtonGrid").innerHTML = `<div class="menu-page active" data-page="0">${vocabCategories.map(category => `<button class="menu-btn" data-achievement-mode="${category}" type="button" onclick="openVocabTable('${category}')">${category}</button>`).join("")}</div>`;
   document.getElementById("leftPageNav").style.display = "none";
   document.getElementById("rightPageNav").style.display = "none";
+  renderAchievementStamps(document.getElementById("menuButtonGrid"));
   requestAnimationFrame(renderQuestionMemoLayer);
   window.scrollTo(0, 0);
 }
@@ -3144,6 +3160,7 @@ function openConjugationMenu() {
   document.getElementById("leftPageNav").style.display = "flex";
   document.getElementById("rightPageNav").style.display = "flex";
   updateMenuPage();
+  renderAchievementStamps(document.getElementById("menuButtonGrid"));
   if (currentMenuPage === 1) showConjugationLevelNotice();
   requestAnimationFrame(renderQuestionMemoLayer);
   window.scrollTo(0, 0);
@@ -3313,6 +3330,7 @@ function updateMenuPage() {
   document.querySelectorAll(".menu-page").forEach((page, index) => {
     page.classList.toggle("active", index === currentMenuPage);
   });
+  renderAchievementStamps(document.querySelector(".menu-page.active"));
 
   const leftNav = document.getElementById("leftPageNav");
   const rightNav = document.getElementById("rightPageNav");
@@ -4595,6 +4613,110 @@ function readTestStorage(key, fallback) {
 
 function writeTestStorage(key, value) {
   try { localStorage.setItem(key, JSON.stringify(value)); } catch (error) { /* メモリ外でもゲームは継続する。 */ }
+}
+
+function getStampAngle(seed) {
+  let hash = 0;
+  for (const character of String(seed)) hash = ((hash << 5) - hash + character.charCodeAt(0)) | 0;
+  return ((Math.abs(hash) % 201) - 100) / 100;
+}
+
+function getSeededUnit(seed, salt) {
+  let hash = 2166136261;
+  for (const character of `${seed}:${salt}`) {
+    hash ^= character.charCodeAt(0);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0) / 4294967295;
+}
+
+function getButtonTextRect(button) {
+  const textNode = Array.from(button.childNodes).find(node => node.nodeType === Node.TEXT_NODE && node.textContent.trim());
+  if (!textNode) return null;
+  const range = document.createRange();
+  range.selectNodeContents(textNode);
+  return range.getBoundingClientRect();
+}
+
+function placeAchievementStamps(button, pile, completed) {
+  const buttonRect = button.getBoundingClientRect();
+  const textRect = getButtonTextRect(button);
+  if (!buttonRect.width || !buttonRect.height || !textRect) return;
+
+  const edgeGap = 5;
+  const textGap = 5;
+  const idealSize = button.classList.contains("home-btn") ? 40 : 30;
+  const availableWidth = buttonRect.right - edgeGap - (textRect.right + textGap);
+  const stampSize = Math.min(idealSize, Math.max(1, Math.floor(availableWidth)));
+  const minX = Math.max(edgeGap, textRect.right - buttonRect.left + textGap);
+  const maxX = Math.max(minX, buttonRect.width - edgeGap - stampSize);
+  const minY = edgeGap;
+  const maxY = Math.max(minY, buttonRect.height - edgeGap - stampSize);
+  const placed = [];
+
+  completed.forEach((result, index) => {
+    const seed = result.id || `${result.achievedAt}-${index}`;
+    let position = null;
+    for (let attempt = 0; attempt < 80; attempt += 1) {
+      const candidate = {
+        x: minX + getSeededUnit(seed, `x-${attempt}`) * (maxX - minX),
+        y: minY + getSeededUnit(seed, `y-${attempt}`) * (maxY - minY)
+      };
+      const overlaps = placed.some(other =>
+        candidate.x < other.x + stampSize + 2 && candidate.x + stampSize + 2 > other.x &&
+        candidate.y < other.y + stampSize + 2 && candidate.y + stampSize + 2 > other.y
+      );
+      if (!overlaps) {
+        position = candidate;
+        break;
+      }
+    }
+    // 空きがなくなった後だけ、達成済みシール同士を重ねる。
+    position ||= {
+      x: minX + getSeededUnit(seed, "fallback-x") * (maxX - minX),
+      y: minY + getSeededUnit(seed, "fallback-y") * (maxY - minY)
+    };
+    placed.push(position);
+
+    const stamp = document.createElement("img");
+    stamp.className = "achievement-stamp";
+    stamp.src = "stamp.png";
+    stamp.alt = "";
+    stamp.style.left = `${position.x}px`;
+    stamp.style.top = `${position.y}px`;
+    stamp.style.width = `${stampSize}px`;
+    stamp.style.height = `${stampSize}px`;
+    stamp.style.setProperty("--stamp-angle", String(getStampAngle(seed)));
+    pile.appendChild(stamp);
+  });
+}
+
+function renderAchievementStamps(root = document) {
+  if (!root) return;
+  const participantName = getSavedTestParticipantName();
+  const completedByMode = new Map();
+  if (participantName) {
+    for (const result of readTestStorage(TEST_RESULTS_STORAGE_KEY, [])) {
+      if (result?.name !== participantName || Number(result.percent) < 100) continue;
+      const mode = result.conjugation || result.mode;
+      if (!completedByMode.has(mode)) completedByMode.set(mode, []);
+      completedByMode.get(mode).push(result);
+    }
+  }
+
+  root.querySelectorAll("[data-achievement-mode]").forEach(button => {
+    button.querySelector(".achievement-stamps")?.remove();
+    button.removeAttribute("aria-label");
+    const completed = completedByMode.get(button.dataset.achievementMode) || [];
+    if (!completed.length) return;
+
+    const pile = document.createElement("span");
+    pile.className = "achievement-stamps";
+    pile.setAttribute("aria-hidden", "true");
+    button.appendChild(pile);
+    placeAchievementStamps(button, pile, completed);
+    button.setAttribute("aria-label", `${button.dataset.achievementMode}、100%達成 ${completed.length}回`);
+  });
 }
 
 function getTestModeInfo() {
@@ -9222,6 +9344,7 @@ preventMobileZoom();
 
 window.addEventListener("resize", () => {
   requestAnimationFrame(() => {
+    renderAchievementStamps(document.body);
     fitTableTextOneLine();
     adjustScrollExtraHeight();
     updateSheetHiddenText();
@@ -9231,6 +9354,7 @@ window.addEventListener("resize", () => {
 
 window.addEventListener("orientationchange", () => {
   requestAnimationFrame(() => {
+    renderAchievementStamps(document.body);
     fitTableTextOneLine();
     adjustScrollExtraHeight();
     updateSheetHiddenText();
