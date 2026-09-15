@@ -4591,6 +4591,8 @@ let firebaseEnabled = false;
 let firebaseDatabase = null;
 let firebaseApi = null;
 let firebaseConnectionUnsubscribe = null;
+let firebaseAchievementResults = [];
+let firebaseAchievementRequestId = 0;
 
 const firebaseConfig = {
   apiKey: "AIzaSyCaLCM4TXURROKyDKD_Mga8ZnWr1-Wk9Wg",
@@ -4615,10 +4617,44 @@ function writeTestStorage(key, value) {
   try { localStorage.setItem(key, JSON.stringify(value)); } catch (error) { /* メモリ外でもゲームは継続する。 */ }
 }
 
+function getAchievementResults() {
+  const merged = new Map();
+  for (const result of [...readTestStorage(TEST_RESULTS_STORAGE_KEY, []), ...firebaseAchievementResults]) {
+    if (!result || typeof result !== "object") continue;
+    const key = result.id || `${result.name}\u0000${result.mode}\u0000${result.conjugation || ""}\u0000${result.achievedAt}`;
+    merged.set(key, result);
+  }
+  return Array.from(merged.values());
+}
+
+async function restoreAchievementResultsFromFirebase() {
+  const participantName = getSavedTestParticipantName();
+  const requestId = ++firebaseAchievementRequestId;
+  if (!firebaseConnected || !firebaseDatabase || !firebaseApi || !participantName) {
+    firebaseAchievementResults = [];
+    renderAchievementStamps(document.body);
+    return;
+  }
+
+  const studentKey = `name_${safeFirebaseKey(participantName)}`;
+  try {
+    const snapshot = await firebaseApi.get(firebaseApi.ref(firebaseDatabase, `students/${studentKey}/quizResults`));
+    if (requestId !== firebaseAchievementRequestId || participantName !== getSavedTestParticipantName()) return;
+    const value = snapshot.exists() ? snapshot.val() : {};
+    firebaseAchievementResults = Object.values(value || {}).filter(result => result && typeof result === "object");
+    renderAchievementStamps(document.body);
+  } catch (error) {
+    // DBから復元できなくても、この端末に保存された達成結果はそのまま表示する。
+    if (requestId !== firebaseAchievementRequestId) return;
+    firebaseAchievementResults = [];
+    renderAchievementStamps(document.body);
+  }
+}
+
 function getStampAngle(seed) {
   let hash = 0;
   for (const character of String(seed)) hash = ((hash << 5) - hash + character.charCodeAt(0)) | 0;
-  return ((Math.abs(hash) % 201) - 100) / 100;
+  return ((Math.abs(hash) % 401) - 200) / 100;
 }
 
 function getSeededUnit(seed, salt) {
@@ -4696,7 +4732,7 @@ function renderAchievementStamps(root = document) {
   const participantName = getSavedTestParticipantName();
   const completedByMode = new Map();
   if (participantName) {
-    for (const result of readTestStorage(TEST_RESULTS_STORAGE_KEY, [])) {
+    for (const result of getAchievementResults()) {
       if (result?.name !== participantName || Number(result.percent) < 100) continue;
       const mode = result.conjugation || result.mode;
       if (!completedByMode.has(mode)) completedByMode.set(mode, []);
@@ -4791,7 +4827,10 @@ async function connectFirebase() {
     firebaseConnectionUnsubscribe = databaseModule.onValue(databaseModule.ref(firebaseDatabase, ".info/connected"), snapshot => {
       const connected = firebaseEnabled && snapshot.val() === true;
       setFirebaseConnectionUi(connected);
-      if (connected) flushPendingTestResults();
+      if (connected) {
+        flushPendingTestResults();
+        restoreAchievementResultsFromFirebase();
+      }
     });
   } catch (error) {
     firebaseEnabled = false;
@@ -6029,6 +6068,7 @@ function confirmTestParticipant(event) {
   } catch (error) {
     // 保存できない環境でも、現在のページ内ではテストを開始できる。
   }
+  if (firebaseConnected) restoreAchievementResultsFromFirebase();
   testParticipantConfirmed = true;
   document.getElementById("testStartOverlay")?.remove();
   showTestInputModePanel();
