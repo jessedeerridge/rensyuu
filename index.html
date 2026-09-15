@@ -727,6 +727,21 @@
     pointer-events: none;
   }
 
+  .test-start-overlay.test-like-overlay {
+    background: rgba(255,255,255,0.72);
+    cursor: pointer;
+    pointer-events: auto;
+  }
+
+  .test-like-message {
+    display: block;
+    margin-top: 8px;
+    color: #777;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.45;
+  }
+
   .test-start-panel {
     width: min(340px, 100%);
     padding: 24px;
@@ -4716,7 +4731,7 @@ function placeAchievementStamps(button, pile, completed) {
 
     const stamp = document.createElement("img");
     stamp.className = "achievement-stamp";
-    stamp.src = "stamp.png";
+    stamp.src = result.reason === "like" ? "kora.png" : "stamp.png";
     stamp.alt = "";
     stamp.style.left = `${position.x}px`;
     stamp.style.top = `${position.y}px`;
@@ -5054,24 +5069,41 @@ const SPEECH_EQUIVALENT_GROUPS = [
   ["かかなくても", "書かなくても", "描かなくても"],
   ["ひとり", "1人", "一人"],
   ["にまい", "2枚", "二枚"],
+  ["だれか", "誰か", "誰が","だれが"],
   ["スーパー", "デパート"],
   ["終わりました", "できました"],
   ["休んだ", "寝た", "やすんだ", "ねた"],
   ["ています", "てます"],
   ["ていません", "てません"],
+  ["もらえませんか", "もらえますか"],
+  ["はあり", "があり"],
+  ["買うことができますか", "かうことができますか", "買えますか", "かえますか"],
+  ["借りることができますか", "借りることができますか", "借りられますか", "借りれますか", "かりれますか","かりられますか"],
   ["でいます", "でます"],
+  ["おすすめの","オススメの","お勧めの", "よく行く", "よくいく"],
+  ["おすすめの","オススメの","お勧めの", "よく聞く", "よくきく"],
   ["カレー", "カレー屋", "カレーや"],
   ["という", "と言う", "とゆう"],
-  ["チェック", "確認"],
+  ["まだジュースがありますか", "まだカレーがありますか", "まだありますか"],
+  ["好きですか", "すきですか", "いいですか", "良いですか"],
+  ["きましたか", "来ましたか","きたんですか", "来たんですか"],
+  ["なにをもらましたか", "なにかもらましたか","何をもらましたか", "何かもらましたか"],
+  ["チェックして", "確認して", "教えて","おしえて", "ちぇっくして", "かくにんして","みて","見て"],
+  ["住んでいます", "すんでいます", "住んでいます", "すんでます"],
+  ["しりませんか", "知りませんか", "しっていますか", "知っていますか"],
+  ["にほんご", "日本語"],
   // 写真を撮る場面では、音声認識による「とる」の表記揺れを許容する。
   ["とって", "撮って", "取って"],
   ["どういう", "どう言う", "どうゆう"],
+  ["ここに座ってもいいですか", "座ってもいいですか", "すわってもいいですか"],
   ["どうやって", "どう"],
+  ["どれ", "どの本"],
   ["どこにありますか", "どこですか"],
   ["住んでいますか", "住んでいるんですか"],
   ["もらいましたか", "もらったんですか"],
   ["持って来ましたか", "持ってきましたか", "持って来たんですか", "持ってきたんですか"],
   ["いますか", "いるんですか"],
+  ["持ちましょうか", "もちましょうか", "てつだいましょうか", "手伝いましょうか"],
   ["していますか", "しているんですか"],
   ["海外", "外国", "かいがい", "がいこく"],
   ["もう一度", "もう一回", "もういちど", "もういっかい"],
@@ -5387,19 +5419,39 @@ function recordCurrentTestResult(reason) {
 
 function finishTestAtTimeout() {
   if (testResultSaved) return;
-  recordCurrentTestResult("timeup");
+  const correctCount = document.querySelectorAll("#tableArea .test-answer-button[data-correct='true']").length;
+  const earnedLike = nonConjugationQuestionTypes.has(currentTableType) && correctCount >= 12;
+  if (earnedLike) {
+    // 「いいね」は管理画面では完全達成の内数として数えつつ、通常の完全達成と区別する。
+    saveTestResult(100, "like");
+    showTestLikePopup();
+  } else {
+    recordCurrentTestResult("timeup");
+  }
   clearTestCountdown();
+}
+
+function showTestLikePopup() {
+  const name = getSavedTestParticipantName();
+  document.getElementById("testLikePopup")?.remove();
+  document.body.insertAdjacentHTML("beforeend", `
+    <div class="test-start-overlay test-congratulations-overlay test-like-overlay" id="testLikePopup" role="button" tabindex="0" aria-label="いいね。クリックして閉じる" onclick="closeTestLikePopup()" onkeydown="if(event.key === 'Enter' || event.key === ' '){ event.preventDefault(); closeTestLikePopup(); }">
+      <div class="test-start-panel test-congratulations">
+        <div class="test-congratulations-content">${escapeHtml(name)}さん、いいね！<small class="test-like-message" lang="zh-CN">合格了，不过还可以继续哦。</small></div>
+      </div>
+    </div>
+  `);
+  document.getElementById("testLikePopup")?.focus();
+}
+
+function closeTestLikePopup() {
+  document.getElementById("testLikePopup")?.remove();
 }
 
 function startTestCountdown() {
   clearTestCountdown(false);
-  if (nonConjugationQuestionTypes.has(currentTableType) && testInputMode !== "keyboard") {
-    document.getElementById("testTimerBtn")?.remove();
-    testCountdownDeadline = 0;
-    return;
-  }
   const durationSeconds = nonConjugationQuestionTypes.has(currentTableType)
-    ? 300
+    ? (testInputMode === "keyboard" ? 360 : 240)
     : currentSection === "conjugation"
     ? (testInputMode === "keyboard" ? 120 : 80)
     : 180;
@@ -6140,7 +6192,7 @@ function makeTestTable() {
     const kanjiReadingMap = getCellKanjiReadingMap(row.cells[row.cells.length - 1]);
     return `<tr><td>${prompt.innerHTML}</td><td class="test-answer-cell"><button class="test-answer-button" type="button" data-answer="${escapeHtml(answer)}" data-answer-reading="${escapeHtml(answerReading)}" data-kanji-reading-map="${escapeHtml(JSON.stringify(kanjiReadingMap))}" data-conjugation="${isConjugation}" data-connect="${isConnect}" data-selected="false" aria-pressed="false" onclick="startSpeechTest(this)" aria-label="${index + 1}問目を音声で答える"><span class="test-transcript"></span><span class="test-status"></span></button></td></tr>`;
   }).join("");
-  const timer = `<button class="test-timer-btn" id="testTimerBtn" type="button" aria-label="タイマー">${isConjugation ? "1:20" : nonConjugationQuestionTypes.has(currentTableType) ? "5:00" : "3:00"}</button>`;
+  const timer = `<button class="test-timer-btn" id="testTimerBtn" type="button" aria-label="タイマー">${isConjugation ? "1:20" : nonConjugationQuestionTypes.has(currentTableType) ? "6:00" : "3:00"}</button>`;
   document.getElementById("tableArea").innerHTML = `<table class="test-table"><tr><th>問題</th><th>あなたの答え</th></tr>${body}</table><button class="test-reveal-btn" type="button" onclick="revealTestAnswers()">答え</button>${timer}<div class="scroll-extra-y"></div>`;
   return true;
 }
@@ -6154,6 +6206,7 @@ function toggleTestMode() {
     document.getElementById("testStartOverlay")?.remove();
     document.getElementById("testInputModeOverlay")?.remove();
     document.getElementById("testCongratulations")?.remove();
+    document.getElementById("testLikePopup")?.remove();
     document.getElementById("tableArea").innerHTML = sequentialTableHtml;
     testModeActive = false;
     document.body.classList.remove("test-mode");
