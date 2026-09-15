@@ -259,6 +259,44 @@
     font-size: 6px;
   }
 
+  .home-btn.has-achievement-stamps,
+  .menu-btn.has-achievement-stamps {
+    padding-right: 52px;
+  }
+
+  .achievement-stamps {
+    position: absolute;
+    top: 50%;
+    right: 9px;
+    z-index: 2;
+    width: 38px;
+    height: 38px;
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+
+  .achievement-stamp {
+    position: absolute;
+    top: calc(var(--stamp-offset) * 1px);
+    right: calc(var(--stamp-offset) * 1px);
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
+    transform: rotate(calc(var(--stamp-angle) * 1deg));
+    filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.12));
+  }
+
+  .home-btn .achievement-stamps {
+    right: 12px;
+    width: 48px;
+    height: 48px;
+  }
+
+  .home-btn .achievement-stamp {
+    width: 43px;
+    height: 43px;
+  }
+
   .menu-btn:active {
     transform: translateY(4px);
     box-shadow: 0 1px 0 #ffd1e6, 0 4px 8px rgba(0,0,0,0.08);
@@ -2570,49 +2608,49 @@
 
   <div id="menuButtonGrid" class="button-grid">
     <div class="menu-page active" data-page="0">
-      <button class="menu-btn basic-verb-btn" onclick="showTable('Vます')">Vます</button>
-      <button class="menu-btn basic-verb-btn" onclick="showTable('Vて')">Vて</button>
-      <button class="menu-btn basic-verb-btn" onclick="showTable('Vた')">Vた</button>
-      <button class="menu-btn basic-verb-btn" onclick="showTable('Vない')">Vない</button>
-      <button class="menu-btn basic-verb-btn" onclick="showTable('Vよう')">Vよう</button>
-      <button class="menu-btn basic-verb-btn" onclick="showTable('V可能')">V可能</button>
-      <button class="menu-btn basic-adjective-btn" onclick="showTable('形-て')">形-て</button>
-      <button class="menu-btn basic-adjective-btn" onclick="showTable('形-た')">形-た</button>
-      <button class="menu-btn basic-adjective-btn" onclick="showTable('形-ない')">形-ない</button>
-      <button class="menu-btn basic-adjective-btn" onclick="showTable('形-なかった')">形-なかった</button>
-      <button class="menu-btn" onclick="showTable('とき')">とき</button>
+      <button class="menu-btn basic-verb-btn" data-achievement-mode="Vます" onclick="showTable('Vます')">Vます</button>
+      <button class="menu-btn basic-verb-btn" data-achievement-mode="Vて" onclick="showTable('Vて')">Vて</button>
+      <button class="menu-btn basic-verb-btn" data-achievement-mode="Vた" onclick="showTable('Vた')">Vた</button>
+      <button class="menu-btn basic-verb-btn" data-achievement-mode="Vない" onclick="showTable('Vない')">Vない</button>
+      <button class="menu-btn basic-verb-btn" data-achievement-mode="Vよう" onclick="showTable('Vよう')">Vよう</button>
+      <button class="menu-btn basic-verb-btn" data-achievement-mode="V可能" onclick="showTable('V可能')">V可能</button>
+      <button class="menu-btn basic-adjective-btn" data-achievement-mode="形-て" onclick="showTable('形-て')">形-て</button>
+      <button class="menu-btn basic-adjective-btn" data-achievement-mode="形-た" onclick="showTable('形-た')">形-た</button>
+      <button class="menu-btn basic-adjective-btn" data-achievement-mode="形-ない" onclick="showTable('形-ない')">形-ない</button>
+      <button class="menu-btn basic-adjective-btn" data-achievement-mode="形-なかった" onclick="showTable('形-なかった')">形-なかった</button>
+      <button class="menu-btn" data-achievement-mode="とき" onclick="showTable('とき')">とき</button>
     </div>
 
     <div class="menu-page" data-page="1">
-      <button class="menu-btn" onclick="showTable('形-なる')">形-なる</button>
-      <button class="menu-btn" onclick="showTable('Vたいです')">Vたいです</button>
-      <button class="menu-btn" onclick="showTable('Vてください')">Vてください</button>
-      <button class="menu-btn" onclick="showTable('Vています')">Vています</button>
-      <button class="menu-btn" onclick="showTable('Vてきます')">Vてきます</button>
-      <button class="menu-btn menu-btn-small" onclick="showTable('Vてもいいですか')">Vてもいいですか</button>
-      <button class="menu-btn menu-btn-small" onclick="showTable('Vないでください')">Vないでください</button>
-      <button class="menu-btn menu-btn-xsmall" onclick="showTable('Vたことがあります')">Vたことがあります</button>
-      <button class="menu-btn" onclick="showTable('Vたり')">Vたり</button>
-      <button class="menu-btn" onclick="showTable('Vたら')">Vたら</button>
+      <button class="menu-btn" data-achievement-mode="形-なる" onclick="showTable('形-なる')">形-なる</button>
+      <button class="menu-btn" data-achievement-mode="Vたいです" onclick="showTable('Vたいです')">Vたいです</button>
+      <button class="menu-btn" data-achievement-mode="Vてください" onclick="showTable('Vてください')">Vてください</button>
+      <button class="menu-btn" data-achievement-mode="Vています" onclick="showTable('Vています')">Vています</button>
+      <button class="menu-btn" data-achievement-mode="Vてきます" onclick="showTable('Vてきます')">Vてきます</button>
+      <button class="menu-btn menu-btn-small" data-achievement-mode="Vてもいいですか" onclick="showTable('Vてもいいですか')">Vてもいいですか</button>
+      <button class="menu-btn menu-btn-small" data-achievement-mode="Vないでください" onclick="showTable('Vないでください')">Vないでください</button>
+      <button class="menu-btn menu-btn-xsmall" data-achievement-mode="Vたことがあります" onclick="showTable('Vたことがあります')">Vたことがあります</button>
+      <button class="menu-btn" data-achievement-mode="Vたり" onclick="showTable('Vたり')">Vたり</button>
+      <button class="menu-btn" data-achievement-mode="Vたら" onclick="showTable('Vたら')">Vたら</button>
     </div>
 
     <div class="menu-page disabled-page" data-page="2" aria-disabled="true">
-      <button disabled class="menu-btn" onclick="showTable('おいしそう')">おいしそう</button>
-      <button disabled class="menu-btn menu-btn-small" onclick="showTable('おいしいそう 听说')">おいしいそう 听说</button>
-      <button disabled class="menu-btn" onclick="showTable('-やすい')">-やすい</button>
-      <button disabled class="menu-btn" onclick="showTable('-すぎ')">-すぎ</button>
-      <button disabled class="menu-btn" onclick="showTable('Vておきます')">Vておきます</button>
-      <button disabled class="menu-btn menu-btn-small" onclick="showTable('Vたらいいですか')">Vたらいいですか</button>
-      <button disabled class="menu-btn" onclick="showTable('Vてしまった')">Vてしまった</button>
-      <button disabled class="menu-btn menu-btn-small" onclick="showTable('Vてもらいました')">Vてもらいました</button>
-      <button disabled class="menu-btn menu-btn-xsmall" onclick="showTable('Vなければならない')">Vなければならない</button>
-      <button disabled class="menu-btn menu-btn-xsmall" onclick="showTable('Vてもらえませんか')">Vてもらえませんか</button>
+      <button disabled class="menu-btn" data-achievement-mode="おいしそう" onclick="showTable('おいしそう')">おいしそう</button>
+      <button disabled class="menu-btn menu-btn-small" data-achievement-mode="おいしいそう 听说" onclick="showTable('おいしいそう 听说')">おいしいそう 听说</button>
+      <button disabled class="menu-btn" data-achievement-mode="-やすい" onclick="showTable('-やすい')">-やすい</button>
+      <button disabled class="menu-btn" data-achievement-mode="-すぎ" onclick="showTable('-すぎ')">-すぎ</button>
+      <button disabled class="menu-btn" data-achievement-mode="Vておきます" onclick="showTable('Vておきます')">Vておきます</button>
+      <button disabled class="menu-btn menu-btn-small" data-achievement-mode="Vたらいいですか" onclick="showTable('Vたらいいですか')">Vたらいいですか</button>
+      <button disabled class="menu-btn" data-achievement-mode="Vてしまった" onclick="showTable('Vてしまった')">Vてしまった</button>
+      <button disabled class="menu-btn menu-btn-small" data-achievement-mode="Vてもらいました" onclick="showTable('Vてもらいました')">Vてもらいました</button>
+      <button disabled class="menu-btn menu-btn-xsmall" data-achievement-mode="Vなければならない" onclick="showTable('Vなければならない')">Vなければならない</button>
+      <button disabled class="menu-btn menu-btn-xsmall" data-achievement-mode="Vてもらえませんか" onclick="showTable('Vてもらえませんか')">Vてもらえませんか</button>
     </div>
 
     <div class="menu-page disabled-page" data-page="3" aria-disabled="true">
-      <button disabled class="menu-btn" onclick="showTable('Vられる')">Vられる</button>
-      <button disabled class="menu-btn" onclick="showTable('Vさせる')">Vさせる</button>
-      <button disabled class="menu-btn menu-btn-medium" onclick="showTable('Vさせられる')">Vさせられる</button>
+      <button disabled class="menu-btn" data-achievement-mode="Vられる" onclick="showTable('Vられる')">Vられる</button>
+      <button disabled class="menu-btn" data-achievement-mode="Vさせる" onclick="showTable('Vさせる')">Vさせる</button>
+      <button disabled class="menu-btn menu-btn-medium" data-achievement-mode="Vさせられる" onclick="showTable('Vさせられる')">Vさせられる</button>
     </div>
   </div>
 
@@ -2804,14 +2842,15 @@ function setHomeMenu(menuName = "main") {
 
   if (menuName === "vocab") {
     title.innerHTML = `<span class="title-emoji left">🐢</span> 語彙 <span class="title-emoji right">🐢</span>`;
-    actions.innerHTML = vocabCategories.map(category => `<button class="home-btn connect-btn" type="button" onclick="openVocabTable('${category}')">${category}</button>`).join("");
+    actions.innerHTML = vocabCategories.map(category => `<button class="home-btn connect-btn" data-achievement-mode="${category}" type="button" onclick="openVocabTable('${category}')">${category}</button>`).join("");
   } else {
     const menu = homeMenus[currentHomeLevel] || homeMenus[1];
     title.innerHTML = `<span class="title-emoji left">🐢</span> 日本語れんしゅう <span class="title-emoji right">🐢</span><span class="home-title-subtitle">（${menu.title}）</span>`;
-    actions.innerHTML = menu.buttons.map(button => `<button class="home-btn ${button.className}" type="button" onclick="${button.action}">${button.label}${makeOpenCountBadge(currentHomeLevel, button.label)}</button>`).join("");
+    actions.innerHTML = menu.buttons.map(button => `<button class="home-btn ${button.className}" data-achievement-mode="${button.label}" type="button" onclick="${button.action}">${button.label}${makeOpenCountBadge(currentHomeLevel, button.label)}</button>`).join("");
   }
   updateHomeNav();
   updateOpenCountBadges(actions);
+  renderAchievementStamps(actions);
 }
 
 function updateHomeNav() {
@@ -2851,9 +2890,10 @@ function openVocabMenu() {
   document.getElementById("tableScreen").style.display = "none";
   document.getElementById("menuScreen").style.display = "block";
   document.getElementById("menuTitle").innerHTML = `<span class="title-emoji left">🐢</span> 語彙 <span class="title-emoji right">🐢</span>`;
-  document.getElementById("menuButtonGrid").innerHTML = `<div class="menu-page active" data-page="0">${vocabCategories.map(category => `<button class="menu-btn" type="button" onclick="openVocabTable('${category}')">${category}</button>`).join("")}</div>`;
+  document.getElementById("menuButtonGrid").innerHTML = `<div class="menu-page active" data-page="0">${vocabCategories.map(category => `<button class="menu-btn" data-achievement-mode="${category}" type="button" onclick="openVocabTable('${category}')">${category}</button>`).join("")}</div>`;
   document.getElementById("leftPageNav").style.display = "none";
   document.getElementById("rightPageNav").style.display = "none";
+  renderAchievementStamps(document.getElementById("menuButtonGrid"));
   requestAnimationFrame(renderQuestionMemoLayer);
   window.scrollTo(0, 0);
 }
@@ -3144,6 +3184,7 @@ function openConjugationMenu() {
   document.getElementById("leftPageNav").style.display = "flex";
   document.getElementById("rightPageNav").style.display = "flex";
   updateMenuPage();
+  renderAchievementStamps(document.getElementById("menuButtonGrid"));
   if (currentMenuPage === 1) showConjugationLevelNotice();
   requestAnimationFrame(renderQuestionMemoLayer);
   window.scrollTo(0, 0);
@@ -4595,6 +4636,50 @@ function readTestStorage(key, fallback) {
 
 function writeTestStorage(key, value) {
   try { localStorage.setItem(key, JSON.stringify(value)); } catch (error) { /* メモリ外でもゲームは継続する。 */ }
+}
+
+function getStampAngle(seed) {
+  let hash = 0;
+  for (const character of String(seed)) hash = ((hash << 5) - hash + character.charCodeAt(0)) | 0;
+  return ((Math.abs(hash) % 201) - 100) / 100;
+}
+
+function renderAchievementStamps(root = document) {
+  if (!root) return;
+  const participantName = getSavedTestParticipantName();
+  const completedByMode = new Map();
+  if (participantName) {
+    for (const result of readTestStorage(TEST_RESULTS_STORAGE_KEY, [])) {
+      if (result?.name !== participantName || Number(result.percent) < 100) continue;
+      const mode = result.conjugation || result.mode;
+      if (!completedByMode.has(mode)) completedByMode.set(mode, []);
+      completedByMode.get(mode).push(result);
+    }
+  }
+
+  root.querySelectorAll("[data-achievement-mode]").forEach(button => {
+    button.querySelector(".achievement-stamps")?.remove();
+    button.classList.remove("has-achievement-stamps");
+    button.removeAttribute("aria-label");
+    const completed = completedByMode.get(button.dataset.achievementMode) || [];
+    if (!completed.length) return;
+
+    button.classList.add("has-achievement-stamps");
+    const pile = document.createElement("span");
+    pile.className = "achievement-stamps";
+    pile.setAttribute("aria-hidden", "true");
+    completed.forEach((result, index) => {
+      const stamp = document.createElement("img");
+      stamp.className = "achievement-stamp";
+      stamp.src = "stamp.png";
+      stamp.alt = "";
+      stamp.style.setProperty("--stamp-offset", String((index % 5) * 1.4));
+      stamp.style.setProperty("--stamp-angle", String(getStampAngle(result.id || `${result.achievedAt}-${index}`)));
+      pile.appendChild(stamp);
+    });
+    button.appendChild(pile);
+    button.setAttribute("aria-label", `${button.dataset.achievementMode}、100%達成 ${completed.length}回`);
+  });
 }
 
 function getTestModeInfo() {
