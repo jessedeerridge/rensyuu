@@ -4618,7 +4618,7 @@ function writeTestStorage(key, value) {
 function getStampAngle(seed) {
   let hash = 0;
   for (const character of String(seed)) hash = ((hash << 5) - hash + character.charCodeAt(0)) | 0;
-  return ((Math.abs(hash) % 201) - 100) / 100;
+  return ((Math.abs(hash) % 401) - 200) / 100;
 }
 
 function getSeededUnit(seed, salt) {
