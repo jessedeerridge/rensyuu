@@ -702,6 +702,15 @@
     text-align: right;
   }
 
+  .test-congratulations-note {
+    display: block;
+    margin-top: 8px;
+    color: #777;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.4;
+  }
+
   .test-congratulations-sakura {
     position: absolute;
     z-index: 0;
@@ -725,6 +734,12 @@
   .test-start-overlay.test-congratulations-overlay {
     background: transparent;
     pointer-events: none;
+  }
+
+  .test-start-overlay.test-like-overlay {
+    background: rgba(255,255,255,0.72);
+    cursor: pointer;
+    pointer-events: auto;
   }
 
   .test-start-panel {
@@ -4716,7 +4731,7 @@ function placeAchievementStamps(button, pile, completed) {
 
     const stamp = document.createElement("img");
     stamp.className = "achievement-stamp";
-    stamp.src = "stamp.png";
+    stamp.src = result.reason === "like" ? "kora.png" : "stamp.png";
     stamp.alt = "";
     stamp.style.left = `${position.x}px`;
     stamp.style.top = `${position.y}px`;
@@ -5387,6 +5402,18 @@ function recordCurrentTestResult(reason) {
 
 function finishTestAtTimeout() {
   if (testResultSaved) return;
+  const correctCount = document.querySelectorAll("#tableArea .test-answer-button[data-correct='true']").length;
+  if (nonConjugationQuestionTypes.has(currentTableType) && correctCount >= 12) {
+    const achievedAt = Date.now();
+    saveTestResult(100, "like", achievedAt);
+    stopSpeechRecognition();
+    clearTestCountdown();
+    showTestCongratulations("いいね！", achievedAt, {
+      note: "合格了，但还可以继续哦。",
+      dismissible: true
+    });
+    return;
+  }
   recordCurrentTestResult("timeup");
   clearTestCountdown();
 }
@@ -5417,6 +5444,12 @@ function finishTestSuccessfullyIfComplete() {
   clearTestCountdown();
   const achievedAt = Date.now();
   saveTestResult(100, "complete", achievedAt);
+  showTestCongratulations("すごいですね！", achievedAt);
+  return true;
+}
+
+function showTestCongratulations(message, achievedAt, options = {}) {
+  document.getElementById("testCongratulations")?.remove();
   const name = getSavedTestParticipantName();
   const achievedDate = new Date(achievedAt);
   const achievedDateText = `${String(achievedDate.getFullYear()).slice(-2)}/${achievedDate.getMonth() + 1}/${achievedDate.getDate()}/${String(achievedDate.getHours()).padStart(2, "0")}:${String(achievedDate.getMinutes()).padStart(2, "0")}`;
@@ -5427,12 +5460,14 @@ function finishTestSuccessfullyIfComplete() {
     const scale = (0.75 + Math.random() * 0.65).toFixed(2);
     return `<span class="test-congratulations-sakura" aria-hidden="true" style="left:${left}%;top:${top}%;transform:translate(-50%,-50%) rotate(${rotation}deg) scale(${scale})">🌸</span>`;
   }).join("");
+  const note = options.note ? `<small class="test-congratulations-note">${escapeHtml(options.note)}</small>` : "";
+  const dismissible = options.dismissible ? " test-like-overlay" : "";
+  const dismissHandler = options.dismissible ? ` onclick="this.remove()" aria-label="画面をクリックして閉じる"` : "";
   document.body.insertAdjacentHTML("beforeend", `
-    <div class="test-start-overlay test-congratulations-overlay" id="testCongratulations" role="status">
-      <div class="test-start-panel test-congratulations">${sakura}<div class="test-congratulations-content">${escapeHtml(name)}さん、<br>すごいですね！<time class="test-congratulations-date" datetime="${achievedDate.toISOString()}">${achievedDateText}</time></div></div>
+    <div class="test-start-overlay test-congratulations-overlay${dismissible}" id="testCongratulations" role="status"${dismissHandler}>
+      <div class="test-start-panel test-congratulations">${sakura}<div class="test-congratulations-content">${escapeHtml(name)}さん、<br>${escapeHtml(message)}${note}<time class="test-congratulations-date" datetime="${achievedDate.toISOString()}">${achievedDateText}</time></div></div>
     </div>
   `);
-  return true;
 }
 
 function closeSpeechInputFallback(clearTarget = true) {
