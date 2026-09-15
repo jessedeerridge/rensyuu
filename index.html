@@ -5943,7 +5943,7 @@ function gradeSpeechAnswer(target, onlyIfCorrect = false) {
     speechGradeTimer = setTimeout(() => {
       speechGradeTimer = null;
       retrySpeechQuestion(target);
-    }, 3000);
+    }, 0);
   }
   return correct;
 }
@@ -5989,10 +5989,11 @@ function startSpeechRecognitionForButton(button) {
       );
       if (answerLength <= 4) {
         if (speechGradeTimer !== null) clearTimeout(speechGradeTimer);
+        // 短い途中結果を早すぎる誤答として確定せず、続きの発話を1秒待つ。
         speechGradeTimer = setTimeout(() => {
           speechGradeTimer = null;
           if (activeSpeechButton === button && speechRecognition === recognition) gradeSpeechAnswer(button);
-        }, 250);
+        }, 1000);
       }
       return;
     }
