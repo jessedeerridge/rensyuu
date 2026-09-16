@@ -4749,7 +4749,7 @@ function renderAchievementStamps(root = document) {
   const completedByMode = new Map();
   if (participantName) {
     for (const result of getAchievementResults()) {
-      if (result?.name !== participantName || Number(result.percent) < 100) continue;
+      if (result?.name !== participantName || (Number(result.percent) < 100 && result.reason !== "like")) continue;
       const mode = result.conjugation || result.mode;
       if (!completedByMode.has(mode)) completedByMode.set(mode, []);
       completedByMode.get(mode).push(result);
@@ -4767,7 +4767,7 @@ function renderAchievementStamps(root = document) {
     pile.setAttribute("aria-hidden", "true");
     button.appendChild(pile);
     placeAchievementStamps(button, pile, completed);
-    button.setAttribute("aria-label", `${button.dataset.achievementMode}、100%達成 ${completed.length}回`);
+    button.setAttribute("aria-label", `${button.dataset.achievementMode}、達成 ${completed.length}回`);
   });
 }
 
@@ -5424,8 +5424,8 @@ function finishTestAtTimeout() {
   const correctCount = document.querySelectorAll("#tableArea .test-answer-button[data-correct='true']").length;
   const earnedLike = nonConjugationQuestionTypes.has(currentTableType) && correctCount >= 12;
   if (earnedLike) {
-    // 「いいね」は管理画面では完全達成の内数として数えつつ、通常の完全達成と区別する。
-    saveTestResult(100, "like");
+    // 「いいね」の達成は reason で記録し、得点は時間切れ時点の実際の値を保存する。
+    saveTestResult(getCurrentTestPercent(), "like");
     showTestLikePopup();
   } else {
     recordCurrentTestResult("timeup");
