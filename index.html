@@ -5768,7 +5768,8 @@ function submitSpeechInputFallback(event) {
   activeSpeechSegments.clear();
   activeSpeechSegments.set(0, transcript);
   setSpeechButtonMessage(button, transcript);
-  if (isSpeechSkipRequest(transcript)) {
+  // 「わかりません」が正答の一部である問題は、スキップより先に正答として扱う。
+  if (isSpeechSkipRequest(transcript) && !isSpeechInputFallbackAnswerCorrect(transcript)) {
     skipSpeechQuestion(button, transcript);
     return;
   }
@@ -5980,11 +5981,12 @@ function startSpeechRecognitionForButton(button) {
     speechRetryCount = 0;
     setSpeechButtonMessage(button, transcript);
     armSpeechAnswerTimeout(button, recognition);
+    // 正答そのものに「わかりません」が含まれる場合があるため、先に採点する。
+    if (gradeSpeechAnswer(button, true)) return;
     if (isSpeechSkipRequest(transcript)) {
       skipSpeechQuestion(button, transcript);
       return;
     }
-    if (gradeSpeechAnswer(button, true)) return;
     const latestResult = event.results[event.results.length - 1];
     if (!latestResult.isFinal) {
       const answerLength = Math.min(
