@@ -5412,11 +5412,19 @@ function getCurrentTestPercent() {
   return buttons.filter(button => button.dataset.correct === "true").length / buttons.length * 100;
 }
 
+function getTimeoutTestPercent() {
+  const buttons = Array.from(document.querySelectorAll("#tableArea .test-answer-button"));
+  if (!buttons.length) return 0;
+  const correctCount = buttons.filter(button => button.dataset.correct === "true").length;
+  // 制限時間後に最後の回答の採点が終わっても、時間切れの結果を100%にはしない。
+  return Math.min(correctCount, buttons.length - 1) / buttons.length * 100;
+}
+
 function recordCurrentTestResult(reason) {
   if (!testModeActive || testResultSaved) return;
   const buttons = document.querySelectorAll("#tableArea .test-answer-button");
   if (!buttons.length) return;
-  saveTestResult(getCurrentTestPercent(), reason);
+  saveTestResult(reason === "timeup" ? getTimeoutTestPercent() : getCurrentTestPercent(), reason);
 }
 
 function finishTestAtTimeout() {
@@ -5424,8 +5432,8 @@ function finishTestAtTimeout() {
   const correctCount = document.querySelectorAll("#tableArea .test-answer-button[data-correct='true']").length;
   const earnedLike = nonConjugationQuestionTypes.has(currentTableType) && correctCount >= 12;
   if (earnedLike) {
-    // 「いいね」の達成は reason で記録し、得点は時間切れ時点の実際の値を保存する。
-    saveTestResult(getCurrentTestPercent(), "like");
+    // 「いいね」の達成は reason で記録し、得点は時間切れ用の値を保存する。
+    saveTestResult(getTimeoutTestPercent(), "like");
     showTestLikePopup();
   } else {
     recordCurrentTestResult("timeup");
