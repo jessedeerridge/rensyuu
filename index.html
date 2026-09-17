@@ -5455,7 +5455,7 @@ function closeTestLikePopup() {
 function startTestCountdown() {
   clearTestCountdown(false);
   const durationSeconds = nonConjugationQuestionTypes.has(currentTableType)
-    ? (testInputMode === "keyboard" ? 360 : 240)
+    ? (testInputMode === "keyboard" ? 480 : 240)
     : currentSection === "conjugation"
     ? (testInputMode === "keyboard" ? 120 : 80)
     : 180;
@@ -6206,7 +6206,7 @@ function makeTestTable() {
     const kanjiReadingMap = getCellKanjiReadingMap(row.cells[row.cells.length - 1]);
     return `<tr><td>${prompt.innerHTML}</td><td class="test-answer-cell"><button class="test-answer-button" type="button" data-answer="${escapeHtml(answer)}" data-answer-reading="${escapeHtml(answerReading)}" data-kanji-reading-map="${escapeHtml(JSON.stringify(kanjiReadingMap))}" data-conjugation="${isConjugation}" data-connect="${isConnect}" data-selected="false" aria-pressed="false" onclick="startSpeechTest(this)" aria-label="${index + 1}問目を音声で答える"><span class="test-transcript"></span><span class="test-status"></span></button></td></tr>`;
   }).join("");
-  const timer = `<button class="test-timer-btn" id="testTimerBtn" type="button" aria-label="タイマー">${isConjugation ? "1:20" : nonConjugationQuestionTypes.has(currentTableType) ? "6:00" : "3:00"}</button>`;
+  const timer = `<button class="test-timer-btn" id="testTimerBtn" type="button" aria-label="タイマー">${isConjugation ? "1:20" : nonConjugationQuestionTypes.has(currentTableType) ? "8:00" : "3:00"}</button>`;
   document.getElementById("tableArea").innerHTML = `<table class="test-table"><tr><th>問題</th><th>あなたの答え</th></tr>${body}</table><button class="test-reveal-btn" type="button" onclick="revealTestAnswers()">答え</button>${timer}<div class="scroll-extra-y"></div>`;
   return true;
 }
