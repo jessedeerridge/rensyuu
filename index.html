@@ -5335,6 +5335,36 @@ const CONJUGATION_ANSWER_VARIANTS = new Map([
   ["来た", ["来", "き"]]
 ]);
 
+// 「だれが持ってきたか」を尋ねる問題では、語順、目的語の有無、
+// 漢字・かなの組み合わせをすべて許容する。候補を組み立てることで、
+// 「誰・持・来」の一部だけを漢字にした表記も漏れなく扱う。
+function getWhoBroughtItAnswerVariants() {
+  const whoVariants = ["だれ", "誰"];
+  const carryVariants = ["もって", "持って"];
+  const comePoliteVariants = ["きましたか", "来ましたか"];
+  const comeExplanatoryVariants = ["きたんですか", "来たんですか"];
+  const comePlainVariants = ["きた", "来た"];
+  const objectVariants = [
+    "", "ワインを", "わいんを", "ビールを", "びーるを",
+    "このワインを", "このわいんを", "このビールを", "このびーるを"
+  ];
+  const variants = [];
+
+  whoVariants.forEach(who => {
+    carryVariants.forEach(carry => {
+      comePoliteVariants.forEach(come => variants.push(`${who}が${carry}${come}`));
+      comeExplanatoryVariants.forEach(come => variants.push(`${who}が${carry}${come}`));
+      comePlainVariants.forEach(come => {
+        objectVariants.forEach(object => variants.push(`${object}${carry}${come}のは${who}ですか`));
+      });
+    });
+  });
+
+  return variants;
+}
+
+const WHO_BROUGHT_IT_ANSWER_VARIANTS = getWhoBroughtItAnswerVariants();
+
 function getSpeechAnswerVariants(answer, isConjugation = false) {
   const source = String(answer || "");
   const variants = [source, source.replace(/^\s*あ[!！]\s*/, "")];
@@ -5346,6 +5376,9 @@ function getSpeechAnswerVariants(answer, isConjugation = false) {
   if (isConjugation) variants.push(...(CONJUGATION_ANSWER_VARIANTS.get(normalized) || []));
   if (["まだジュースがありますか", "まだカレーがありますか"].includes(normalized)) {
     variants.push("まだありますか");
+  }
+  if (normalized === "だれが持ってきましたか") {
+    variants.push(...WHO_BROUGHT_IT_ANSWER_VARIANTS);
   }
   return variants;
 }
