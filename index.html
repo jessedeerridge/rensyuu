@@ -3086,6 +3086,72 @@ const connectPracticeData = [
 const basicListenPracticeData = [];
 const basicSpeakPracticeData = [];
 
+// 聞くテストでは、表示中の模範解答に加えて、同じ場面で自然に使える
+// 言い換えも正解にする。模範解答自体は変更せず、採点時だけ参照する。
+const listenAcceptedAnswerVariants = new Map([
+  ["提议去某个地方（咖喱店） 👉🍛❔", ["カレー屋に行きませんか。", "カレーはどうですか。"]],
+  ["问旅行感想时 👀❔✈️😊", ["旅行はどうでしたか。", "旅行は楽しかったですか。"]],
+  ["问电影感想时 👀❔🎬😊", ["映画はどうでしたか。", "映画はおもしろかったですか。"]],
+  ["问哥哥性格时 👨🏻💬❔", ["お兄さんはどんな人なんですか。"]],
+  ["问电影内容时 🎬📖❔", ["どんな映画なんですか。", "これはどんな映画ですか。"]],
+  ["邀请去唱卡拉OK时 🤝🎤❔", ["一緒にカラオケに行きませんか。"]],
+  ["邀请一起烧烤时 🤝🍖❔", ["バーベキューしませんか。", "一緒にバーベキューをしませんか。"]],
+  ["问对方在做什么时 👀❔", ["何してますか。", "何をしてるんですか。", "何してるんですか。"]],
+  ["问对方工作时 💼❔", ["どんな仕事をしていますか。", "お仕事は何ですか。", "どんな仕事をしているんですか。"]],
+  ["问对方为什么困扰时 👀❔😟", ["何か困っていますか。", "何か困っているんですか。", "何か困ってるんですか。"]],
+  ["问对方为什么开心时 👀❔😊", ["何かあったんですか。"]],
+  ["问果汁还有没有剩时 🧃🧃❔", ["ジュースはまだありますか。", "ジュースがありますか。", "まだジュースありますか。"]],
+  ["问咖喱还有没有剩时 🍛🍛❔", ["カレーはまだありますか。", "カレーがありますか。", "まだカレーありますか。"]],
+  ["问住在哪里时 🏠❔", ["どこに住んでるんですか。", "どこに住んでますか。"]],
+  ["问和谁一起住时 🏠👥❔", ["誰と住んでるんですか。", "誰と住んでますか。", "誰と一緒に住んでいますか。"]],
+  ["问收到什么礼物时 🎁❔", ["何をもらったんですか。", "何かもらいましたか。", "何をもらいました。"]],
+  ["在窗口想借自行车时 💴🚲❔", ["ここで自転車を借りられますか。", "自転車を借りられますか。", "ここで自転車を借りれますか。"]],
+  ["在窗口想买票时 💴🎫❔", ["ここでチケットを買えますか。", "チケットを買えますか。", "ここでチケットを買うことはできますか。"]],
+  ["问作业做完没有时 📝❔", [
+    "もう宿題はしましたか。", "宿題をもうしましたか。", "宿題はもうしましたか。",
+    "もう宿題を終わりましたか。", "もう宿題は終わりましたか。", "宿題をもう終わりましたか。", "宿題はもう終わりましたか。",
+    "もう宿題をしていますか。", "もう宿題はしていますか。", "宿題をもうしていますか。", "宿題はもうしていますか。",
+    "もう宿題を終わっていますか。", "もう宿題は終わっていますか。", "宿題をもう終わっていますか。", "宿題はもう終わっていますか。",
+    "もう終わっていますか。", "もう終わりましたか。", "もうしましたか。"
+  ]],
+  ["问午饭吃了没有时 🍜❔", ["もうご飯は食べましたか。", "ご飯をもう食べましたか。", "ご飯はもう食べましたか。", "もう食べましたか。"]],
+  ["问旅行计划时 🕣🧳❔", ["旅行はいつですか。", "いつ旅行しますか。", "いつ行く予定ですか。", "いつ行くんですか。"]],
+  ["打电话时想确认对方能不能听见时 👂❔", ["聞こえていますか。", "聞こえてますか。", "声、聞こえますか。"]],
+  ["想确认对方能不能看清黑板上的字时 👀❔", ["見えていますか。", "見えてますか。", "字が見えますか。", "黒板が見えますか。"]],
+  ["想去厕所时 🚽🙋🏻‍♂️❔", ["トイレに行っていいですか。", "トイレに行ってもいいでしょうか。"]],
+  ["想休息一下时 😮‍💨❔", ["休んでもいいですか。", "ちょっと休んでいいですか。", "休憩してもいいですか。"]],
+  ["想坐在旁边时 👉🪑❔", ["座ってもいいですか。", "ここに座っていいですか。", "ここ、いいですか。"]],
+  ["邀请对方一起吃点东西时 🤝🍙❔", ["一緒に何か食べませんか。", "何か食べに行きませんか。"]],
+  ["邀请对方一起去某个地方时 🤝🚶‍♂️❔", ["どこかに行きませんか。", "一緒にどこか行きませんか。"]],
+  ["问有没有好店时 🏪✨❔", ["いいお店を知っていますか。", "おすすめのお店はありますか。", "どこかいい店を知りませんか。"]],
+  ["提议送点礼物时 🤔🎁❔", ["何かプレゼントしませんか。", "プレゼントをあげませんか。", "何かあげませんか。"]],
+  ["问有没有健康习惯时 💪🍎❔", ["健康のために何をしていますか。", "体にいいことを何かしていますか。"]],
+  ["问有没有出国经历时 ✈️❔", ["外国に行ったことがありますか。", "海外旅行をしたことがありますか。", "外国へ行ったことがありますか。"]],
+  ["问有没有潜水经历时（ダイビング） 🤿❔", ["ダイビングしたことがありますか。", "ダイビングの経験がありますか。"]],
+  ["介绍喜欢的动漫时（コナン） 📺❔", ["コナンを知っていますか。", "アニメのコナンを知っていますか。"]],
+  ["问是谁带来的时 👤🍾❔", [
+    "これ、誰が持ってきましたか。", "誰がこれを持ってきましたか。", "誰が持ってきたんですか。",
+    "これ、持って来たのは誰ですか。", "これを持って来たのは誰ですか。", "持って来たのは誰ですか。"
+  ]],
+  ["想改到8点时 🕗👌❔", ["8時はどうですか。", "8時でいいですか。", "8時でも大丈夫ですか。"]],
+  ["想改到宿舍前时 🏫👌❔", ["寮の前はどうですか。", "寮の前でいいですか。", "寮の前でも大丈夫ですか。"]],
+  ["请对方帮忙检查日语时 日本語🙏❔", ["日本語をチェックしてくれませんか。", "日本語を見てもらえませんか。", "日本語を確認してもらえませんか。"]],
+  ["请对方再说一遍时 🙏❔", ["もう一度お願いします。", "もう一回言ってください。", "もう一度言ってください。", "もう一回お願いします。"]],
+  ["想请对方帮忙拍照时 📸🙏❔", ["写真を撮ってくれませんか。", "写真を撮ってもらえますか。", "写真を撮っていただけませんか。", "写真を撮っていただけますか。"]],
+  ["请对方帮忙时 🙏❔", ["手伝ってくれませんか。", "手伝ってもらえますか。", "手伝っていただけませんか。", "手伝っていただけますか。"]],
+  ["不明白词语意思时 意味❔", ["これはどういう意味ですか。"]],
+  ["想问怎么去时 🚶‍♂️❔", ["どうやって行けばいいですか。", "どう行けばいいですか。"]],
+  ["想问怎么买票时 🤔💻🎫❔", ["どうやって買えばいいですか。", "どう買えばいいですか。"]],
+  ["问推荐的店时 🏬👍❔", ["おすすめのお店はどこですか。", "どのお店によく行きますか。", "よく行く店はどこですか。"]],
+  ["问推荐的歌时 🎵👍❔", ["おすすめの歌は何ですか。", "どんな歌をよく聞きますか。", "何の歌をよく聞きますか。"]],
+  ["问哪里有卖便宜肉的店时 🥩🏪❔", ["安い肉のお店はどこですか。", "肉が安い店はどこですか。", "どこで安い肉を買えますか。"]],
+  ["问两个之中是哪一个时 👉🥛🥛❔", ["どちらですか。"]],
+  ["问两个之中哪个好时 👉🍨🍰❔", ["どちらがいいですか。", "どちらがいいと思いますか。"]],
+  ["问三个以上之中是哪一个时 👉🍶🧂🥫❔", ["どれでしょうか。"]],
+  ["问是哪本书时 👉📗📘📙❔", ["どれですか。", "どの本でしょうか。"]],
+  ["问三个以上之中哪个好时 👉🍧🍨🍰❔", ["どれがいいと思いますか。", "どれがおすすめですか。"]]
+]);
+
 const listenPracticeData = [
   ["问正在吃的菜味道时 👀❔🍜😋", "どうですか。"],
   ["提议去某个地方（咖喱店） 👉🍛❔", "カレー屋は どうですか。"],
@@ -4955,6 +5021,42 @@ const SPEECH_EQUIVALENT_GROUPS = [
   ["おいし", "美味し"],
   // 全モードで「誰」と「だれ」の表記揺れを許容する。
   ["誰", "だれ"],
+  // 聞くモードの許容解答も、漢字の一部だけをひらがなにした表記まで許容する。
+  ["屋", "や"],
+  ["楽", "たの"],
+  ["困", "こま"],
+  ["声", "こえ"],
+  ["字", "じ"],
+  ["黒", "くろ"],
+  ["板", "ばん"],
+  ["憩", "けい"],
+  ["健", "けん"],
+  ["康", "こう"],
+  ["外", "がい"],
+  ["国", "こく"],
+  ["経", "けい"],
+  ["験", "けん"],
+  ["丈", "じょう"],
+  ["夫", "ぶ"],
+  ["確", "かく"],
+  ["認", "にん"],
+  ["回", "かい"],
+  ["予", "よ"],
+  ["定", "てい"],
+  ["映画", "えい画", "映が", "えいが"],
+  ["仕事", "し事", "仕ごと", "しごと"],
+  ["旅行", "りょ行", "旅こう", "りょこう"],
+  ["写真", "しゃ真", "写しん", "しゃしん"],
+  ["日本語", "にほん語", "日本ご", "にほんご"],
+  ["海外", "かい外", "海がい", "かいがい"],
+  ["一緒", "いっ緒", "一しょ", "いっしょ"],
+  ["休憩", "きゅう憩", "休けい", "きゅうけい"],
+  ["健康", "けん康", "健こう", "けんこう"],
+  ["外国", "がい国", "外こく", "がいこく"],
+  ["経験", "けい験", "経けん", "けいけん"],
+  ["大丈夫", "だい丈夫", "大じょう夫", "大丈ぶ", "だいじょうぶ"],
+  ["確認", "かく認", "確にん", "かくにん"],
+  ["予定", "よ定", "予てい", "よてい"],
   ["日本", "旅行"],
   ["このケーキ屋", "ケーキ屋", "このけーきや", "けーきや"],
   ["とき", "時"],
@@ -5171,10 +5273,16 @@ const SPEECH_EQUIVALENT_GROUPS = [
 // 「つなぐ」だけで許容する言い換え。各グループは全体の表記揺れと組み合わせられる。
 const CONNECT_SPEECH_EQUIVALENT_GROUPS = [
   ["ので", "から"],
-  ["食べてから", "食べた後で", "食べた後", "たべてから", "たべたあとで", "たべたあと"],
-  ["お風呂に入って", "お風呂に入ってから", "お風呂に入った後で", "お風呂に入った後", "お風呂に入ったら", "おふろにはいって", "おふろにはいってから", "おふろにはいったあとで", "おふろにはいったあと", "おふろにはいったら"],
-  ["買い物をして", "買い物をしてから", "買い物をした後で", "買い物をした後", "かいものをして", "かいものをしてから", "かいものをしたあとで", "かいものをしたあと"],
-  ["家に帰って", "家に帰った後", "家に帰った後で", "家に帰ってから", "いえにかえって", "いえにかえったあと", "いえにかえったあとで", "いえにかえってから"],
+  ["とき", "時", "ときに", "時に"],
+  ["前", "前に", "まえ", "まえに"],
+  ["食べてから", "食べた後", "食べた後で", "食べた後に", "たべてから", "たべたあと", "たべたあとで", "たべたあとに"],
+  ["脱いでから", "脱いだ後", "脱いだ後で", "脱いだ後に", "ぬいでから", "ぬいだあと", "ぬいだあとで", "ぬいだあとに"],
+  ["入ってから", "入った後", "入った後で", "入った後に", "はいってから", "はいったあと", "はいったあとで", "はいったあとに"],
+  ["してから", "した後", "した後で", "した後に", "したあと", "したあとで", "したあとに"],
+  ["帰ってから", "帰った後", "帰った後で", "帰った後に", "かえってから", "かえったあと", "かえったあとで", "かえったあとに"],
+  ["お風呂に入って", "お風呂に入ってから", "お風呂に入った後で", "お風呂に入った後", "お風呂に入った後に", "お風呂に入ったら", "おふろにはいって", "おふろにはいってから", "おふろにはいったあとで", "おふろにはいったあと", "おふろにはいったあとに", "おふろにはいったら"],
+  ["買い物をして", "買い物をしてから", "買い物をした後で", "買い物をした後", "買い物をした後に", "かいものをして", "かいものをしてから", "かいものをしたあとで", "かいものをしたあと", "かいものをしたあとに"],
+  ["家に帰って", "家に帰った後", "家に帰った後で", "家に帰った後に", "家に帰ってから", "いえにかえって", "いえにかえったあと", "いえにかえったあとで", "いえにかえったあとに", "いえにかえってから"],
   ["合格できて", "合格できたので", "合格できたから", "ごうかくできて", "ごうかくできたので", "ごうかくできたから"],
   ["友達に会えて", "友だちに会えて", "友達に会えたから", "友だちに会えたから", "友達に会えたので", "友だちに会えたので", "ともだちにあえて", "ともだちにあえたから", "ともだちにあえたので"],
   ["食べられて", "食べられたから", "食べられたので", "たべられて", "たべられたから", "たべられたので"],
@@ -5674,6 +5782,16 @@ function armSpeechInputFallbackCompositionTimer(input) {
   }, 1800);
 }
 
+function getSpeechAnswersForButton(button) {
+  let acceptedAnswers = [];
+  try {
+    acceptedAnswers = JSON.parse(button?.dataset.acceptedAnswers || "[]");
+  } catch (error) {
+    acceptedAnswers = [];
+  }
+  return [button?.dataset.answer, button?.dataset.answerReading, ...acceptedAnswers].filter(Boolean);
+}
+
 function getSpeechInputFallbackAnswers(button) {
   let kanjiReadingMap = [];
   try {
@@ -5683,8 +5801,7 @@ function getSpeechInputFallbackAnswers(button) {
   }
   const isConjugation = button?.dataset.conjugation === "true";
   const isConnect = button?.dataset.connect === "true";
-  return [button?.dataset.answer, button?.dataset.answerReading]
-    .filter(Boolean)
+  return getSpeechAnswersForButton(button)
     .flatMap(answer => getSpeechAnswerVariants(answer, isConjugation))
     .map(answer => normalizeSpeechForComparison(answer, kanjiReadingMap, isConjugation, isConnect))
     .filter(Boolean);
@@ -5786,7 +5903,7 @@ function isSpeechInputFallbackAnswerCorrect(transcript) {
   }
   return isSpeechAnswerCorrect(
     transcript,
-    [button.dataset.answer, button.dataset.answerReading],
+    getSpeechAnswersForButton(button),
     kanjiReadingMap,
     button.dataset.conjugation === "true",
     button.dataset.connect === "true"
@@ -5953,7 +6070,7 @@ function gradeSpeechAnswer(target, onlyIfCorrect = false) {
   }
   const correct = isSpeechAnswerCorrect(
     transcript,
-    [target.dataset.answer, target.dataset.answerReading],
+    getSpeechAnswersForButton(target),
     kanjiReadingMap,
     target.dataset.conjugation === "true",
     target.dataset.connect === "true"
@@ -6226,7 +6343,8 @@ function makeTestTable() {
     return {
       row,
       answer: getCellAnswerText(answerCell),
-      answerReading: getCellAnswerReading(answerCell)
+      answerReading: getCellAnswerReading(answerCell),
+      acceptedAnswers: row.dataset.acceptedAnswers || "[]"
     };
   });
   if (isConjugation && selected.length > 1) {
@@ -6238,11 +6356,11 @@ function makeTestTable() {
     );
     selected.unshift(...selected.splice(longestAnswerIndex, 1));
   }
-  const body = selected.map(({ row, answer, answerReading }, index) => {
+  const body = selected.map(({ row, answer, answerReading, acceptedAnswers }, index) => {
     const prompt = row.cells[0].cloneNode(true);
     prompt.querySelectorAll(".question-box").forEach(node => node.remove());
     const kanjiReadingMap = getCellKanjiReadingMap(row.cells[row.cells.length - 1]);
-    return `<tr><td>${prompt.innerHTML}</td><td class="test-answer-cell"><button class="test-answer-button" type="button" data-answer="${escapeHtml(answer)}" data-answer-reading="${escapeHtml(answerReading)}" data-kanji-reading-map="${escapeHtml(JSON.stringify(kanjiReadingMap))}" data-conjugation="${isConjugation}" data-connect="${isConnect}" data-selected="false" aria-pressed="false" onclick="startSpeechTest(this)" aria-label="${index + 1}問目を音声で答える"><span class="test-transcript"></span><span class="test-status"></span></button></td></tr>`;
+    return `<tr><td>${prompt.innerHTML}</td><td class="test-answer-cell"><button class="test-answer-button" type="button" data-answer="${escapeHtml(answer)}" data-answer-reading="${escapeHtml(answerReading)}" data-accepted-answers="${escapeHtml(acceptedAnswers)}" data-kanji-reading-map="${escapeHtml(JSON.stringify(kanjiReadingMap))}" data-conjugation="${isConjugation}" data-connect="${isConnect}" data-selected="false" aria-pressed="false" onclick="startSpeechTest(this)" aria-label="${index + 1}問目を音声で答える"><span class="test-transcript"></span><span class="test-status"></span></button></td></tr>`;
   }).join("");
   const timer = `<button class="test-timer-btn" id="testTimerBtn" type="button" aria-label="タイマー">${isConjugation ? "1:20" : nonConjugationQuestionTypes.has(currentTableType) ? "6:00" : "3:00"}</button>`;
   document.getElementById("tableArea").innerHTML = `<table class="test-table"><tr><th>問題</th><th>あなたの答え</th></tr>${body}</table><button class="test-reveal-btn" type="button" onclick="revealTestAnswers()">答え</button>${timer}<div class="scroll-extra-y"></div>`;
@@ -6418,7 +6536,7 @@ function formatListenPromptEmoji(emoji) {
 function makeListenTable() {
   const sourceData = currentHomeLevel === 0 ? basicListenPracticeData : listenPracticeData;
   const rows = sourceData.map(([prompt, answer]) => `
-    <tr>
+    <tr data-accepted-answers="${escapeHtml(JSON.stringify(listenAcceptedAnswerVariants.get(prompt) || []))}">
       <td>${makeWordCell(formatListenPrompt(prompt))}</td>
       <td><span class="answer-text">${addFurigana(escapeHtml(answer))}</span></td>
     </tr>
