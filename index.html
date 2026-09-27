@@ -5601,7 +5601,7 @@ function closeTestLikePopup() {
 function startTestCountdown() {
   clearTestCountdown(false);
   const durationSeconds = nonConjugationQuestionTypes.has(currentTableType)
-    ? (testInputMode === "keyboard" ? 360 : 240)
+    ? (testInputMode === "keyboard" ? 480 : 300)
     : currentSection === "conjugation"
     ? (testInputMode === "keyboard" ? 120 : 80)
     : 180;
