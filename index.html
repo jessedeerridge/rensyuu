@@ -5603,7 +5603,7 @@ function startTestCountdown() {
   const durationSeconds = nonConjugationQuestionTypes.has(currentTableType)
     ? (testInputMode === "keyboard" ? 480 : 300)
     : currentSection === "conjugation"
-    ? (testInputMode === "keyboard" ? 120 : 80)
+    ? (testInputMode === "keyboard" ? 160 : 90)
     : 180;
   testCountdownDeadline = Date.now() + durationSeconds * 1000;
   updateTestCountdown();
