@@ -5004,6 +5004,8 @@ function normalizeSpeechText(value) {
   return String(value || "")
     .normalize("NFKC")
     .toLocaleLowerCase("ja-JP")
+    // 音声認識による「貰」と「もら」の表記揺れは採点対象外にする。
+    .replace(/貰/g, "もら")
     // カタカナ・ひらがなの違いは採点対象外にする（半角カナもNFKC後に変換）。
     .replace(/[ァ-ヶ]/g, character => String.fromCharCode(character.charCodeAt(0) - 0x60))
     // 漢数字・全角数字・半角数字を同じ半角数字へ統一する。
