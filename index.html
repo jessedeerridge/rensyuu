@@ -2585,6 +2585,8 @@
     display: flex; flex-wrap: wrap; align-items: start; justify-content: flex-start; padding: 0;
   }
   .conversation-word-bank button { flex: 0 0 auto; white-space: nowrap; }
+  .conversation-word-bank button.connect-tail-piece { max-width:100%; white-space:normal; overflow-wrap:anywhere; text-align:left; }
+  .connect-piece-table .conversation-selected-words { white-space:normal; }
   .conversation-word-choices button {
     width: calc(var(--piece-length, 3) * 1em + 14px);
     justify-self: start;
@@ -3202,7 +3204,7 @@ function hasVocabularyChallenge(type) {
 }
 
 function usesPieceAnswers() {
-  return currentSection === "conversation" || currentSection === "conjugation" || (currentSection === "vocab" && hasVocabularyChallenge(currentTableType));
+  return ["聞く", "話す", "つなぐ"].includes(currentTableType) || currentSection === "conversation" || currentSection === "conjugation" || (currentSection === "vocab" && hasVocabularyChallenge(currentTableType));
 }
 
 function toConjugationHiragana(value) {
@@ -3423,7 +3425,7 @@ document.addEventListener("pointermove", event => {
     for (const property of ["font-family", "font-size", "font-weight", "font-style", "line-height", "letter-spacing", "color", "text-align", "text-transform", "writing-mode", "direction", "border", "border-radius", "background-color", "padding", "box-sizing"]) {
       drag.ghost.style.setProperty(property, computed.getPropertyValue(property));
     }
-    Object.assign(drag.ghost.style, {position:"fixed", display:"block", pointerEvents:"none", zIndex:"10000", margin:"0", visibility:"visible", transform:"none", whiteSpace:"nowrap", width:"max-content", height:"auto"});
+    Object.assign(drag.ghost.style, {position:"fixed", display:"block", pointerEvents:"none", zIndex:"10000", margin:"0", visibility:"visible", transform:"none", whiteSpace:computed.whiteSpace, width:"max-content", height:"auto"});
     if (drag.button.closest(".conversation-selected-words")) {
       Object.assign(drag.ghost.style, {border:"1px solid #74b6e5", borderRadius:"8px", backgroundColor:"#d5edff", padding:"7px 10px"});
     } else {
@@ -3617,6 +3619,54 @@ const speakPracticeData = [
   ["✈️👍/🤔", "<ruby>飛行機<rt>ひこうき</rt></ruby>のほうがいいと <ruby>思<rt>おも</rt></ruby>います。"]
 ];
 
+const speakPiecePracticeData = new Map([
+  [["おおさか", "に", "すんで", "います"], ["で", "すみます"]],
+  [["いえ", "から", "がっこう", "まで", "でんしゃ", "で", "2じかん", "くらい", "です"], ["に", "2じ"]],
+  [["えき", "から", "がっこう", "まで", "くるま", "で", "10ぷん", "くらい", "です"], ["に", "じかん"]],
+  [["がっこう", "から", "えき", "まで", "あるいて", "15ふん", "くらい", "です"], ["あるき", "で"]],
+  [["いぬ", "が", "いっぴき", "います"], ["を", "あります"]],
+  [["あに", "が", "ひとり", "と", "おとうと", "が", "ひとり", "います"], ["も", "あります"]],
+  [["チケット", "が", "2まい", "あります"], ["を", "います"]],
+  [["あに", "は", "せ", "が", "たかい", "です"], ["を", "たかく"]],
+  [["あね", "は", "かみ", "が", "ながい", "です"], ["を", "ながく"]],
+  [["ちち", "は", "て", "が", "おおきい", "です"], ["を", "おおきく"]],
+  [["ちかく", "に", "スーパー", "が", "あります"], ["で", "ちかい"]],
+  [["こうえん", "に", "ねこ", "が", "います"], ["で", "あります"]],
+  [["おおさか", "に", "おしろ", "が", "あります"], ["で", "います"]],
+  [["とうきょう", "で", "おまつり", "が", "あります"], ["に", "います"]],
+  [["がっこう", "で", "テスト", "が", "あります"], ["に", "います"]],
+  [["あたらしい", "ふく", "が", "ほしい", "です"], ["を", "たい"]],
+  [["にほん", "に", "いき", "たい", "です"], ["いく", "ほしい"]],
+  [["にく", "の", "ほうが", "すき", "です"], ["を", "ほしい"]],
+  [["タクシー", "の", "ほうが", "いい", "です"], ["を", "よく"]],
+  [["えいが", "を", "みる", "の", "が", "すき", "です"], ["み"]],
+  [["え", "を", "かく", "の", "が", "すき", "です"], ["かき"]],
+  [["うたう", "の", "が", "すき", "です"], ["うたい"]],
+  [["ともだち", "が", "くつ", "を", "くれました"], ["に", "あげました"]],
+  [["ともだち", "が", "パソコン", "を", "くれました"], ["に", "あげました"]],
+  [["ともだち", "に", "プレゼント", "を", "あげました"], ["が", "くれました"]],
+  [["まだ", "たべて", "いません"], ["もう", "たべません"]],
+  [["まだ", "おわって", "いません"], ["もう", "おわりません"]],
+  [["もう", "たべました"], ["まだ", "たべて", "います"]],
+  [["もう", "おわりました"], ["まだ", "おわって", "いました"]],
+  [["あ！", "さかな", "が", "およいで", "います"], ["およぎ", "およって", "は"]],
+  [["あ！", "サル", "が", "バナナ", "を", "たべて", "います"], ["は", "たべる", "たべます"]],
+  [["あ！", "こども", "が", "はしって", "います"], ["はしり", "はして", "は"]],
+  [["くすり", "を", "のんだ", "ほうが", "いい", "です", "よ"], ["のむ", "よく"]],
+  [["やすんだ", "ほうが", "いい", "です", "よ"], ["やすむ", "やすみ"]],
+  [["おさけ", "を", "のまない", "ほうが", "いい", "です", "よ"], ["のみません", "よく"]],
+  [["よる", "スマホ", "を", "みない", "ほうが", "いい", "です", "よ"], ["みません", "みて"]],
+  [["あした", "は", "がっこう", "に", "いかなくて", "も", "いい", "です"], ["いかない", "よく"]],
+  [["あした", "は", "はやく", "おきなくて", "も", "いい", "です"], ["はやい", "おきない"]],
+  [["なまえ", "を", "かかなくて", "も", "いい", "です"], ["かきなくて", "かかない"]],
+  [["あした", "は", "あめ", "が", "ふる", "そう", "です"], ["ふって", "だそう"]],
+  [["ちんさん", "は", "かぜ", "を", "ひいた", "そう", "です"], ["ひく", "だそう"]],
+  [["この", "ケーキ", "や", "は", "にんき", "だそう", "です"], ["そう", "から"]],
+  [["あした", "は", "あつい", "と", "おもいます"], ["あつく", "だと"]],
+  [["ねんまつ", "は", "ひと", "が", "おおい", "と", "おもいます"], ["おおく", "だと"]],
+  [["ひこうき", "の", "ほうが", "いい", "と", "おもいます"], ["よく", "だと"]]
+].map(([words, distractors], index) => [speakPracticeData[index][0], { words, distractors }]));
+
 const connectPracticeData = [
   {
     title: "～て",
@@ -3734,6 +3784,75 @@ const connectPracticeData = [
     ]
   }
 ];
+
+const connectPiecePracticeData = new Map([
+  [["やす", "く", "て", "おいしいです"], ["い", "で"]],
+  [["ひと", "が", "おお", "く", "て", "にぎやかなところです"], ["い", "で"]],
+  [["この", "ゲーム", "は", "かんたん", "で", "おもしろいです"], ["く", "て"]],
+  [["むずかし", "い", "です", "けど", "おもしろいです"], ["く", "て", "ので"]],
+  [["たか", "い", "です", "けど", "おいしいです"], ["く", "て", "ので"]],
+  [["りょこう", "に", "いき", "たい", "です", "けど", "じかんがありません"], ["く", "ので"]],
+  [["おいし", "かった", "です", "けど", "ちょっとからかったです"], ["い", "く", "ので"]],
+  [["ちょっと", "たいへん", "でした", "けど", "おもしろかったです"], ["で", "ので"]],
+  [["いぬ", "は", "すき", "です", "けど", "ねこはすきじゃないです"], ["で", "が"]],
+  [["かに", "は", "たべ", "られます", "けど", "えびはたべられません"], ["です", "が"]],
+  [["はじめ", "は", "たいへん", "でした", "けど", "いまはおもしろいです"], ["で", "ます"]],
+  [["はじめ", "は", "きんちょう", "しました", "けど", "いまはなれました"], ["する", "ので"]],
+  [["おふろ", "に", "はいって", "ねます"], ["はいるので", "はいるとき"]],
+  [["かいもの", "を", "して", "カフェにいきました"], ["するので", "するとき"]],
+  [["いえ", "に", "かえって", "しゅくだいをしました"], ["かえるとき", "かえるなら"]],
+  [["かぜ", "で", "がっこうをやすみました"], ["ので", "から"]],
+  [["テスト", "の", "べんきょう", "で", "いそがしいです"], ["に", "だ"]],
+  [["ようじ", "で", "あしたはいけません"], ["ので", "から"]],
+  [["ごうかく", "できて", "うれしかったです"], ["できるので", "できるとき"]],
+  [["ともだち", "に", "あえて", "うれしいです"], ["あえた", "あっても"]],
+  [["たくさん", "たべられて", "うれしかったです"], ["たべられたけど", "たべたら"]],
+  [["まにあって", "よかったです"], ["まにあうので", "まにあうとき"]],
+  [["あめ", "が", "ふって", "ざんねんです"], ["ふるけど", "ふりそう"]],
+  [["あえなくて", "かなしいです"], ["あえないが", "あえないで"]],
+  [["しごと", "が", "おお", "く", "て", "たいへんです"], ["い", "も"]],
+  [["あめ", "が", "ふっている", "から", "かさをもっていきます"], ["ふっても", "ふって"]],
+  [["おなか", "が", "すい", "た", "から", "ごはんをかってきます"], ["て", "だから"]],
+  [["ねむ", "い", "から", "はやくねます"], ["く", "だから"]],
+  [["おかね", "が", "ないから", "りょこうにいきません"], ["なく", "ないで"]],
+  [["ほん", "を", "わすれ", "た", "ので", "みせてください"], ["て", "だ"]],
+  [["つかれ", "た", "ので", "ちょっとやすんでもいいですか"], ["て", "だ"]],
+  [["ね", "る", "まえに", "はをみがきます"], ["ます", "て"]],
+  [["がっこう", "へ", "いく", "まえに", "あさごはんをたべます"], ["あとで", "ころに"]],
+  [["くつ", "を", "ぬいで", "から", "はいってください"], ["ぬぐので", "ぬぐとき"]],
+  [["ごはん", "を", "たべて", "から", "くすりをのんでください"], ["たべるので", "たべるとき"]],
+  [["ほん", "を", "かりる", "とき", "カードがいります"], ["かりた", "かりて"]],
+  [["コーヒー", "を", "のむ", "とき", "さとうをいれます"], ["のんで", "のみ"]],
+  [["えいが", "を", "みる", "とき", "おかしをたべます"], ["み", "みない"]],
+  [["りょこう", "に", "いった", "とき", "いつもかぞくにおみやげをかいます"], ["いこう", "いきの"]],
+  [["うみ", "に", "いった", "とき", "しゃしんをとりました"], ["いく", "いき"]],
+  [["つかれた", "とき", "スマホでどうがをみます"], ["つかれ", "つかれる", "つかれて"]],
+  [["せんせい", "に", "あった", "とき", "いつもあいさつをします"], ["あい", "あおう"]],
+  [["じゅぎょう", "が", "おわったら", "しょくどうにいきます"], ["おわっても"], ["おわって", "おわるので", "おわろう", "おわると"]],
+  [["7じ", "に", "なったら", "ごはんをたべます"], ["なっても"], ["なって", "なるので", "なろう", "なると"]],
+  [["そつぎょう", "したら", "にほんではたらきます"], ["しても"], ["して", "するので", "しよう", "すると"]],
+  [["いえ", "に", "かえったら", "でんわしてください"], ["かえっても"], ["かえって", "かえるので", "かえろう", "かえると"]],
+  [["えき", "に", "ついたら", "おしえてください"], ["ついても"], ["ついて", "つくので", "つこう", "つくと"]],
+  [["おかね", "が", "あったら", "かいがいにいきたいです"], ["あっても"], ["あって", "あるので", "あると"]],
+  [["あめ", "が", "ふったら", "しあいはちゅうしです"], ["ふっても"], ["ふって", "ふるので", "ふろう", "ふると"]],
+  [["にほん", "に", "いったら", "ラーメンをたべたいです"], ["いっても"], ["いって", "いくので", "いこう", "いくと"]],
+  [["ごうかく", "できたら", "うれしいです"], ["できても"], ["できて", "できるので", "できよう", "できると"]],
+  [["やすかったら", "かいます"], ["やすくても"], ["やすくて", "やすいので", "やすいと"]],
+  [["てんき", "が", "よかったら", "おはなみをしませんか"], ["よくても"], ["よくて", "いいので", "いいと"]],
+  [["ひまだったら", "てつだってください"], ["ひまでも"], ["ひまで", "ひまなので", "ひまだと"]],
+  [["あめ", "が", "ふっても", "しあいはあります"], ["ふったら"], ["ふって", "ふるので", "ふろう", "ふると"]],
+  [["しらべても", "わかりません"], ["しらべたら"], ["しらべて", "しらべるので", "しらべよう", "しらべると"]],
+  [["あらっても", "きれいになりません"], ["あらったら"], ["あらって", "あらうので", "あらおう", "あらうと"]],
+  [["はしっても", "でんしゃにまにあいません"], ["はしったら"], ["はしって", "はしるので", "はしろう", "はしると"]],
+  [["れんしゅう", "しても", "うまくなりません"], ["したら"], ["して", "するので", "しよう", "すると"]],
+  [["くすり", "を", "のんでも", "よくなりません"], ["のんだら"], ["のんで", "のむので", "のもう", "のむと"]],
+  [["ねても", "げんきになりません"], ["ねたら"], ["ねて", "ねるので", "ねよう", "ねると"]],
+  [["ともだち", "に", "でんわ", "しても", "でません"], ["したら"], ["して", "するので", "しよう", "すると"]],
+  [["ねむくなくても", "11じにねます"], ["ねむくなかったら"], ["ねむくなくて", "ねむくないので", "ねむくないと"]],
+  [["やすくても", "かいません"], ["やすかったら"], ["やすくて", "やすいので", "やすいと"]],
+  [["とおくても", "いきます"], ["とおかったら"], ["とおくて", "とおいので", "とおいと"]]
+].map(([words, distractors, randomDistractors = []], index) =>
+  [connectPracticeData.flatMap(group => group.rows)[index][0], { words, distractors, randomDistractors }]));
 
 const basicListenPracticeData = [];
 const basicSpeakPracticeData = [];
@@ -3864,6 +3983,67 @@ const listenPracticeData = [
   ["问是哪本书时 👉📗📘📙❔", "どの本ですか。"],
   ["问三个以上之中哪个好时 👉🍧🍨🍰❔", "どれがいいですか。"],
 ];
+
+const listenPiecePracticeData = new Map([
+  [["どう", "ですか"], ["どんな", "なん"]],
+  [["カレー", "や", "は", "どう", "ですか"], ["どんな", "を"]],
+  [["どう", "でしたか"], ["ですか", "しましたか"]],
+  [["どう", "でしたか"], ["ですか", "しましたか"]],
+  [["おにいさん", "は", "どんな", "ひと", "ですか"], ["どう", "なんの"]],
+  [["どんな", "えいが", "ですか"], ["どう", "なん"]],
+  [["カラオケ", "に", "いき", "ませんか"], ["で", "いく"]],
+  [["バーベキュー", "を", "し", "ませんか"], ["が", "する"]],
+  [["なに", "を", "して", "いますか"], ["が", "し"]],
+  [["なに", "を", "して", "いますか"], ["が", "し"]],
+  [["どう", "した", "んですか"], ["して", "しました"]],
+  [["どう", "した", "んですか"], ["して", "しました"]],
+  [["どう", "した", "んですか"], ["して", "しました"]],
+  [["てつだい", "ましょうか"], ["てつだって", "ませんか"]],
+  [["もち", "ましょうか"], ["もって", "もつ"]],
+  [["だれ", "が", "もって", "きましたか"], ["を", "もち"]],
+  [["だれ", "が", "いますか"], ["を", "ありますか"]],
+  [["まだ", "ジュース", "が", "ありますか"], ["を", "いますか"]],
+  [["まだ", "カレー", "が", "ありますか"], ["を", "いますか"]],
+  [["どこ", "に", "すんで", "います", "か"], ["で", "すみます"]],
+  [["だれ", "と", "すんで", "います", "か"], ["に", "すみます"]],
+  [["なに", "を", "もらいましたか"], ["が", "あげましたか"]],
+  [["ここ", "で", "じてんしゃ", "を", "かりる", "ことが", "できますか"], ["に", "かりて"]],
+  [["ここ", "で", "チケット", "を", "かう", "ことが", "できますか"], ["に", "かって"]],
+  [["もう", "しゅくだい", "を", "しましたか"], ["まだ", "しますか"]],
+  [["もう", "ごはん", "を", "たべましたか"], ["まだ", "たべますか"]],
+  [["いつ", "りょこう", "に", "いきますか"], ["だれ", "まだ"]],
+  [["きこえ", "ますか"], ["きき", "きけ"]],
+  [["みえ", "ますか"], ["み", "みられ"]],
+  [["トイレ", "に", "いって", "も", "いい", "ですか"], ["いき", "よく"]],
+  [["ちょっと", "やすんで", "も", "いい", "ですか"], ["やすみ", "やすって"]],
+  [["ここ", "に", "すわって", "も", "いい", "ですか"], ["で", "すわり"]],
+  [["なに", "か", "たべ", "ませんか"], ["が", "たべる"]],
+  [["どこ", "か", "いき", "ませんか"], ["が", "いく"]],
+  [["どこ", "か", "いい", "おみせ", "を", "しっています", "か"], ["しります"]],
+  [["なにか", "プレゼント", "を", "あげ", "ませんか"], ["なにが", "もらい"]],
+  [["なにか", "からだ", "に", "いいこと", "を", "していますか"], ["よく", "もの"]],
+  [["かいがい", "に", "いった", "こと", "が", "ありますか"], ["いく", "いますか"]],
+  [["ダイビング", "を", "した", "こと", "が", "ありますか"], ["する", "いますか"]],
+  [["周杰伦", "という", "かしゅ", "を", "しっています", "か"], ["といって", "しります"]],
+  [["コナン", "という", "アニメ", "を", "しっています", "か"], ["といって", "しります"]],
+  [["8じ", "でも", "いい", "ですか"], ["にも", "よく"]],
+  [["りょう", "の", "まえ", "でも", "いい", "ですか"], ["にも", "よく"]],
+  [["にほんご", "を", "チェック", "して", "もらえませんか"], ["し", "もらいませんか"]],
+  [["もういちど", "いって", "もらえませんか"], ["いい", "もらいませんか"]],
+  [["しゃしん", "を", "とって", "もらえませんか"], ["とり", "もらいませんか"]],
+  [["てつだって", "もらえませんか"], ["てつだい", "もらいませんか"]],
+  [["どういう", "いみ", "ですか"], ["どうして", "どんなに"]],
+  [["どうやって", "いっ", "たら", "いい", "ですか"], ["いき", "よく"]],
+  [["どうやって", "かっ", "たら", "いい", "ですか"], ["かい", "よく"]],
+  [["よく", "いく", "おみせ", "は", "どこ", "ですか"], ["いき", "どの"]],
+  [["よく", "きく", "うた", "は", "なん", "ですか"], ["きき", "どんな"]],
+  [["やすい", "にく", "を", "うっている", "おみせ", "は", "どこ", "に", "ありますか"], ["やすく", "うる"]],
+  [["どっち", "ですか"], ["どの", "どんな"]],
+  [["どっち", "が", "いい", "ですか"], ["を", "よく"]],
+  [["どれ", "ですか"], ["どの", "どんな"]],
+  [["どの", "ほん", "ですか"], ["どれ", "なん"]],
+  [["どれ", "が", "いい", "ですか"], ["を", "よく"]]
+].map(([words, distractors], index) => [listenPracticeData[index][0], { words, distractors }]));
 
 function openHome() {
   currentSection = "home";
@@ -6410,12 +6590,14 @@ function closeTestLikePopup() {
 function getTestDurationSeconds(questions) {
   if (usesPieceAnswers()) {
     const extraSeconds = currentSection === "conjugation" ? 30
-      : currentSection === "conversation" ? questions.length * 2 : 20;
-    return questions.reduce((total, question) => {
+      : currentSection === "conversation" ? questions.length * 2
+      : ["聞く", "話す", "つなぐ"].includes(currentTableType) ? 60 : 20;
+    const duration = questions.reduce((total, question) => {
       const pieces = (question.dataset.wordAnswer || "").trim().split(/\s+/).filter(Boolean).length;
       const stemPieces = currentSection === "conjugation" && question.dataset.stemPiece ? 1 : 0;
       return total + Math.max(0, pieces - stemPieces);
     }, 0) * 2.5 + extraSeconds;
+    return ["聞く", "話す", "つなぐ"].includes(currentTableType) ? Math.max(160, duration) : duration;
   }
   return questions.length * 10 + 20;
 }
@@ -7027,8 +7209,30 @@ function isConversationSpeechAnswerCorrect(transcript, answers) {
   });
 }
 
-function isPieceAnswerCorrect(transcript, answer, conversation = false, alternatives = []) {
-  if (transcript === answer || alternatives.includes(transcript)) return true;
+function isPieceAnswerCorrect(transcript, answer, conversation = false, alternatives = [], flexibleAdverbs = false, optionalTopic = false) {
+  if (transcript === answer) return true;
+  if (answer === "ともだち に プレゼント を あげました" &&
+      transcript === "プレゼント を ともだち に あげました") return true;
+  if (answer === "あに が ひとり と おとうと が ひとり います" &&
+      transcript === "おとうと が ひとり と あに が ひとり います") return true;
+  if (optionalTopic && /^(?:あした|ねんまつ) は /.test(answer)) {
+    const withoutTopic = answer.replace(/^((?:あした|ねんまつ)) は /, "$1 ");
+    if (isPieceAnswerCorrect(transcript, withoutTopic, false, [], flexibleAdverbs)) return true;
+  }
+  if (flexibleAdverbs) {
+    const expected = answer.split(" ");
+    const adverbs = expected.filter(piece => piece === "まだ" || piece === "もう");
+    if (adverbs.length !== 1) return false;
+    const otherPieces = expected.filter(piece => piece !== "まだ" && piece !== "もう");
+    const verbIndex = otherPieces.findIndex(piece =>
+      /^(?:たべて|おわって)$/.test(piece) || /(?:ます|ました|ません)(?:か)?$/.test(piece));
+    return [0, verbIndex].filter(index => index >= 0).some(index => {
+      const words = otherPieces.slice();
+      words.splice(index, 0, adverbs[0]);
+      return transcript === words.join(" ");
+    });
+  }
+  if (alternatives.includes(transcript)) return true;
   return conversation && answer.startsWith("しゅうまつ は ") &&
     transcript === answer.replace(/^しゅうまつ は /, "しゅうまつ ");
 }
@@ -7043,7 +7247,7 @@ function gradeSpeechAnswer(target, onlyIfCorrect = false) {
     kanjiReadingMap = [];
   }
   const correct = target.dataset.answerSource === "words"
-    ? isPieceAnswerCorrect(transcript, target.dataset.wordAnswer || target.dataset.answer, target.dataset.conversation === "true", JSON.parse(target.dataset.acceptedAnswers || "[]"))
+    ? isPieceAnswerCorrect(transcript, target.dataset.wordAnswer || target.dataset.answer, target.dataset.conversation === "true", JSON.parse(target.dataset.acceptedAnswers || "[]"), target.dataset.flexibleAdverbs === "true", target.dataset.optionalTopic === "true")
     : isSpeechAnswerCorrect(
     transcript,
     getSpeechAnswersForButton(target),
@@ -7237,7 +7441,7 @@ function beginTestQuestions(mode) {
   startTestCountdown();
   document.body.classList.toggle("conversation-keyboard", usesPieceAnswers() && mode === "keyboard");
   if (usesPieceAnswers() && mode === "keyboard") {
-    document.querySelectorAll(".conversation-word-choices").forEach(fitPieceChoiceRows);
+    fitTableTextOneLine();
     return;
   }
   const firstQuestion = document.querySelector("#tableArea .test-answer-button");
@@ -7383,6 +7587,10 @@ function makeTestTable() {
     prompt.querySelectorAll(".question-box").forEach(node => node.remove());
     const kanjiReadingMap = getCellKanjiReadingMap(row.cells[row.cells.length - 1]);
     let wordChoices = JSON.parse(row.dataset.wordChoices || "[]");
+    if (isConnect) {
+      const randomChoices = JSON.parse(row.dataset.randomWordChoices || "[]");
+      wordChoices.push(...shuffleArray(randomChoices.filter(word => !wordChoices.includes(word))).slice(0, 1));
+    }
     if (currentSection === "vocab" && hasVocabularyChallenge(currentTableType)) {
       const correct = row.dataset.wordAnswer;
       const alternatives = [...new Set(vocabTableData[currentTableType]
@@ -7392,11 +7600,11 @@ function makeTestTable() {
     const orderedChoices = row.dataset.wholeStemChoices === "true"
       ? [...shuffleArray(wordChoices.slice(0, -1)), wordChoices[wordChoices.length - 1]]
       : isConjugation && row.dataset.stemPiece ? [wordChoices[0], ...shuffleArray(wordChoices.slice(1))] : shuffleArray(wordChoices);
-    const wordBank = wordChoices.length ? `<div class="conversation-word-bank" data-answer-prefix="${escapeHtml(row.dataset.answerPrefix || "")}" role="group" aria-label="単語を選んで答える"><div class="conversation-selected-words" role="group" aria-label="選んだ単語">${escapeHtml(row.dataset.answerPrefix || "")}</div><div class="conversation-word-choices" role="group" aria-label="単語の選択肢">${orderedChoices.map((word, i) => `<button type="button" data-word-index="${i}" style="--piece-length:${Math.max(3, Array.from(word).length)}" aria-pressed="false" onclick="chooseConversationWord(this)">${escapeHtml(word)}</button>`).join("")}</div></div>` : "";
-    return `<tr><td>${prompt.innerHTML}</td><td class="test-answer-cell"><button class="test-answer-button" type="button" data-answer="${escapeHtml(answer)}" data-answer-font-size="${escapeHtml(answerFontSize)}" data-word-answer="${escapeHtml(row.dataset.wordAnswer || "")}" data-stem-piece="${escapeHtml(row.dataset.stemPiece || "")}" data-answer-reading="${escapeHtml(answerReading)}" data-accepted-answers="${escapeHtml(acceptedAnswers)}" data-kanji-reading-map="${escapeHtml(JSON.stringify(kanjiReadingMap))}" data-conversation="${Boolean(conversationPracticeData[currentTableType])}" data-conjugation="${isConjugation}" data-connect="${isConnect}" data-selected="false" aria-pressed="false" onclick="startSpeechTest(this)" aria-label="${index + 1}問目を音声で答える"><span class="test-transcript"></span><span class="test-status"></span></button>${wordBank}</td></tr>`;
+    const wordBank = wordChoices.length ? `<div class="conversation-word-bank" data-answer-prefix="${escapeHtml(row.dataset.answerPrefix || "")}" role="group" aria-label="単語を選んで答える"><div class="conversation-selected-words" role="group" aria-label="選んだ単語">${escapeHtml(row.dataset.answerPrefix || "")}</div><div class="conversation-word-choices" role="group" aria-label="単語の選択肢">${orderedChoices.map((word, i) => `<button type="button" class="${isConnect && word === row.dataset.wordAnswer?.split(" ").at(-1) ? "connect-tail-piece" : ""}" data-word-index="${i}" style="--piece-length:${Math.max(3, Array.from(word).length)}" aria-pressed="false" onclick="chooseConversationWord(this)">${escapeHtml(word)}</button>`).join("")}</div></div>` : "";
+    return `<tr><td>${prompt.innerHTML}</td><td class="test-answer-cell"><button class="test-answer-button" type="button" data-answer="${escapeHtml(answer)}" data-answer-font-size="${escapeHtml(answerFontSize)}" data-word-answer="${escapeHtml(row.dataset.wordAnswer || "")}" data-stem-piece="${escapeHtml(row.dataset.stemPiece || "")}" data-answer-reading="${escapeHtml(answerReading)}" data-accepted-answers="${escapeHtml(acceptedAnswers)}" data-kanji-reading-map="${escapeHtml(JSON.stringify(kanjiReadingMap))}" data-conversation="${Boolean(conversationPracticeData[currentTableType])}" data-flexible-adverbs="${["聞く", "話す"].includes(currentTableType)}" data-optional-topic="${currentTableType === "話す" && /^(?:あした|ねんまつ)は/.test(normalizeSpeechText(answerReading))}" data-conjugation="${isConjugation}" data-connect="${isConnect}" data-selected="false" aria-pressed="false" onclick="startSpeechTest(this)" aria-label="${index + 1}問目を音声で答える"><span class="test-transcript"></span><span class="test-status"></span></button>${wordBank}</td></tr>`;
   }).join("");
   const timer = `<button class="test-timer-btn" id="testTimerBtn" type="button" aria-label="タイマー">${formatTestDuration(getTestDurationSeconds(selected.map(({ row }) => row)))}</button>`;
-  document.getElementById("tableArea").innerHTML = `<table class="test-table"><tr><th>問題</th><th>あなたの答え</th></tr>${body}</table><button class="test-reveal-btn" type="button" onclick="revealTestAnswers()">答え</button>${timer}<div class="scroll-extra-y"></div>`;
+  document.getElementById("tableArea").innerHTML = `<table class="test-table${isConnect ? " connect-piece-table" : ""}"><tr><th>問題</th><th>あなたの答え</th></tr>${body}</table><button class="test-reveal-btn" type="button" onclick="revealTestAnswers()">答え</button>${timer}<div class="scroll-extra-y"></div>`;
   return true;
 }
 
@@ -7565,12 +7773,16 @@ function formatListenPromptEmoji(emoji) {
 
 function makeListenTable() {
   const sourceData = currentHomeLevel === 0 ? basicListenPracticeData : listenPracticeData;
-  const rows = sourceData.map(([prompt, answer]) => `
-    <tr data-accepted-answers="${escapeHtml(JSON.stringify(listenAcceptedAnswerVariants.get(prompt) || []))}">
+  const rows = sourceData.map(([prompt, answer]) => {
+    const pieces = listenPiecePracticeData.get(prompt);
+    const pieceAttributes = pieces ? ` data-word-answer="${escapeHtml(pieces.words.join(" "))}" data-word-choices="${escapeHtml(JSON.stringify([...pieces.words, ...pieces.distractors]))}"` : "";
+    return `
+    <tr data-accepted-answers="${escapeHtml(JSON.stringify(listenAcceptedAnswerVariants.get(prompt) || []))}"${pieceAttributes}>
       <td>${makeWordCell(formatListenPrompt(prompt))}</td>
       <td><span class="answer-text">${addFurigana(escapeHtml(answer))}</span></td>
     </tr>
-  `).join("");
+  `;
+  }).join("");
   document.getElementById("tableArea").innerHTML = `
     <table class="listen-table">
       <tr><th>场面</th><th>日本語</th></tr>
@@ -7582,12 +7794,16 @@ function makeListenTable() {
 
 function makeSpeakTable() {
   const sourceData = currentHomeLevel === 0 ? basicSpeakPracticeData : speakPracticeData;
-  const rows = sourceData.map(([prompt, answer]) => `
-    <tr>
+  const rows = sourceData.map(([prompt, answer]) => {
+    const pieces = speakPiecePracticeData.get(prompt);
+    const pieceAttributes = pieces ? ` data-word-answer="${escapeHtml(pieces.words.join(" "))}" data-word-choices="${escapeHtml(JSON.stringify([...pieces.words, ...pieces.distractors]))}"` : "";
+    return `
+    <tr${pieceAttributes}>
       <td>${makeWordCell(prompt)}</td>
       <td><span class="answer-text">${answer}</span></td>
     </tr>
-  `).join("");
+  `;
+  }).join("");
   document.getElementById("tableArea").innerHTML = `
     <table class="listen-table">
       <tr><th>ヒント</th><th>日本語</th></tr>
@@ -7875,12 +8091,14 @@ function makeConnectTable() {
     `;
 
     group.rows.forEach(([prompt, answer], rowIndex) => {
+      const pieces = connectPiecePracticeData.get(prompt);
+      const pieceAttributes = pieces ? ` data-word-answer="${escapeHtml(pieces.words.join(" "))}" data-word-choices="${escapeHtml(JSON.stringify([...pieces.words, ...pieces.distractors]))}" data-random-word-choices="${escapeHtml(JSON.stringify(pieces.randomDistractors))}"` : "";
       const answerHtml = addFurigana(compactJapanese(escapeHtml(answer)));
       const isReasonGroup = group.title === "～から・ので（理由）" || group.title === "理由";
       const displayedAnswer = isReasonGroup ? addReasonKaraNote(answerHtml) : answerHtml;
 
       html += `
-        <tr>
+        <tr${pieceAttributes}>
           <td>${makeWordCell(addFurigana(makeConnectHint(prompt, group.title, rowIndex)))}</td>
           <td><span class="answer-text${isReasonGroup ? " reason-note-answer" : ""}">${displayedAnswer}</span></td>
         </tr>
@@ -10175,7 +10393,9 @@ function fitChallengeColumns(table) {
   });
   measurement.remove();
   const width = table.getBoundingClientRect().width;
-  const minimumLeft = Math.min(longest + 2, width * 0.5);
+  // Text hints may wrap so long answers get the same responsive space as other piece challenges.
+  const textHintChallenge = ["聞く", "話す", "つなぐ"].includes(currentTableType);
+  const minimumLeft = Math.min(longest + 2, width * (textHintChallenge ? 0.25 : 0.5));
   let neededRight = 0;
   table.querySelectorAll(".conversation-word-choices").forEach(choices => {
     if (choices.closest("td").querySelector('.test-answer-button.correct, .test-answer-button.revealed')) return;
