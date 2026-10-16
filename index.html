@@ -715,7 +715,7 @@
   .test-start-overlay {
     position: fixed;
     inset: 0;
-    z-index: 120;
+    z-index: 11000;
     display: grid;
     place-items: center;
     padding: 24px;
@@ -761,6 +761,9 @@
   }
 
   .test-start-panel input {
+    font-size: 16px;
+    user-select: text;
+    -webkit-user-select: text;
     margin: 10px 0 16px;
     padding: 11px 12px;
     border: 2px solid #ddd;
@@ -2543,6 +2546,74 @@
     white-space: pre-line;
   }
 
+  body.menu-mode .button-grid:has(.conversation-menu) {
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
+    padding-top: 90px;
+    padding-bottom: 30px;
+  }
+  .conversation-menu.active {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .conversation-menu .menu-btn {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    padding: 10px 6px;
+  }
+  .conversation-word-bank { display: none; flex-direction: column; gap: 8px; width: 100%; min-width: 0; padding: 8px 0; }
+  body.test-mode.conversation-keyboard .conversation-word-bank { display: flex; }
+  .conversation-selected-words, .conversation-word-choices {
+    display: flex; flex-wrap: nowrap; justify-content: flex-start; align-items: center;
+    gap: 6px; min-width: 0; width: 100%; overflow-x: auto; padding: 6px 0;
+  }
+  .conversation-selected-words { display: block; min-height: 48px; white-space: nowrap; text-align: left; }
+  .conversation-word-bank button { flex: 0 0 auto; white-space: nowrap; }
+  body.test-mode.conversation-keyboard .test-answer-cell:has(.conversation-word-bank) > .test-answer-button:not(.revealed) { display: none; }
+  .test-answer-cell:has(.test-answer-button.correct) .conversation-word-choices { display: none; }
+  .test-answer-cell:has(.test-answer-button.correct) .conversation-word-bank {
+    gap: 0; padding: 0;
+  }
+  .conversation-selected-words:not(:empty) {
+    width: max-content; max-width: 100%; min-height: 0;
+    border: 1px solid #74b6e5; border-radius: 8px;
+    background: #d5edff; color: #555; padding: 7px 10px;
+  }
+  .conversation-word-bank button { font: inherit; border: 1px solid #dfbad0; border-radius: 8px; background: #fff0f6; color: #555; padding: 7px 10px; cursor: pointer; }
+  .conversation-selected-words button[aria-pressed="true"] {
+    display: inline; border: 0; border-radius: 0; background: transparent;
+    box-shadow: none; padding: 0; color: inherit; line-height: inherit;
+  }
+  .shopping-electronics {
+    display: inline-grid; grid-template-columns: repeat(2, 1em);
+    gap: 0 0.12em; font-size: 0.8em; line-height: 1;
+    vertical-align: middle; margin: 0 0.3em 0 0.05em;
+  }
+  .shopping-electronics > span { display: block; width: 1em; line-height: 1; }
+  .shopping-electronics > span:first-child { grid-column: 1 / -1; justify-self: center; }
+  .shopping-electronics > span:not(:first-child) { transform: translateY(-0.08em); }
+  .shopping-food { display: inline-flex; align-items: center; vertical-align: baseline; white-space: nowrap; }
+  .shopping-food > span { display: inline-block; width: 1em; flex: 0 0 1em; }
+  .shopping-food > span + span { margin-left: -0.15em; }
+  .shopping-portrait { display: inline-block; position: relative; width: 1.65em; height: 1.25em; vertical-align: middle; }
+  .shopping-portrait-frame { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; transform: scaleX(1.3); line-height: 1; }
+  .shopping-portrait-person { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-size: 0.55em; line-height: 1; padding: 0.05em 0.12em; background: #fff4dc; }
+  .university-hint-label {
+    font-family: "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif;
+    font-weight: 900; letter-spacing: 0.03em;
+  }
+  .university-hint-label { display: inline-block; font-size: 0.76em; padding: 0.1em 0.2em; border-radius: 0.4em; background: #fff0f6; color: #95617e; }
+  .university-walker { display: inline-block; transform: scaleX(-1); }
+  .weekend-saturday { color: #2878d4; }
+  .weekend-sunday { color: #e44855; }
+  .university-time-range { font-weight: 900; }
+  .home-btn.turtle-placeholder { display: grid; place-items: center; cursor: default; opacity: 1; }
+  .home-btn.turtle-placeholder:active { transform: none; box-shadow: 0 7px 0 #ffd1e6, 0 12px 20px rgba(0,0,0,0.10); }
+  .home-turtle-sticker { display: block; width: 88%; height: auto; pointer-events: none; user-select: none; }
+  .town-travel { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; vertical-align: middle; line-height: 1.1; }
+  .town-travel-time { display: block; font-size: 0.6em; font-weight: 900; line-height: 1; margin-top: 0.12em; }
+  #testModeBtn[hidden] { display: none; }
 </style>
 </head>
 
@@ -2580,7 +2651,7 @@
     <div id="homeTitle" class="home-title"><span class="title-emoji left">🐢</span> 初級1 <span class="title-emoji right">🐢</span></div>
     <div id="homeActions" class="home-actions" aria-label="練習メニュー"></div>
     <div id="homeLeftNav" class="page-nav left-nav home-page-nav disabled">
-      <button class="page-arrow" type="button" onclick="changeHomeLevel(-1)" aria-disabled="true">◀</button>
+      <button class="page-arrow" type="button" onclick="changeHomeLevel(-1)" disabled aria-disabled="true">◀</button>
       <div id="homeLeftLabel" class="page-nav-label">基礎</div>
     </div>
     <div id="homeRightNav" class="page-nav right-nav home-page-nav disabled">
@@ -2694,7 +2765,7 @@ function closeConjugationLevelNotice() {
 
 const TOP_MEMO_DISPLAY_LIMIT = 8;
 const MENU_MEMO_DISPLAY_LIMIT = 12;
-const nonConjugationQuestionTypes = new Set(["聞く", "話す", "つなぐ"]);
+const nonConjugationQuestionTypes = new Set(["聞く", "話す", "つなぐ", "自己紹介", "買いもの", "大学生活", "私の町"]);
 let currentSection = "home";
 const conjugationMenuHtml = document.getElementById("menuButtonGrid")?.innerHTML || "";
 
@@ -2707,9 +2778,9 @@ const homeMenus = {
   0: {
     title: "基礎",
     buttons: [
-      { label: "聞く", className: "listen-btn", action: "openListenPage()" },
-      { label: "話す", className: "speak-btn", action: "openSpeakPage()" },
+      { label: "会話", className: "speak-btn", action: "openConversationMenu()" },
       { label: "語彙", className: "connect-btn", action: "openVocabMenu()" },
+      null,
       { label: "活用", className: "conjugation-btn", action: "openConjugationMenu()" }
     ]
   },
@@ -2724,7 +2795,8 @@ const homeMenus = {
   }
 };
 
-const vocabCategories = ["数字", "数え方", "月・日付", "時間・分", "位置詞"];
+const vocabCategories = ["数字", "数え方", "月・日付", "時間・分", "いつ", "どこ", "位置詞", "動詞"];
+const vocabCategoryLabels = { "数字": "数字", "数え方": "量词", "月・日付": "月份／日期", "時間・分": "时间／分钟", "いつ": "什么时候", "どこ": "哪里", "位置詞": "方位词", "動詞": "动词" };
 const PAGE_OPEN_COUNT_STORAGE_KEY = "rensyuuPageOpenCounts_v1";
 const PAGE_OPEN_COUNT_SCROLL_WORDS = 25;
 const PAGE_OPEN_COUNT_INNER_SCROLL_WORDS = 10;
@@ -2763,12 +2835,15 @@ function getTableOpenCountTarget(type) {
 
 function getPageOpenCount(level, type) {
   const counts = readPageOpenCounts();
+  if (type === "活用") {
+    return [0, 1].reduce((total, sharedLevel) => total + Number(counts[getPageOpenCountKey(sharedLevel, type)] || 0), 0);
+  }
   return Number(counts[getPageOpenCountKey(level, type)] || 0);
 }
 
 function incrementPageOpenCount(level, type) {
   const counts = readPageOpenCounts();
-  const key = getPageOpenCountKey(level, type);
+  const key = getPageOpenCountKey(type === "活用" ? 1 : level, type);
   counts[key] = Number(counts[key] || 0) + 1;
   writePageOpenCounts(counts);
   updateOpenCountBadges();
@@ -2825,6 +2900,54 @@ function startPageOpenTracker(type) {
   activePageOpenTracker.onScroll();
 }
 
+const HOME_STICKER_TIME_ZONE = "Asia/Shanghai";
+let homeTurtleResetTimer = null;
+
+function getHomeStickerDay(timestamp) {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: HOME_STICKER_TIME_ZONE, year: "numeric", month: "2-digit", day: "2-digit"
+  }).format(new Date(timestamp));
+}
+
+function getTodayStickerCount(now = Date.now()) {
+  const name = getSavedTestParticipantName();
+  if (!name) return 0;
+  const today = getHomeStickerDay(now);
+  return getAchievementResults().filter(result => {
+    const timestamp = Number(result.achievedAt);
+    const percent = Number(result.percent);
+    return result.name === name && Number.isFinite(timestamp) && timestamp > 0 && timestamp <= now
+      && Number.isFinite(percent) && (percent >= 100 || result.reason === "like")
+      && getHomeStickerDay(timestamp) === today;
+  }).length;
+}
+
+function getHomeTurtleSticker(now = Date.now()) {
+  return getTodayStickerCount(now) >= 2 ? "stamp.png" : "kora.png";
+}
+
+function updateHomeTurtleSticker() {
+  const sticker = document.querySelector(".home-turtle-sticker");
+  if (sticker) sticker.src = getHomeTurtleSticker();
+}
+
+function scheduleHomeTurtleReset() {
+  clearTimeout(homeTurtleResetTimer);
+  const now = Date.now();
+  const nextMidnight = Date.parse(`${getHomeStickerDay(now)}T00:00:00+08:00`) + 24 * 60 * 60 * 1000;
+  homeTurtleResetTimer = setTimeout(() => {
+    updateHomeTurtleSticker();
+    scheduleHomeTurtleReset();
+  }, nextMidnight - now);
+}
+
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") {
+    updateHomeTurtleSticker();
+    scheduleHomeTurtleReset();
+  }
+});
+
 function setHomeMenu(menuName = "main") {
   currentHomeMenu = menuName;
   const title = document.getElementById("homeTitle");
@@ -2833,11 +2956,11 @@ function setHomeMenu(menuName = "main") {
 
   if (menuName === "vocab") {
     title.innerHTML = `<span class="title-emoji left">🐢</span> 語彙 <span class="title-emoji right">🐢</span>`;
-    actions.innerHTML = vocabCategories.map(category => `<button class="home-btn connect-btn" data-achievement-mode="${category}" type="button" onclick="openVocabTable('${category}')">${category}</button>`).join("");
+    actions.innerHTML = vocabCategories.map(category => `<button class="home-btn connect-btn" data-achievement-mode="${category}" type="button" onclick="openVocabTable('${category}')">${vocabCategoryLabels[category]}</button>`).join("");
   } else {
     const menu = homeMenus[currentHomeLevel] || homeMenus[1];
     title.innerHTML = `<span class="title-emoji left">🐢</span> 日本語れんしゅう <span class="title-emoji right">🐢</span><span class="home-title-subtitle">（${menu.title}）</span>`;
-    actions.innerHTML = menu.buttons.map(button => `<button class="home-btn ${button.className}" data-achievement-mode="${button.label}" type="button" onclick="${button.action}">${button.label}${makeOpenCountBadge(currentHomeLevel, button.label)}</button>`).join("");
+    actions.innerHTML = menu.buttons.map(button => button ? `<button class="home-btn ${button.className}" data-achievement-mode="${button.label}" type="button" onclick="${button.action}">${button.label}${makeOpenCountBadge(currentHomeLevel, button.countType || button.label)}</button>` : `<button class="home-btn turtle-placeholder" type="button" disabled aria-label="今日シールを2個集めると亀になります"><img class="home-turtle-sticker" src="${getHomeTurtleSticker()}" alt=""></button>`).join("");
   }
   updateHomeNav();
   updateOpenCountBadges(actions);
@@ -2858,7 +2981,10 @@ function updateHomeNav() {
   rightNav.classList.toggle("disabled", rightDisabled);
   const rightButton = rightNav.querySelector(".page-arrow");
   const leftButton = leftNav.querySelector(".page-arrow");
-  if (leftButton) leftButton.setAttribute("aria-disabled", leftDisabled ? "true" : "false");
+  if (leftButton) {
+    leftButton.disabled = leftDisabled;
+    leftButton.setAttribute("aria-disabled", leftDisabled ? "true" : "false");
+  }
   if (rightButton) rightButton.setAttribute("aria-disabled", rightDisabled ? "true" : "false");
   leftLabel.textContent = onVocab ? "" : (currentHomeLevel === 1 ? "基礎" : "");
   rightLabel.textContent = onVocab ? "" : (currentHomeLevel === 0 ? "初級1" : "初級2");
@@ -2870,6 +2996,255 @@ function changeHomeLevel(direction) {
   currentHomeLevel = nextLevel;
   setHomeMenu("main");
   renderQuestionMemoLayer();
+  if (currentHomeLevel === 0) {
+    const notice = document.getElementById("startNotice");
+    if (notice) notice.style.display = "flex";
+  }
+}
+
+const conversationPracticeData = {
+  "自己紹介": [
+    ["💼❓", ["お", "しごと", "は", "？"], ["なまえ", "しゅみ"]],
+    ["🪪❓", ["お", "なまえ", "は", "？"], ["わたし", "しごと"]],
+    ["🏠❓", ["しゅっしん", "は", "どちら", "ですか"], ["なん", "かいしゃいん"]],
+    ["🏢❌", ["かいしゃいん", "じゃない", "です"], ["がくせい", "なん"]],
+    ["🏫👨‍🏫", ["すずきさん", "は", "だいがく", "の", "せんせい", "です"], ["じゃない", "いつ"]],
+    ["🎂📅❓", ["たんじょうび", "は", "いつ", "ですか"], ["わたし", "だれ"]],
+    ["2️⃣/2️⃣5️⃣", ["たんじょうび", "は", "2", "がつ", "25", "にち", "です"], ["さい", "どこ"]],
+    ["1️⃣8️⃣🎂", ["18", "さい", "です"], ["かい", "なまえ"]],
+    ["1️⃣9️⃣❌", ["19", "さい", "じゃない", "です"], ["がつ", "にち"]],
+    ["🎮🎨⚽❓", ["しゅみ", "は", "なん", "ですか"], ["なに", "しゅっしん"]],
+    ["❤️✈️", ["しゅみ", "は", "りょこう", "です"], ["しごと", "も"]],
+    ["🙋❤️✈️", ["わたし", "の", "しゅみ", "も", "りょこう", "です"], ["しゅっしん", "は"]],
+    ["😄🤝😄", ["おなじ", "です", "ね"], ["ですか", "どこ", "わたし"]]
+  ],
+  "買いもの": [
+    ["📷📱💻🔢❓", ["でんき", "や", "は", "なん", "かい", "ですか"], ["いくら", "カメラ"]],
+    ["📷📱💻1️⃣", ["でんき", "や", "は", "１", "かい", "です"], ["さい", "そこ"]],
+    ["📱📍❓", ["スマホ", "は", "どこ", "ですか"], ["なん", "パソコン"]],
+    ["💁‍♀️……>📱", ["スマホ", "は", "あちら", "です"], ["あそこ", "どこ"]],
+    ["👉👕　💴❓", ["これ", "は", "いくら", "ですか"], ["どこ", "この"]],
+    ["👉…>👟　💴❓", ["あの", "くつ", "は", "いくら", "ですか"], ["だれ", "を"]],
+    ["🙏👉…>👟", ["あれ", "を", "ください"], ["は", "その"]],
+    ["👉🍽️❓", ["これ", "は", "なん", "の", "りょうり", "ですか"], ["どこ", "この"]],
+    ["👉🍅🥚🍽️", ["これ", "は", "トマト", "と", "たまご", "の", "りょうり", "です"], ["を", "なん"]],
+    ["👉🍽️🌏❓", ["これ", "は", "どこ", "の", "りょうり", "ですか"], ["なん", "この"]],
+    ["🐟🇨🇳❓", ["さかな", "は", "ちゅうごく", "ご", "で", "なん", "ですか"], ["なに", "だれ"]],
+    ["🍰☝️", ["ケーキ", "を", "ひとつ", "おねがいします"], ["ふたつ", "は", "いくら"]],
+    ["📱👤❓", ["だれ", "の", "スマホ", "ですか"], ["どこ", "なん"]],
+    ["👉🖼️👱‍♀️❓", ["この", "ひと", "は", "だれ", "ですか"], ["どこ", "いつ"]]
+  ],
+  "大学生活": [
+    ["📅☕❓", ["やすみ", "は", "いつ", "ですか"], ["どこ", "なん"]],
+    ["now 🕒❓", ["いま", "なん", "じ", "ですか"], ["から", "にち"]],
+    ["now 🕜", ["いま", "いち", "じ", "はん", "です"], ["ばん", "まで"]],
+    ["🕘～🕕❓", ["そちら", "は", "なん", "じ", "から", "なん", "じ", "まで", "ですか"], ["がつ", "やすみ"]],
+    ["📅周三", ["きょう", "は", "すい", "ようび", "です"], ["あした", "から"]],
+    ["六日🎮⚽❓", ["しゅうまつ", "は", "なに", "を", "します", "か"], ["どこ", "へ"]],
+    ["🌃🍺", ["よる", "ビール", "を", "のみます"], ["たべます", "しゅうまつ"]],
+    ["🍞🍳❌", ["あさごはん", "を", "たべません"], ["たべます", "じゃない"]],
+    ["🌅🍽️❌", ["あさ", "なにも", "たべません"], ["どこへも", "みません", "なん"]],
+    ["🌲🏃🌲", ["そと", "で", "うんどう", "します"], ["へ", "べんきょう"]],
+    ["食堂🍚🍴", ["しょくどう", "で", "ごはん", "を", "たべます"], ["へ", "しゅうまつ"]],
+    ["六日🚶➡🛒", ["しゅうまつ", "スーパー", "へ", "いきます"], ["で", "たべます"]],
+    ["🌇🚶➡❓", ["ごご", "どこ", "へ", "いきます", "か"], ["なに", "で"]],
+    ["六日🚶➡❌", ["しゅうまつ", "は", "どこ", "へも", "いき", "ません"], ["もへ", "よみ"]],
+    ["🌃🕚💤", ["11じ", "に", "ねます"], ["で", "おきます"]],
+    ["🌅🕖🙆‍♂️", ["7じ", "に", "おきます"], ["から", "ねます"]],
+    ["🕘～🕙📖✏️", ["9じ", "から", "10じ", "まで", "べんきょう", "します"], ["へ", "で"]],
+    ["六日🏠📖", ["しゅうまつ", "りょう", "で", "ほん", "を", "よみます"], ["へ", "のみます"]],
+    ["🌃🏬🎬", ["よる", "ショッピングモール", "で", "えいが", "を", "みます"], ["へ", "いきます"]]
+  ],
+  "私の町": [
+    ["上海📍➡️", ["上海", "は", "ちゅうごく", "の", "ひがし", "です"], ["みなみ", "どちら"]],
+    ["武漢📍🎯", ["武漢", "は", "ちゅうごく", "の", "まんなか", "です"], ["まち", "どこ"]],
+    ["🏫－🚌1h－🏠", ["がっこう", "から", "うち", "まで", "バス", "で", "１", "じかん", "くらい", "です"], ["じ"]],
+    ["🏠－🚶‍➡️5m－🏫", ["りょう", "から", "きょうしつ", "まで", "あるいて", "５", "ふん", "くらい", "です"], ["で", "ぷん"]],
+    ["🏘️🌳🌳🌳", ["わたし", "の", "まち", "は", "みどり", "が", "おおい", "です"], []],
+    ["🏘️👥🤏", ["わたし", "の", "まち", "は", "ひと", "が", "すくない", "です"], []],
+    ["🏘️大❌", ["わたし", "の", "まち", "は", "おおき", "く", "ないです"], ["おおきい", "じゃないです"]],
+    ["🏘️小❌", ["わたし", "の", "まち", "は", "ちいさ", "く", "ないです"], ["ちいさい", "じゃないです"]],
+    ["🏘️🎉❌", ["わたし", "の", "まち", "は", "にぎやか", "じゃないです"], ["く", "ないです"]],
+    ["🏘️✨❌", ["わたし", "の", "まち", "は", "きれい", "じゃないです"], ["く", "ないです"]],
+    ["上海🎉🏙️", ["上海", "は", "にぎやか", "な", "ところ", "です"], ["く", "の"]],
+    ["黄山✨⛰️", ["黄山", "は", "きれい", "な", "やま", "です"], ["く", "の"]],
+    ["灵隐寺🕰️🛕", ["灵隐寺", "は", "ふるい", "おてら", "です"], ["ふる", "く", "の"]],
+    ["重慶大🏙️", ["重慶", "は", "おおきい", "まち", "です"], ["おおき", "く", "の"]],
+    ["南寧🤔❓", ["南寧", "は", "どんな", "ところ", "ですか"], ["どこ", "ますか"]],
+    ["🏘️🔎❓", ["まち", "に", "なに", "が", "あります", "か"], ["なん", "は"]],
+    ["🏘️🎡🎢", ["まち", "に", "ゆうえんち", "が", "あります"], ["ところ", "おおきい"]],
+    ["🏘️小…✨", ["わたし", "の", "まち", "は", "ちいさい", "ですが", "きれい", "です"], ["おおきい", "ます"]],
+    ["🌬️❌", ["きょう", "は", "あまり", "さむ", "く", "ない", "です"], ["さむい", "じゃない"]],
+    ["🌡️❌❌", ["きょう", "は", "ぜんぜん", "あつ", "く", "ない", "です"], ["あつい", "じゃない"]]
+  ]
+};
+
+function openConversationTopic(topic) {
+  if (!conversationPracticeData[topic]) return;
+  currentSection = "conversation";
+  showTable(topic);
+}
+
+function formatConversationPrompt(prompt) {
+  return escapeHtml(prompt)
+    .replace("🚌1h", `<span class="town-travel"><span>🚌</span><span class="town-travel-time">1h</span></span>`)
+    .replace("🚶‍➡️5m", `<span class="town-travel"><span>🚶‍➡️</span><span class="town-travel-time">5m</span></span>`)
+    .replace("📷📱💻", `<span class="shopping-electronics"><span>📷</span><span>📱</span><span>💻</span></span>`)
+    .replace("🍅🥚🍽️", `<span class="shopping-food"><span>🍅</span><span>🥚</span><span>🍽️</span></span>`)
+    .replace("🖼️👱‍♀️", `<span class="shopping-portrait"><span class="shopping-portrait-frame">🖼️</span><span class="shopping-portrait-person">👱‍♀️</span></span>`)
+    .replace("🚶", currentTableType === "大学生活" ? `<span class="university-walker">🚶</span>` : "🚶")
+    .replace("食堂", `<span class="university-hint-label">食堂</span>`)
+    .replace("周三", `<span class="university-hint-label">周三</span>`)
+    .replace("now", `<span class="university-hint-label">now</span>`)
+    .replace(/上海|武漢|黄山|灵隐寺|重慶|南寧|中央|5分|小…|東|大|小/g, label => `<span class="university-hint-label">${label}</span>`)
+    .replace("～", `<strong class="university-time-range">～</strong>`)
+    .replace("六日", `<span class="university-hint-label university-weekend"><span class="weekend-saturday">六</span><span class="weekend-sunday">日</span></span>`);
+}
+
+function formatConversationAnswer(words) {
+  const answer = words.join(" ");
+  return /[？?]$/.test(answer) ? answer : `${answer}。`;
+}
+
+function makeConversationTable() {
+  const rows = conversationPracticeData[currentTableType].map(([prompt, words, distractors]) =>
+    `<tr data-word-answer="${escapeHtml(words.join(" "))}" data-word-choices="${escapeHtml(JSON.stringify([...words, ...distractors]))}"><td>${makeWordCell(formatConversationPrompt(prompt))}</td><td><span class="answer-text">${escapeHtml(formatConversationAnswer(words))}</span></td></tr>`
+  ).join("");
+  document.getElementById("tableArea").innerHTML = `<table class="listen-table"><tr><th>問題</th><th>答え</th></tr>${rows}</table><div class="scroll-extra-y"></div>`;
+}
+
+function hasVocabularyChallenge(type) {
+  return ["いつ", "どこ", "位置詞", "動詞"].includes(type);
+}
+
+function usesPieceAnswers() {
+  return currentSection === "conversation" || currentSection === "conjugation" || (currentSection === "vocab" && hasVocabularyChallenge(currentTableType));
+}
+
+function toConjugationHiragana(value) {
+  return String(value).replace(/[ァ-ヶ]/g, character => String.fromCharCode(character.charCodeAt(0) - 0x60))
+    .replace(/[\s。！？!?]+/g, "");
+}
+
+function makeConjugationPieces(row, answerReading) {
+  const dictionary = toConjugationHiragana(getCellAnswerReading(row.cells[0]));
+  const answer = toConjugationHiragana(answerReading);
+  if (currentTableType === "Vて") {
+    const endings = ["て", "って", "いて", "いで", "くて", "んで", "んて", "して", "きて"];
+    const stem = dictionary.replace(/(?:する|くる|[うくぐすつぬぶむる])$/, "");
+    const ending = answer.slice(stem.length);
+    const words = [stem, ending].filter(Boolean);
+    const distractors = shuffleArray(endings.filter(piece => piece !== ending)).slice(0, 3);
+    return { words, choices: [...words, ...distractors], answer, stem };
+  }
+  if (currentTableType === "Vます") {
+    const reversed = masuSwapped && row.dataset.masuBase === "true";
+    const base = reversed ? answer : dictionary;
+    const forward = reversed ? dictionary : answer;
+    const ending = forward.match(/(ましょうか|ませんか|ましょう|ます)$/)?.[1];
+    if (ending) {
+      const stem = base.replace(/(?:する|くる|[うくぐすつぬぶむる])$/, "");
+      const middle = forward.slice(stem.length, -ending.length);
+      const forwardWords = [stem, middle, ending].filter(Boolean);
+      const tail = base.slice(stem.length);
+      const dictionaryWords = [stem, ...(/^(する|くる)$/.test(tail) ? Array.from(tail) : [tail])].filter(Boolean);
+      const isIchidan = row.classList.contains("ichidan");
+      const extras = isIchidan ? ["り", "る"] : dictionaryWords;
+      const choices = [...forwardWords];
+      extras.forEach(piece => { if (!choices.includes(piece)) choices.push(piece); });
+      return { words: reversed ? dictionaryWords : forwardWords, choices, answer, stem };
+    }
+  }
+  if (currentTableType === "形-ない" || currentTableType === "形くない") {
+    const match = answer.match(/^(.*?)(く|じゃ)ないです$/);
+    if (match) {
+      const words = [match[1], match[2], "ないです"];
+      const extras = match[2] === "く" ? ["い"] : ["な", "く"];
+      return { words, choices: [...words, ...extras], answer, stem: match[1] };
+    }
+  }
+  if (currentTableType === "形-なかった") {
+    const match = answer.match(/^(.*?)(く|じゃ)なかったです$/);
+    if (match) {
+      const words = [match[1], match[2], "なかったです"];
+      const extras = match[2] === "く" ? ["い", "じゃ", "ないです"] : ["い", "く", "ないです"];
+      return { words, choices: [...words, ...extras], answer, stem: match[1] };
+    }
+  }
+  let stem = dictionary.replace(/(?:する|くる|[うくぐすつぬぶむるい])$/, "");
+  if (!stem || !answer.startsWith(stem) || stem === answer) {
+    let length = 0;
+    while (length < Math.min(dictionary.length, answer.length) && dictionary[length] === answer[length]) length++;
+    stem = answer.slice(0, length);
+  }
+  const words = stem ? [stem] : [];
+  let rest = answer.slice(stem.length);
+  const endings = ["ませんでした", "ましょうか", "なければ", "ください", "ませんか", "なかった", "ましょう", "ました", "ません", "られる", "させる", "じゃ", "ます", "です", "ない", "よう", "れる", "たら", "たり"];
+  while (rest) {
+    const piece = endings.find(ending => rest.startsWith(ending)) || Array.from(rest)[0];
+    words.push(piece);
+    rest = rest.slice(piece.length);
+  }
+  const iRow = { "う": "い", "く": "き", "ぐ": "ぎ", "す": "し", "つ": "ち", "ぬ": "に", "ぶ": "び", "む": "み", "る": "り" };
+  const ending = dictionary.slice(-1);
+  const isIchidan = Array.from(row.classList).some(name => name.includes("ichidan"));
+  const candidates = isIchidan ? ["り", "る"] : iRow[ending] ? [iRow[ending], ending] : ["い", "く", "じゃ", "ない"];
+  const distractors = candidates.filter((word, index) => !words.includes(word) && candidates.indexOf(word) === index);
+  return { words, choices: [...words, ...distractors], answer, stem };
+}
+
+function chooseConversationWord(button) {
+  if (testSessionEnded || !testParticipantConfirmed) return;
+  if (testInputMode !== "keyboard") return;
+  const bank = button.closest(".conversation-word-bank");
+  const answerButton = bank.parentElement.querySelector(".test-answer-button");
+  if (answerButton.dataset.correct === "true" || answerButton.dataset.revealed === "true") return;
+  clearSpeechTimers();
+  abortCurrentSpeechRecognition();
+  closeSpeechInputFallback();
+  const selected = JSON.parse(bank.dataset.selected || "[]");
+  const index = Number(button.dataset.wordIndex);
+  const previous = selected.indexOf(index);
+  if (previous >= 0) selected.splice(previous, 1);
+  else selected.push(index);
+  bank.dataset.selected = JSON.stringify(selected);
+  const choices = Array.from(bank.querySelectorAll("[data-word-index]"))
+    .sort((a, b) => Number(a.dataset.wordIndex) - Number(b.dataset.wordIndex));
+  choices.forEach((choice, i) => choice.setAttribute("aria-pressed", String(selected.includes(i))));
+  const selectedArea = bank.querySelector(".conversation-selected-words");
+  const choicesArea = bank.querySelector(".conversation-word-choices");
+  const answerPrefix = bank.dataset.answerPrefix || "";
+  selectedArea.replaceChildren(...(answerPrefix ? [document.createTextNode(answerPrefix)] : []), ...selected.flatMap((i, position) =>
+    position === 0 ? [choices[i]] : [document.createTextNode(" "), choices[i]]
+  ));
+  choices.filter((_, i) => !selected.includes(i)).forEach(choice => choicesArea.appendChild(choice));
+  const transcript = selected.map(i => choices[i].textContent).join(" ");
+  answerButton.dataset.answerSource = "words";
+  setSpeechButtonMessage(answerButton, transcript);
+  selectSpeechTestQuestion(answerButton);
+  activeSpeechButton = answerButton;
+  activeSpeechSegments.clear();
+  activeSpeechSegments.set(0, transcript);
+  if (gradeSpeechAnswer(answerButton, true) && answerButton.dataset.answer.endsWith("。")) {
+    selectedArea.appendChild(document.createTextNode("。"));
+  }
+}
+
+function openConversationMenu() {
+  currentSection = "conversation";
+  document.body.classList.remove("home-mode", "sheet-high", "table-start-lowered", "position-vocab");
+  document.body.classList.add("menu-mode");
+  document.getElementById("homeScreen").style.display = "none";
+  document.getElementById("tableScreen").style.display = "none";
+  document.getElementById("menuScreen").style.display = "block";
+  document.getElementById("menuTitle").textContent = "会話";
+  const topics = ["自己紹介", "買いもの", "大学生活", "私の町", "休みの日", "一緒に", "友だちの家"];
+  document.getElementById("menuButtonGrid").innerHTML = `<div class="menu-page active conversation-menu">${Array.from({ length: 15 }, (_, index) => `<button class="menu-btn" type="button" ${conversationPracticeData[topics[index]] ? `data-achievement-mode="${topics[index]}" onclick="openConversationTopic('${topics[index]}')"` : `disabled${topics[index] ? ' title="練習内容は準備中です"' : ' aria-label="未設定"'}`}>${topics[index] || ""}</button>`).join("")}</div>`;
+  document.getElementById("leftPageNav").style.display = "none";
+  document.getElementById("rightPageNav").style.display = "none";
+  renderAchievementStamps(document.getElementById("menuButtonGrid"));
+  requestAnimationFrame(renderQuestionMemoLayer);
+  window.scrollTo(0, 0);
 }
 
 function openVocabMenu() {
@@ -2881,7 +3256,7 @@ function openVocabMenu() {
   document.getElementById("tableScreen").style.display = "none";
   document.getElementById("menuScreen").style.display = "block";
   document.getElementById("menuTitle").innerHTML = `<span class="title-emoji left">🐢</span> 語彙 <span class="title-emoji right">🐢</span>`;
-  document.getElementById("menuButtonGrid").innerHTML = `<div class="menu-page active" data-page="0">${vocabCategories.map(category => `<button class="menu-btn" data-achievement-mode="${category}" type="button" onclick="openVocabTable('${category}')">${category}</button>`).join("")}</div>`;
+  document.getElementById("menuButtonGrid").innerHTML = `<div class="menu-page active" data-page="0">${vocabCategories.map(category => `<button class="menu-btn" data-achievement-mode="${category}" type="button" onclick="openVocabTable('${category}')">${vocabCategoryLabels[category]}</button>`).join("")}</div>`;
   document.getElementById("leftPageNav").style.display = "none";
   document.getElementById("rightPageNav").style.display = "none";
   renderAchievementStamps(document.getElementById("menuButtonGrid"));
@@ -2904,6 +3279,7 @@ function isCommonConjugationMemoItem(item) {
 
 function getHomeLevelForMemoItem(item) {
   if (!item) return null;
+  if (Object.hasOwn(conversationPracticeData, item.type)) return 0;
   if (Number.isInteger(item.homeLevel)) return item.homeLevel;
   if (vocabCategories.includes(item.type)) return 0;
   if (item.type === "つなぐ") return 1;
@@ -3229,6 +3605,18 @@ function openHome() {
   window.scrollTo(0, 0);
 }
 
+function hasDatabaseConversationClear(topic) {
+  const name = getSavedTestParticipantName();
+  return !!name && getAchievementResults().some(result =>
+    result.name === name && result.mode === topic && Number.isFinite(Number(result.percent)) && Number(result.percent) >= 100);
+}
+
+function isBasicConjugationUnlocked(type) {
+  if (["Vます", "Vて", "形-ない", "形-なかった"].includes(type)) return true;
+  const requirements = { "形-ない": "大学生活", "形-た": "私の町", "形-なかった": "私の町", "Vて": "一緒に", "Vませんか": "休みの日", "Vましょうか": "一緒に" };
+  return !!requirements[type] && hasDatabaseConversationClear(requirements[type]);
+}
+
 function openConjugationMenu() {
   currentSection = "conjugation";
   currentConjugationCountLevel = currentHomeLevel;
@@ -3239,8 +3627,21 @@ function openConjugationMenu() {
   document.getElementById("menuScreen").style.display = "block";
   document.getElementById("menuTitle").innerHTML = `<span class="title-emoji left">🐢</span> 活用れんしゅう <span class="title-emoji right">🐢</span>`;
   document.getElementById("menuButtonGrid").innerHTML = conjugationMenuHtml;
+  if (currentHomeLevel === 0) {
+    currentMenuPage = 0;
+    document.querySelectorAll("#menuButtonGrid [data-achievement-mode]").forEach(button => {
+      if (!isBasicConjugationUnlocked(button.dataset.achievementMode)) button.remove();
+    });
+    document.querySelectorAll("#menuButtonGrid .menu-page").forEach(page => {
+      if (!page.querySelector("button")) page.remove();
+    });
+  }
   document.getElementById("leftPageNav").style.display = "flex";
   document.getElementById("rightPageNav").style.display = "flex";
+  if (currentHomeLevel === 0) {
+    document.getElementById("leftPageNav").style.display = "none";
+    document.getElementById("rightPageNav").style.display = "none";
+  }
   updateMenuPage();
   renderAchievementStamps(document.getElementById("menuButtonGrid"));
   if (currentMenuPage === 1) showConjugationLevelNotice();
@@ -3279,15 +3680,17 @@ const vocabTableData = {
     ["1人", "ひとり"], ["2人", "ふたり"], ["3人", "さんにん"], ["4人", "よにん"],
     { tag: "🍰つ" },
     ["1つ", "ひとつ"], ["2つ", "ふたつ"], ["3つ", "みっつ"], ["4つ", "よっつ"], ["5つ", "いつつ"], ["6つ", "むっつ"], ["7つ", "ななつ"], ["8つ", "やっつ"], ["9つ", "ここのつ"],
-    { tag: "🏢 階" },
+    { tag: "🍰こ（一六八十：小っ）" },
+    ["1こ", "いっこ"], ["2こ", "にこ"], ["3こ", "さんこ"], ["4こ", "よんこ"], ["5こ", "ごこ"], ["6こ", "ろっこ"], ["7こ", "ななこ"], ["8こ", "はっこ"], ["9こ", "きゅうこ"], ["10こ", "じゅっこ"],
+    { tag: "🏢 階（一六八十：小っ）" },
     ["1階", "いっかい"], ["2階", "にかい"], ["3階", "さんがい"], ["4階", "よんかい"], ["5階", "ごかい"], ["6階", "ろっかい"],
-    { tag: "✏️ 本" },
+    { tag: "✏️ 本（一六八十：小っ）" },
     ["1本", "いっぽん"], ["2本", "にほん"], ["3本", "さんぼん"], ["4本", "よんほん"], ["5本", "ごほん"], ["6本", "ろっぽん"], ["7本", "ななほん"], ["8本", "はっぽん"],
-    { tag: "🎂 さい" },
+    { tag: "🎂 さい（一六八十：小っ）" },
     ["11さい", "じゅういっさい"], ["12さい", "じゅうにさい"], ["18さい", "じゅうはっさい"], ["19さい", "じゅうきゅうさい"], ["20歳", "はたち"],
-    { tag: "🔁 回" },
+    { tag: "🔁 回（一六八十：小っ）" },
     ["1回", "いっかい"], ["2回", "にかい"], ["3回", "さんかい"],
-    { tag: "🐶 匹" },
+    { tag: "🐶 匹（一六八十：小っ）" },
     ["1匹", "いっぴき"], ["2匹", "にひき"], ["3匹", "さんびき"],
     { tag: "🚗 台" },
     ["1台", "いちだい"], ["2台", "にだい"], ["3台", "さんだい"]
@@ -3300,26 +3703,116 @@ const vocabTableData = {
   ],
   "時間・分": [
     { tag: "🕐 時間" },
-    ["1時", "いちじ"], ["2時", "にじ"], ["3時", "さんじ"], ["4時", "よじ", true], ["5時", "ごじ"], ["6時", "ろくじ"], ["7時", "しちじ", true], ["8時", "はちじ"], ["9時", "くじ", true], ["10時", "じゅうじ"], ["11時", "じゅういちじ"], ["12時", "じゅうにじ"],
-    { tag: "⏱️ 分" },
-    ["1分", "いっぷん", true], ["2分", "にふん"], ["3分", "さんぷん", true], ["4分", "よんぷん", true], ["5分", "ごふん"], ["6分", "ろっぷん", true], ["7分", "ななふん"], ["8分", "はっぷん", true], ["9分", "きゅうふん"], ["10分", "じゅっぷん", true], ["20分", "にじゅっぷん", true], ["30分", "さんじゅっぷん／はん", true], ["40分", "よんじゅっぷん", true], ["50分", "ごじゅっぷん", true]
+    ["1点", "いちじ"], ["2点", "にじ"], ["3点", "さんじ"], ["4点", "よじ", true], ["5点", "ごじ"], ["6点", "ろくじ"], ["7点", "しちじ", true], ["8点", "はちじ"], ["9点", "くじ", true], ["10点", "じゅうじ"], ["11点", "じゅういちじ"], ["12点", "じゅうにじ"],
+    { tag: "⏱️ 分（一六八十：小っ）" },
+    ["1分钟", "いっぷん", true], ["2分钟", "にふん"], ["3分钟", "さんぷん", true], ["4分钟", "よんぷん", true], ["5分钟", "ごふん"], ["6分钟", "ろっぷん", true], ["7分钟", "ななふん"], ["8分钟", "はっぷん", true], ["9分钟", "きゅうふん"], ["10分钟", "じゅっぷん", true], ["20分钟", "にじゅっぷん", true], ["30分钟", "さんじゅっぷん／はん", true], ["40分钟", "よんじゅっぷん", true], ["50分钟", "ごじゅっぷん", true],
+    { tag: "⏳ 个小时" },
+    ["1个小时", "いちじかん"],
+    ["1个半小时", "いちじかんはん"],
+    ["5分钟", "ごふん"],
+    ["30分钟", "さんじゅっぷん"]
+  ],
+  "いつ": [
+    ["星期一", "げつようび"],
+    ["星期二", "かようび"],
+    ["星期三", "すいようび"],
+    ["星期四", "もくようび"],
+    ["星期五", "きんようび"],
+    ["星期六", "どようび"],
+    ["星期日", "にちようび"],
+    ["今天", "きょう"],
+    ["明天", "あした"],
+    ["后天", "あさって"],
+    ["昨天", "きのう"],
+    ["前天", "おととい"],
+    ["每周", "まいしゅう"],
+    ["这周", "こんしゅう"],
+    ["下周", "らいしゅう"],
+    ["周末", "しゅうまつ"],
+    ["1周", "いっしゅうかん"],
+    ["1个月", "いっかげつ"],
+    ["总是", "いつも"],
+    ["有时", "ときどき"],
+    ["不太～", "あまり～ない"]
+  ],
+  "どこ": [
+    ["学校", "がっこう"],
+    ["图书馆", "としょかん"],
+    ["商店", "おみせ"],
+    ["外面", "そと"],
+    ["外面的商店", "そとの おみせ"],
+    ["购物中心", "ショッピングモール"],
+    ["食堂", "しょくどう"],
+    ["超市", "スーパー"],
+    ["宿舍", "りょう"],
+    ["运动场", "グラウンド"],
+    ["球场", "コート"],
+    ["体育馆", "たいいくかん"],
+    ["公园", "こうえん"],
+    ["海", "うみ"],
+    ["家", "うち"],
+    ["卡拉OK", "カラオケ"],
+    ["旅行", "りょこう"],
+    ["节日／庙会", "おまつり"]
+  ],
+  "動詞": [
+    ["🍚", "たべます"],
+    ["🥤", "のみます"],
+    ["👀", "みます"],
+    ["👂", "ききます"],
+    ["📖", "よみます"],
+    ["✍️", "かきます"],
+    ["🚶", "いきます"],
+    ["🏠", "かえります"],
+    ["😴", "ねます"],
+    ["🌅", "おきます"],
+    ["🎮", "します"],
+    ["🛍️", "かいます"],
+    ["👕", "きます"],
+    ["🛋️", "やすみます"],
+    ["🛝", "あそびます"],
+    ["🗣️", "はなします"],
+    ["🎤", "うたいます"],
+    ["🚶", "あるきます"],
+    ["🏃", "はしります"],
+    ["🏊", "およぎます"],
+    ["👬", "あいます"],
+    ["📚", "べんきょうします"],
+    ["📞", "でんわします"],
+    ["🏋️", "うんどうします"],
+    ["🛒", "かいものします"],
+    ["🚶🌳", "さんぽします"],
+    ["🧹", "そうじします"],
+    ["🏠➡️", "でかけます"],
+    ["🍳", "つくります"],
+    ["📸", "とります"],
+    ["🧗", "のぼります"]
+  ],
+  "位置詞": [
+    ["前面", "まえ"],
+    ["后面", "うしろ"],
+    ["左边", "ひだり"],
+    ["右边", "みぎ"],
+    ["上面", "うえ"],
+    ["下面", "した"],
+    ["附近", "ちかく"],
+    ["里面", "なか"]
   ]
 };
 
 function makeVocabTable(type) {
-  if (type === "位置詞") {
-    makePositionVocabPractice();
-    return;
-  }
   const rows = vocabTableData[type] || [];
-  let html = `<table class="listen-table vocab-table"><tr><th>ことば</th><th>読み方</th></tr>`;
+  const chinesePrompt = ["位置詞", "どこ", "いつ", "時間・分"].includes(type);
+  let html = `<table class="listen-table vocab-table"><tr><th>${chinesePrompt ? "中国語" : type === "動詞" ? "問題" : "ことば"}</th><th>${chinesePrompt ? "日本語" : type === "動詞" ? "答え" : "読み方"}</th></tr>`;
   rows.forEach(row => {
     if (row && !Array.isArray(row) && row.tag) {
-      html += `<tr class="group-row"><td colspan="2">${escapeHtml(row.tag)}</td></tr>`;
+      html += `<tr class="group-row"><td colspan="2">${row.tag === "👤 人" ? `<span data-no-furigana>${escapeHtml(row.tag)}</span>` : row.tag.startsWith("🎂 さい") ? `<span data-no-furigana>${escapeHtml(row.tag).replace("六", "<s>六</s>")}</span>` : escapeHtml(row.tag)}</td></tr>`;
       return;
     }
     const [word, reading, special] = row;
-    html += `<tr${special ? ' class="vocab-special"' : ''}><td>${makeWordCell(escapeHtml(word))}</td><td><span class="answer-text">${escapeHtml(reading)}</span></td></tr>`;
+    const attributes = hasVocabularyChallenge(type) ? ` data-word-answer="${escapeHtml(reading)}"` : "";
+    const prompt = chinesePrompt ? `<span lang="zh">${escapeHtml(word)}</span>` : type === "数え方" && /人$/.test(word) ? `<span data-no-furigana>${escapeHtml(word)}</span>` : escapeHtml(word);
+    html += `<tr${special ? ' class="vocab-special"' : ''}${attributes}><td>${makeWordCell(prompt)}</td><td><span class="answer-text">${escapeHtml(reading)}</span></td></tr>`;
   });
   html += `</table><div class="scroll-extra-y"></div>`;
   document.getElementById("tableArea").innerHTML = html;
@@ -3432,6 +3925,7 @@ function updateMenuPage() {
 }
 
 function changeMenuPage(direction) {
+  if (currentSection === "conjugation" && currentHomeLevel === 0) return;
   const nextPage = currentMenuPage + direction;
   if (nextPage < 0 || nextPage >= menuPageNames.length) return;
   currentMenuPage = nextPage;
@@ -4539,15 +5033,18 @@ function getRandomQuestionMemoItems(items, limit) {
 }
 
 function renderQuestionMemoLayer() {
-  const isMenuMemo = currentSection === "conjugation" || currentSection === "vocab";
+  const isMenuMemo = currentSection === "conjugation" || currentSection === "vocab" || currentSection === "conversation";
   const memoLimit = isMenuMemo ? MENU_MEMO_DISPLAY_LIMIT : TOP_MEMO_DISPLAY_LIMIT;
   const screen = document.getElementById(isMenuMemo ? "menuScreen" : "homeScreen");
   const layer = document.getElementById(isMenuMemo ? "questionMemoLayer" : "homeQuestionMemoLayer");
   if (!layer || !screen || screen.style.display === "none") return;
 
-  const allItems = safeParseQuestionStore();
+  const allItems = safeParseQuestionStore().filter(item =>
+    currentHomeLevel !== 0 || !isCommonConjugationMemoItem(item) || isBasicConjugationUnlocked(item.type));
   let items;
-  if (currentSection === "vocab") {
+  if (currentSection === "conversation") {
+    items = getRandomQuestionMemoItems(allItems.filter(item => Object.hasOwn(conversationPracticeData, item.type)), memoLimit);
+  } else if (currentSection === "vocab") {
     items = getRandomQuestionMemoItems(allItems.filter(item => vocabCategories.includes(item.type)), memoLimit);
   } else if (isMenuMemo) {
     items = getRandomQuestionMemoItems(allItems.filter(isCommonConjugationMemoItem), memoLimit);
@@ -4610,7 +5107,16 @@ function renderQuestionMemoLayer() {
         <span class="memo-right">${displayItem.rightHtml || ""}</span>
       </span>
     `;
-    const openMemo = () => showTable(card.dataset.type || item.type, card.dataset.key || item.key);
+    const openMemo = () => {
+      const type = card.dataset.type || item.type;
+      if (Object.hasOwn(conversationPracticeData, type)) {
+        currentSection = "conversation";
+        currentHomeLevel = 0;
+      } else if (isCommonConjugationMemoItem(item)) {
+        currentSection = "conjugation";
+      }
+      showTable(type, card.dataset.key || item.key);
+    };
     card.addEventListener("click", openMemo);
     card.addEventListener("keydown", (e) => {
       if (e.key === "Enter" || e.key === " ") {
@@ -4701,10 +5207,11 @@ function writeTestStorage(key, value) {
 
 function getAchievementResults() {
   const merged = new Map();
-  for (const result of [...readTestStorage(TEST_RESULTS_STORAGE_KEY, []), ...firebaseAchievementResults]) {
+  for (const result of firebaseAchievementResults) {
     if (!result || typeof result !== "object") continue;
     const key = result.id || `${result.name}\u0000${result.mode}\u0000${result.conjugation || ""}\u0000${result.achievedAt}`;
-    merged.set(key, result);
+    const modeAliases = { "ショッピングモールへ行く": "買いもの", "大学の過ごし方": "大学生活", "大学の生活": "大学生活" };
+    merged.set(key, { ...result, mode: modeAliases[result.mode] || result.mode });
   }
   return Array.from(merged.values());
 }
@@ -4714,7 +5221,7 @@ async function restoreAchievementResultsFromFirebase() {
   const requestId = ++firebaseAchievementRequestId;
   if (!firebaseConnected || !firebaseDatabase || !firebaseApi || !participantName) {
     firebaseAchievementResults = [];
-    renderAchievementStamps(document.body);
+    refreshDatabaseAchievementUi();
     return;
   }
 
@@ -4724,13 +5231,22 @@ async function restoreAchievementResultsFromFirebase() {
     if (requestId !== firebaseAchievementRequestId || participantName !== getSavedTestParticipantName()) return;
     const value = snapshot.exists() ? snapshot.val() : {};
     firebaseAchievementResults = Object.values(value || {}).filter(result => result && typeof result === "object");
-    renderAchievementStamps(document.body);
+    refreshDatabaseAchievementUi();
   } catch (error) {
-    // DBから復元できなくても、この端末に保存された達成結果はそのまま表示する。
+    // DBを確認できない場合、ローカルの結果では達成・解放を判定しない。
     if (requestId !== firebaseAchievementRequestId) return;
     firebaseAchievementResults = [];
-    renderAchievementStamps(document.body);
+    refreshDatabaseAchievementUi();
   }
+}
+
+function refreshDatabaseAchievementUi() {
+  updateHomeTurtleSticker();
+  renderAchievementStamps(document.body);
+  if (currentSection === "conjugation" && currentHomeLevel === 0 && document.getElementById("menuScreen").style.display !== "none") {
+    openConjugationMenu();
+  }
+  renderQuestionMemoLayer();
 }
 
 function getStampAngle(seed) {
@@ -4816,7 +5332,7 @@ function renderAchievementStamps(root = document) {
   if (participantName) {
     for (const result of getAchievementResults()) {
       if (result?.name !== participantName || (Number(result.percent) < 100 && result.reason !== "like")) continue;
-      const mode = result.conjugation || result.mode;
+      const mode = result.conjugation || (result.mode === "ショッピングモールへ行く" ? "買いもの" : result.mode);
       if (!completedByMode.has(mode)) completedByMode.set(mode, []);
       completedByMode.get(mode).push(result);
     }
@@ -4863,6 +5379,7 @@ function saveTestResult(percent, reason, achievedAt = Date.now()) {
 async function flushPendingTestResults() {
   if (!firebaseConnected || !firebaseDatabase || !firebaseApi) return;
   const pending = readTestStorage(TEST_PENDING_STORAGE_KEY, []);
+  let uploaded = false;
   for (const result of pending.slice()) {
     const studentKey = `name_${safeFirebaseKey(result.name)}`;
     const resultPath = `students/${studentKey}/quizResults/${safeFirebaseKey(result.id)}`;
@@ -4876,12 +5393,14 @@ async function flushPendingTestResults() {
       });
       const remaining = readTestStorage(TEST_PENDING_STORAGE_KEY, []).filter(item => item.id !== result.id);
       writeTestStorage(TEST_PENDING_STORAGE_KEY, remaining);
+      uploaded = true;
     } catch (error) {
       if (firebaseApi && firebaseDatabase) firebaseApi.goOffline(firebaseDatabase);
       setFirebaseConnectionUi(false);
       break;
     }
   }
+  if (uploaded) await restoreAchievementResultsFromFirebase();
 }
 
 function setFirebaseConnectionUi(connected) {
@@ -5600,13 +6119,25 @@ function closeTestLikePopup() {
   document.getElementById("testLikePopup")?.remove();
 }
 
+function getTestDurationSeconds(questions) {
+  if (usesPieceAnswers()) {
+    return questions.reduce((total, question) => {
+      const pieces = (question.dataset.wordAnswer || "").trim().split(/\s+/).filter(Boolean).length;
+      const stemPieces = currentSection === "conjugation" && question.dataset.stemPiece ? 1 : 0;
+      return total + Math.max(0, pieces - stemPieces);
+    }, 0) * 2.5 + (currentSection === "conjugation" ? 30 : 20);
+  }
+  return questions.length * 10 + 20;
+}
+
+function formatTestDuration(seconds) {
+  const rounded = Math.ceil(seconds);
+  return `${Math.floor(rounded / 60)}:${String(rounded % 60).padStart(2, "0")}`;
+}
+
 function startTestCountdown() {
   clearTestCountdown(false);
-  const durationSeconds = nonConjugationQuestionTypes.has(currentTableType)
-    ? (testInputMode === "keyboard" ? 480 : 300)
-    : currentSection === "conjugation"
-    ? (testInputMode === "keyboard" ? 160 : 90)
-    : 180;
+  const durationSeconds = getTestDurationSeconds(Array.from(document.querySelectorAll("#tableArea .test-answer-button")));
   testCountdownDeadline = Date.now() + durationSeconds * 1000;
   updateTestCountdown();
   testCountdownTimer = setInterval(updateTestCountdown, 250);
@@ -5702,6 +6233,7 @@ function bindSpeechInputFallbackInput(input) {
   };
   input.addEventListener("input", event => {
     if (!input.isConnected || input !== document.getElementById("speechInputFallbackText")) return;
+    if (speechInputFallbackButton) delete speechInputFallbackButton.dataset.answerSource;
     handleSpeechInputFallbackInput(input, event.isComposing);
   });
   input.addEventListener("compositionstart", rememberInputLocale);
@@ -6018,7 +6550,7 @@ function beginSpeechListening(button, recognition) {
 }
 
 function startNextSpeechQuestion(currentButton) {
-  if (testSessionEnded) return;
+  if (testSessionEnded || (usesPieceAnswers() && testInputMode === "keyboard")) return;
   const buttons = Array.from(document.querySelectorAll("#tableArea .test-answer-button"));
   const nextButton = buttons
     .slice(buttons.indexOf(currentButton) + 1)
@@ -6070,7 +6602,9 @@ function gradeSpeechAnswer(target, onlyIfCorrect = false) {
   } catch (error) {
     kanjiReadingMap = [];
   }
-  const correct = isSpeechAnswerCorrect(
+  const correct = target.dataset.answerSource === "words"
+    ? transcript === (target.dataset.wordAnswer || target.dataset.answer)
+    : isSpeechAnswerCorrect(
     transcript,
     getSpeechAnswersForButton(target),
     kanjiReadingMap,
@@ -6111,6 +6645,7 @@ function gradeSpeechAnswer(target, onlyIfCorrect = false) {
 }
 
 function startSpeechRecognitionForButton(button) {
+  delete button.dataset.answerSource;
   const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!Recognition) {
     speechSessionError = window.isSecureContext
@@ -6198,6 +6733,7 @@ function startSpeechRecognitionForButton(button) {
 
 function startSpeechTest(button) {
   if (testSessionEnded) return;
+  if (usesPieceAnswers() && testInputMode === "keyboard") return;
   selectSpeechTestQuestion(button);
   if (speechInputFallbackMode || button.dataset.speechFallback === "true") {
     openSpeechInputFallback(button);
@@ -6244,6 +6780,8 @@ function beginTestQuestions(mode) {
   testResultSaved = false;
   startSpeechTestSession();
   startTestCountdown();
+  document.body.classList.toggle("conversation-keyboard", usesPieceAnswers() && mode === "keyboard");
+  if (usesPieceAnswers() && mode === "keyboard") return;
   const firstQuestion = document.querySelector("#tableArea .test-answer-button");
   if (firstQuestion && mode === "keyboard") {
     // ソフトウェアキーボードは、ユーザー操作中に入力欄へ直接フォーカスしないと
@@ -6303,12 +6841,14 @@ function showTestStartPanel() {
     <div class="test-start-overlay" id="testStartOverlay">
       <form class="test-start-panel" onsubmit="confirmTestParticipant(event)">
         <label for="testParticipantName">名前</label>
-        <input id="testParticipantName" name="participantName" value="${escapeHtml(savedName)}" autocomplete="name" required>
+        <input id="testParticipantName" type="text" inputmode="text" enterkeyhint="go" name="participantName" value="${escapeHtml(savedName)}" autocomplete="name" required>
         <button type="submit">はじめる</button>
       </form>
     </div>
   `);
-  document.getElementById("testParticipantName")?.focus();
+  const input = document.getElementById("testParticipantName");
+  input?.addEventListener("input", () => input.setCustomValidity(""));
+  input?.focus();
 }
 
 function revealTestAnswers() {
@@ -6317,7 +6857,16 @@ function revealTestAnswers() {
   stopSpeechRecognition();
   clearTestCountdown();
   document.querySelectorAll("#tableArea .test-answer-button").forEach(button => {
-    if (button.dataset.correct === "true") return;
+    const bank = button.parentElement.querySelector(".conversation-word-bank");
+    if (button.dataset.correct === "true") {
+      if (bank) {
+        const answer = bank.querySelector(".conversation-selected-words");
+        answer.textContent = button.dataset.answer;
+        bank.replaceChildren(answer);
+      }
+      return;
+    }
+    bank?.remove();
     button.dataset.revealed = "true";
     button.className = "test-answer-button revealed";
     button.querySelector(".test-transcript").textContent = button.dataset.answer;
@@ -6333,14 +6882,15 @@ function makeTestTable() {
     .filter(row => row.cells.length >= 2)
     .filter(row => !row.hasAttribute("data-test-excluded"))
     // Vますのテストでは、ませんか・ましょうか・ましょうの練習行を出題しない。
-    .filter(row => currentTableType !== "Vます" || getCellAnswerText(row.cells[row.cells.length - 1]).endsWith("ます"))
+    .filter(row => currentTableType !== "Vます" || row.dataset.masuBase === "true" || (currentHomeLevel === 0 && row.dataset.basicInvitation === "true"))
     // 中国語の固有名詞を含む歌手の問題は、聞くモードの音声テストには出題しない。
     .filter(row => currentTableType !== "聞く" || !getCellAnswerText(row.cells[row.cells.length - 1]).includes("歌手を知っていますか"));
   if (!rows.length) return false;
   const isConjugation = currentSection === "conjugation";
   const isConnect = currentTableType === "つなぐ";
 
-  const selected = shuffleArray(rows).slice(0, Math.min(15, rows.length)).map(row => {
+  const questionLimit = currentSection === "conversation" ? rows.length : Math.min(15, rows.length);
+  const selected = shuffleArray(rows).slice(0, questionLimit).map(row => {
     const answerCell = row.cells[row.cells.length - 1];
     return {
       row,
@@ -6358,18 +6908,38 @@ function makeTestTable() {
     );
     selected.unshift(...selected.splice(longestAnswerIndex, 1));
   }
+  if (isConjugation) {
+    selected.forEach(item => {
+      const pieces = makeConjugationPieces(item.row, item.answerReading);
+      item.row.dataset.wordChoices = JSON.stringify(pieces.choices);
+      item.row.dataset.wordAnswer = pieces.words.join(" ");
+      item.row.dataset.stemPiece = pieces.stem || "";
+      item.answer = pieces.answer;
+      item.answerReading = pieces.answer;
+    });
+  }
   const body = selected.map(({ row, answer, answerReading, acceptedAnswers }, index) => {
     const prompt = row.cells[0].cloneNode(true);
     prompt.querySelectorAll(".question-box").forEach(node => node.remove());
     const kanjiReadingMap = getCellKanjiReadingMap(row.cells[row.cells.length - 1]);
-    return `<tr><td>${prompt.innerHTML}</td><td class="test-answer-cell"><button class="test-answer-button" type="button" data-answer="${escapeHtml(answer)}" data-answer-reading="${escapeHtml(answerReading)}" data-accepted-answers="${escapeHtml(acceptedAnswers)}" data-kanji-reading-map="${escapeHtml(JSON.stringify(kanjiReadingMap))}" data-conjugation="${isConjugation}" data-connect="${isConnect}" data-selected="false" aria-pressed="false" onclick="startSpeechTest(this)" aria-label="${index + 1}問目を音声で答える"><span class="test-transcript"></span><span class="test-status"></span></button></td></tr>`;
+    let wordChoices = JSON.parse(row.dataset.wordChoices || "[]");
+    if (currentSection === "vocab" && hasVocabularyChallenge(currentTableType)) {
+      const correct = row.dataset.wordAnswer;
+      const alternatives = [...new Set(vocabTableData[currentTableType]
+        .filter(Array.isArray).map(item => item[1]).filter(word => word !== correct))];
+      wordChoices = [correct, ...shuffleArray(alternatives).slice(0, 4)];
+    }
+    const orderedChoices = isConjugation && row.dataset.stemPiece ? [wordChoices[0], ...shuffleArray(wordChoices.slice(1))] : shuffleArray(wordChoices);
+    const wordBank = wordChoices.length ? `<div class="conversation-word-bank" data-answer-prefix="${escapeHtml(row.dataset.answerPrefix || "")}" role="group" aria-label="単語を選んで答える"><div class="conversation-selected-words" role="group" aria-label="選んだ単語">${escapeHtml(row.dataset.answerPrefix || "")}</div><div class="conversation-word-choices" role="group" aria-label="単語の選択肢">${orderedChoices.map((word, i) => `<button type="button" data-word-index="${i}" aria-pressed="false" onclick="chooseConversationWord(this)">${escapeHtml(word)}</button>`).join("")}</div></div>` : "";
+    return `<tr><td>${prompt.innerHTML}</td><td class="test-answer-cell"><button class="test-answer-button" type="button" data-answer="${escapeHtml(answer)}" data-word-answer="${escapeHtml(row.dataset.wordAnswer || "")}" data-stem-piece="${escapeHtml(row.dataset.stemPiece || "")}" data-answer-reading="${escapeHtml(answerReading)}" data-accepted-answers="${escapeHtml(acceptedAnswers)}" data-kanji-reading-map="${escapeHtml(JSON.stringify(kanjiReadingMap))}" data-conjugation="${isConjugation}" data-connect="${isConnect}" data-selected="false" aria-pressed="false" onclick="startSpeechTest(this)" aria-label="${index + 1}問目を音声で答える"><span class="test-transcript"></span><span class="test-status"></span></button>${wordBank}</td></tr>`;
   }).join("");
-  const timer = `<button class="test-timer-btn" id="testTimerBtn" type="button" aria-label="タイマー">${isConjugation ? "1:20" : nonConjugationQuestionTypes.has(currentTableType) ? "6:00" : "3:00"}</button>`;
+  const timer = `<button class="test-timer-btn" id="testTimerBtn" type="button" aria-label="タイマー">${formatTestDuration(getTestDurationSeconds(selected.map(({ row }) => row)))}</button>`;
   document.getElementById("tableArea").innerHTML = `<table class="test-table"><tr><th>問題</th><th>あなたの答え</th></tr>${body}</table><button class="test-reveal-btn" type="button" onclick="revealTestAnswers()">答え</button>${timer}<div class="scroll-extra-y"></div>`;
   return true;
 }
 
 function toggleTestMode() {
+  if (currentSection === "vocab" && !hasVocabularyChallenge(currentTableType)) return;
   if (testModeActive) {
     recordCurrentTestResult("leave");
     testSessionEnded = true;
@@ -6386,11 +6956,6 @@ function toggleTestMode() {
     afterTableOrderChanged();
     return;
   }
-  // Vますは入れ替え表示中でも、辞書形を問題、～ますを答えにしてテストを作る。
-  if (currentTableType === "Vます" && masuSwapped) {
-    masuSwapped = false;
-    makeMasuTable();
-  }
   rememberSequentialTable();
   if (!makeTestTable()) return;
   testModeActive = true;
@@ -6399,8 +6964,8 @@ function toggleTestMode() {
   document.getElementById("testModeBtn").classList.add("is-active");
   updateRandomOrderButton();
   afterTableOrderChanged();
-  if (testParticipantConfirmed) showTestInputModePanel();
-  else showTestStartPanel();
+  testParticipantConfirmed = false;
+  showTestStartPanel();
 }
 
 function updateRandomOrderButton() {
@@ -6575,6 +7140,8 @@ function compactJapanese(html) {
 }
 
 const rubyTextMap = {
+  "辞書形": "辞書形",
+  "上海": "上海",
   "二時間": "<ruby>二時間<rt>にじかん</rt></ruby>",
   "大阪": "<ruby>大阪<rt>おおさか</rt></ruby>",
   "公園": "<ruby>公園<rt>こうえん</rt></ruby>",
@@ -6737,7 +7304,7 @@ function addMissingTableFurigana(root = document.getElementById("tableArea")) {
   const targets = [];
   while (walker.nextNode()) {
     const node = walker.currentNode;
-    if (!node.parentElement?.closest("ruby, rt") && rubyTextPattern.test(node.nodeValue || "")) targets.push(node);
+    if (!node.parentElement?.closest('ruby, rt, .university-hint-label, [lang="zh"], [data-no-furigana]') && rubyTextPattern.test(node.nodeValue || "")) targets.push(node);
     rubyTextPattern.lastIndex = 0;
   }
   targets.forEach(node => {
@@ -6881,6 +7448,7 @@ function showPlaceholderTable(title, message, returnSection = "home") {
 }
 
 function showTable(type, focusKey = "") {
+  if (currentSection === "conjugation" && currentHomeLevel === 0 && !isBasicConjugationUnlocked(type)) return;
   recordCurrentTestResult("leave");
   stopSpeechRecognition();
   clearTestCountdown();
@@ -6896,7 +7464,7 @@ function showTable(type, focusKey = "") {
   document.getElementById("menuScreen").style.display = "none";
   document.getElementById("tableScreen").style.display = "block";
   document.getElementById("tableTitle").textContent = type;
-  document.body.classList.toggle("position-vocab", type === "位置詞");
+  document.getElementById("testModeBtn").hidden = currentSection === "vocab" && !hasVocabularyChallenge(type);
   currentTableType = type;
   testModeActive = false;
   document.body.classList.remove("test-mode");
@@ -6907,7 +7475,9 @@ function showTable(type, focusKey = "") {
 
   tableVisible = true;
 
-  if (type === "聞く") {
+  if (conversationPracticeData[type]) {
+    makeConversationTable();
+  } else if (type === "聞く") {
     makeListenTable();
   } else if (type === "話す") {
     makeSpeakTable();
@@ -7049,7 +7619,10 @@ function backMenu() {
   clearAllMasks();
 
   document.getElementById("tableScreen").style.display = "none";
-  if (currentSection === "vocab") {
+  if (currentSection === "conversation") {
+    openConversationMenu();
+    return;
+  } else if (currentSection === "vocab") {
     openVocabMenu();
     return;
   } else if (currentSection === "conjugation") {
@@ -7105,7 +7678,7 @@ function makeMasuBodyRow(row, extraClass = "", allowSwap = true) {
     : `<span class="answer-text">${row[1]}</span>`;
 
   return `
-      <tr class="${extraClass}">
+      <tr class="${extraClass}"${allowSwap ? ' data-masu-base="true"' : ""}>
         <td>${left}</td>
         <td>${right}</td>
       </tr>
@@ -7175,6 +7748,10 @@ function makeMasuTable() {
     ["ましょうか（提出帮助）", masuMashoukaData],
     ["ましょう（...吧!）", masuMashouData]
   ].forEach(([label, rows]) => {
+    if (currentHomeLevel === 0) {
+      const type = label.startsWith("ませんか") ? "Vませんか" : label.startsWith("ましょうか") ? "Vましょうか" : "Vましょう";
+      if (!isBasicConjugationUnlocked(type)) return;
+    }
     html += `
       <tr class="group-row">
         <td colspan="2">${label}</td>
@@ -7182,7 +7759,8 @@ function makeMasuTable() {
     `;
 
     rows.forEach(row => {
-      html += makeMasuBodyRow(row, "", false);
+      const bodyRow = makeMasuBodyRow(row, "", false);
+      html += currentHomeLevel === 0 ? bodyRow.replace("<tr ", '<tr data-basic-invitation="true" ') : bodyRow;
     });
   });
 
@@ -7278,9 +7856,8 @@ function makeTeTable() {
 
   teFormData.forEach(row => {
     const rowClass = row[2] ? ` class="${row[2]}"` : "";
-    const testExcluded = row[0] === "する" || row[0] === "<ruby>来<rt>く</rt></ruby>る" ? " data-test-excluded" : "";
     html += `
-      <tr${rowClass}${testExcluded}>
+      <tr${rowClass}>
         <td>${makeWordCell(row[0])}</td>
         <td><span class="answer-text">${row[1]}</span></td>
       </tr>
@@ -9634,6 +10211,7 @@ window.addEventListener("load", () => {
   checkLocalSpeechAvailability();
   bootstrapQuestionStorePersistence();
   setHomeMenu("main");
+  scheduleHomeTurtleReset();
   updateMenuPage();
   renderQuestionMemoLayer();
   requestAnimationFrame(() => {
