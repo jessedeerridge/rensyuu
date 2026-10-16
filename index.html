@@ -10386,6 +10386,7 @@ function getBalancedChallengeHint(original, measurement) {
   const flat = document.createElement("span");
   flat.innerHTML = cached?.source || original.innerHTML;
   const source = flat.innerHTML;
+  const connectLines = currentTableType === "つなぐ" ? Array.from(flat.querySelectorAll(".tara-hint-line"), line => line.cloneNode(true)) : [];
   flat.querySelectorAll("br").forEach(node => node.remove());
   flat.querySelectorAll(".tara-hint-line, .listen-prompt").forEach(node => node.replaceWith(...node.childNodes));
   const units = [];
@@ -10410,7 +10411,27 @@ function getBalancedChallengeHint(original, measurement) {
     measurement.replaceChildren(line);
     return { html: line.innerHTML, width: line.getBoundingClientRect().width };
   };
+  if (connectLines.length === 2) {
+    const separator = connectLines[0].querySelector(".connect-separator");
+    if (separator) connectLines[0].appendChild(separator);
+    const fragments = connectLines.map(line => {
+      const fragment = document.createDocumentFragment();
+      fragment.append(...line.childNodes);
+      return fragment;
+    });
+    const first = measure(fragments[0]);
+    const second = measure(fragments[1]);
+    const layout = { first, second, width:Math.max(first.width, second.width), single:{html:flat.innerHTML, width:Infinity}, source, fontKey, forceBreak:true };
+    challengeHintLayouts.set(original, layout);
+    return layout;
+  }
   const single = measure(flat);
+  if (currentTableType === "話す") {
+    single.html = flat.innerHTML;
+    const layout = { first:single, second:{html:"", width:0}, width:single.width, single, source, fontKey };
+    challengeHintLayouts.set(original, layout);
+    return layout;
+  }
   // measure(flat) includes an unnecessary wrapper; keep just the original inline content.
   single.html = flat.innerHTML;
   let best = { first: single, second: { html: "", width: 0 }, width: single.width };
@@ -10501,7 +10522,7 @@ function fitChallengeColumns(table) {
   table.style.setProperty("--challenge-prompt-width", `${Math.ceil(left)}px`);
   hintLayouts.forEach(({ original, layout, padding }) => {
     original.classList.add("balanced-challenge-hint");
-    original.innerHTML = layout.single.width <= Math.ceil(left) - padding
+    original.innerHTML = !layout.forceBreak && layout.single.width <= Math.ceil(left) - padding
       ? layout.single.html
       : `<span class="balanced-challenge-line">${layout.first.html}</span><span class="balanced-challenge-line">${layout.second.html}</span>`;
   });
