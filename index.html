@@ -6595,7 +6595,7 @@ function getTestDurationSeconds(questions) {
   if (usesPieceAnswers()) {
     const extraSeconds = currentSection === "conjugation" ? 30
       : currentSection === "conversation" ? questions.length * 2
-      : ["聞く", "話す", "つなぐ"].includes(currentTableType) ? 60 : 20;
+      : 20;
     const duration = questions.reduce((total, question) => {
       const pieces = (question.dataset.wordAnswer || "").trim().split(/\s+/).filter(Boolean).length;
       const stemPieces = currentSection === "conjugation" && question.dataset.stemPiece ? 1 : 0;
