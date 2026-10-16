@@ -2585,7 +2585,7 @@
     display: flex; flex-wrap: wrap; align-items: start; justify-content: flex-start; padding: 0;
   }
   .conversation-word-bank button { flex: 0 0 auto; white-space: nowrap; }
-  .conversation-word-bank button.connect-tail-piece { max-width:100%; white-space:normal; overflow-wrap:anywhere; text-align:left; }
+  .conversation-word-bank button.connect-tail-piece { max-width:none; white-space:nowrap; overflow-wrap:normal; text-align:left; }
   .connect-piece-table .conversation-selected-words { white-space:normal; }
   .conversation-word-choices button {
     width: calc(var(--piece-length, 3) * 1em + 14px);
@@ -10413,7 +10413,7 @@ function getBalancedChallengeHint(original, measurement) {
   };
   if (connectLines.length === 2) {
     const separator = connectLines[0].querySelector(".connect-separator");
-    if (separator) connectLines[0].appendChild(separator);
+    if (separator && !separator.classList.contains("connect-separator-before-after")) connectLines[0].appendChild(separator);
     const fragments = connectLines.map(line => {
       const fragment = document.createDocumentFragment();
       fragment.append(...line.childNodes);
