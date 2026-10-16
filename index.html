@@ -2640,6 +2640,10 @@
   #tableArea table.test-table th:last-child,
   #tableArea table.test-table td:last-child { width: calc(100% - var(--challenge-prompt-width, 30%)); }
   #tableArea table.test-table td:first-child .word-text { padding: 0; text-align: left; }
+  #tableArea table.test-table .balanced-challenge-hint { display:block; white-space:nowrap !important; }
+  #tableArea table.test-table .balanced-challenge-line { display:block; width:max-content; white-space:nowrap; }
+  #tableArea table.connect-piece-table .balanced-challenge-line + .balanced-challenge-line { margin-left:1em; }
+
 </style>
 </head>
 
@@ -10373,29 +10377,93 @@ function listenPromptUsesMoreThanTwoLines(el) {
   return prompt.getBoundingClientRect().height > lineHeight * 2 + 1;
 }
 
+const challengeHintLayouts = new WeakMap();
+function getBalancedChallengeHint(original, measurement) {
+  const style = getComputedStyle(original);
+  const cached = challengeHintLayouts.get(original);
+  const fontKey = `${style.font}|${style.letterSpacing}`;
+  if (cached?.fontKey === fontKey) return cached;
+  const flat = document.createElement("span");
+  flat.innerHTML = cached?.source || original.innerHTML;
+  const source = flat.innerHTML;
+  flat.querySelectorAll("br").forEach(node => node.remove());
+  flat.querySelectorAll(".tara-hint-line, .listen-prompt").forEach(node => node.replaceWith(...node.childNodes));
+  const units = [];
+  const segmenter = new Intl.Segmenter("ja", { granularity: "grapheme" });
+  const visit = node => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      node.textContent = node.textContent.replace(/\s+/g, "");
+      for (const { segment, index } of segmenter.segment(node.textContent)) units.push({ node, offset: index + segment.length });
+    } else if (node.matches?.("ruby, .connect-separator, .speak-route, .listen-prompt-emoji, .shopping-electronics, .shopping-portrait")) {
+      units.push({ node: node.parentNode, offset: Array.prototype.indexOf.call(node.parentNode.childNodes, node) + 1 });
+    } else {
+      Array.from(node.childNodes).forEach(visit);
+    }
+  };
+  Array.from(flat.childNodes).forEach(visit);
+  const measure = fragment => {
+    const line = document.createElement("span");
+    line.style.cssText = "display:inline-block;width:max-content;max-width:none;white-space:nowrap;";
+    line.style.font = style.font;
+    line.style.letterSpacing = style.letterSpacing;
+    line.appendChild(fragment.cloneNode(true));
+    measurement.replaceChildren(line);
+    return { html: line.innerHTML, width: line.getBoundingClientRect().width };
+  };
+  const single = measure(flat);
+  // measure(flat) includes an unnecessary wrapper; keep just the original inline content.
+  single.html = flat.innerHTML;
+  let best = { first: single, second: { html: "", width: 0 }, width: single.width };
+  for (let index = 0; index < units.length - 1; index++) {
+    const boundary = units[index];
+    const firstRange = document.createRange();
+    firstRange.setStart(flat, 0);
+    firstRange.setEnd(boundary.node, boundary.offset);
+    const secondRange = document.createRange();
+    secondRange.setStart(boundary.node, boundary.offset);
+    secondRange.setEnd(flat, flat.childNodes.length);
+    const first = measure(firstRange.cloneContents());
+    const second = measure(secondRange.cloneContents());
+    const width = Math.max(first.width, second.width);
+    if (first.width && second.width && width < best.width) best = { first, second, width };
+  }
+  const layout = { ...best, single, source, fontKey };
+  challengeHintLayouts.set(original, layout);
+  return layout;
+}
+
 function fitChallengeColumns(table) {
+  const textHintChallenge = ["聞く", "話す", "つなぐ"].includes(currentTableType);
+  const hintLayouts = [];
   const measurement = document.createElement("span");
   measurement.style.cssText = "position:fixed;left:-10000px;top:0;visibility:hidden;white-space:nowrap;width:max-content;";
   document.body.appendChild(measurement);
   let longest = 0;
   table.querySelectorAll("td:first-child .word-text, th:first-child").forEach(original => {
     const style = getComputedStyle(original);
+    const cell = original.closest("td, th");
+    const cellStyle = getComputedStyle(cell);
+    const padding = parseFloat(cellStyle.paddingLeft) + parseFloat(cellStyle.paddingRight);
+    if (textHintChallenge && original.classList.contains("word-text")) {
+      const layout = getBalancedChallengeHint(original, measurement);
+      hintLayouts.push({ original, layout, padding });
+      const hintWidth = currentTableType === "つなぐ"
+        ? Math.max(layout.first.width, layout.second.width + parseFloat(style.fontSize))
+        : layout.width;
+      longest = Math.max(longest, hintWidth + padding);
+      return;
+    }
     const clone = original.cloneNode(true);
     clone.style.cssText = "display:inline-block;width:max-content;min-width:0;max-width:none;padding:0;transform:none;";
     clone.style.setProperty("white-space", "nowrap", "important");
     clone.style.font = style.font;
     clone.style.letterSpacing = style.letterSpacing;
     measurement.replaceChildren(clone);
-    const cell = original.closest("td, th");
-    const cellStyle = getComputedStyle(cell);
-    const padding = parseFloat(cellStyle.paddingLeft) + parseFloat(cellStyle.paddingRight);
     longest = Math.max(longest, clone.getBoundingClientRect().width + padding);
   });
   measurement.remove();
   const width = table.getBoundingClientRect().width;
-  // Text hints may wrap so long answers get the same responsive space as other piece challenges.
-  const textHintChallenge = ["聞く", "話す", "つなぐ"].includes(currentTableType);
-  const minimumLeft = Math.min(longest + 2, width * (textHintChallenge ? 0.25 : 0.5));
+  const minimumLeft = Math.min(longest + 2, width * 0.5);
   let neededRight = 0;
   table.querySelectorAll(".conversation-word-choices").forEach(choices => {
     if (choices.closest("td").querySelector('.test-answer-button.correct, .test-answer-button.revealed')) return;
@@ -10431,6 +10499,12 @@ function fitChallengeColumns(table) {
   const preferredLeft = Math.max(minimumLeft, width * 0.45);
   const left = Math.max(minimumLeft, Math.min(preferredLeft, width - neededRight));
   table.style.setProperty("--challenge-prompt-width", `${Math.ceil(left)}px`);
+  hintLayouts.forEach(({ original, layout, padding }) => {
+    original.classList.add("balanced-challenge-hint");
+    original.innerHTML = layout.single.width <= Math.ceil(left) - padding
+      ? layout.single.html
+      : `<span class="balanced-challenge-line">${layout.first.html}</span><span class="balanced-challenge-line">${layout.second.html}</span>`;
+  });
   table.querySelectorAll(".conversation-word-choices").forEach(fitPieceChoiceRows);
 }
 
