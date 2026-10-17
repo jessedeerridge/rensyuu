@@ -2333,6 +2333,8 @@
   .position-label.pos-under { left: 50%; top: 63%; transform: translate(-50%, -50%); }
   .position-label.pos-near { left: 8%; top: 15%; }
   .position-label.pos-inside { right: 7%; top: 15%; }
+  .position-label.pos-side { left: 5%; top: 72%; }
+  .position-label.pos-next { right: 5%; top: 72%; }
 
   .magnifier {
     position: absolute;
@@ -4072,7 +4074,7 @@ function hasDatabaseConversationClear(topic) {
 }
 
 function isBasicConjugationUnlocked(type) {
-  if (["Vます", "Vて", "形-ない", "形-なかった"].includes(type)) return true;
+  if (["Vます", "Vて", "形-た", "形-ない", "形-なかった"].includes(type)) return true;
   const requirements = { "形-ない": "大学生活", "形-た": "私の町", "形-なかった": "私の町", "Vて": "一緒に", "Vませんか": "休みの日", "Vましょうか": "一緒に" };
   return !!requirements[type] && hasDatabaseConversationClear(requirements[type]);
 }
@@ -4256,7 +4258,9 @@ const vocabTableData = {
     ["上面", "うえ"],
     ["下面", "した"],
     ["附近", "ちかく"],
-    ["里面", "なか"]
+    ["里面", "なか"],
+    ["旁边", "よこ"],
+    ["紧挨着", "となり"]
   ]
 };
 
@@ -4288,7 +4292,9 @@ function makePositionVocabPractice() {
     ["机の上", "pos-on"],
     ["机の下", "pos-under"],
     ["机の近く", "pos-near"],
-    ["机の中", "pos-inside"]
+    ["机の中", "pos-inside"],
+    ["机のよこ", "pos-side"],
+    ["机のとなり", "pos-next"]
   ];
   document.getElementById("tableArea").innerHTML = `
     <div class="position-practice" id="positionPractice">
