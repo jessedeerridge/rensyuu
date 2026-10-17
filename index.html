@@ -6600,7 +6600,7 @@ function closeTestLikePopup() {
 function getTestDurationSeconds(questions) {
   if (usesPieceAnswers()) {
     const extraSeconds = currentSection === "conjugation" ? 30
-      : currentSection === "conversation" ? questions.length * 2
+      : currentSection === "conversation" ? questions.length * 3
       : ["聞く", "話す", "つなぐ"].includes(currentTableType) ? 50 : 20;
     const duration = questions.reduce((total, question) => {
       const pieces = (question.dataset.wordAnswer || "").trim().split(/\s+/).filter(Boolean).length;
