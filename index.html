@@ -7229,6 +7229,7 @@ function isPieceAnswerCorrect(transcript, answer, conversation = false, alternat
     const withoutTopic = answer.replace(/^((?:あした|ねんまつ)) は /, "$1 ");
     if (isPieceAnswerCorrect(transcript, withoutTopic, false, [], flexibleAdverbs)) return true;
   }
+  if (alternatives.includes(transcript)) return true;
   if (flexibleAdverbs) {
     const expected = answer.split(" ");
     const adverbs = expected.filter(piece => piece === "まだ" || piece === "もう");
@@ -7242,7 +7243,6 @@ function isPieceAnswerCorrect(transcript, answer, conversation = false, alternat
       return transcript === words.join(" ");
     });
   }
-  if (alternatives.includes(transcript)) return true;
   return conversation && answer.startsWith("しゅうまつ は ") &&
     transcript === answer.replace(/^しゅうまつ は /, "しゅうまつ ");
 }
@@ -7806,9 +7806,13 @@ function makeSpeakTable() {
   const sourceData = currentHomeLevel === 0 ? basicSpeakPracticeData : speakPracticeData;
   const rows = sourceData.map(([prompt, answer]) => {
     const pieces = speakPiecePracticeData.get(prompt);
+    const words = pieces?.words || [];
+    const acceptedAnswers = words[1] === "から" && words[3] === "まで"
+      ? [[words[2], "から", words[0], "まで", ...words.slice(4)].join(" ")]
+      : [];
     const pieceAttributes = pieces ? ` data-word-answer="${escapeHtml(pieces.words.join(" "))}" data-word-choices="${escapeHtml(JSON.stringify([...pieces.words, ...pieces.distractors]))}"` : "";
     return `
-    <tr${pieceAttributes}>
+    <tr data-accepted-answers="${escapeHtml(JSON.stringify(acceptedAnswers))}"${pieceAttributes}>
       <td>${makeWordCell(prompt)}</td>
       <td><span class="answer-text">${answer}</span></td>
     </tr>
