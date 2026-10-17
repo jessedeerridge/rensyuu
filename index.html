@@ -6571,7 +6571,7 @@ function finishTestAtTimeout() {
   const correctCount = document.querySelectorAll("#tableArea .test-answer-button[data-correct='true']").length;
   const earnedLike = currentSection !== "conversation" && !Object.hasOwn(conversationPracticeData, currentTableType) && nonConjugationQuestionTypes.has(currentTableType) && correctCount >= 12;
   if (earnedLike) {
-    // 「いいね」の達成は reason で記録し、得点は時間切れ時点の実際の値を保存する。
+    // 「いいですね」の達成は reason で記録し、得点は時間切れ時点の実際の値を保存する。
     saveTestResult(getCurrentTestPercent(), "like");
     showTestLikePopup();
   } else {
@@ -6584,9 +6584,9 @@ function showTestLikePopup() {
   const name = getSavedTestParticipantName();
   document.getElementById("testLikePopup")?.remove();
   document.body.insertAdjacentHTML("beforeend", `
-    <div class="test-start-overlay test-congratulations-overlay test-like-overlay" id="testLikePopup" role="button" tabindex="0" aria-label="いいね。クリックして閉じる" onclick="closeTestLikePopup()" onkeydown="if(event.key === 'Enter' || event.key === ' '){ event.preventDefault(); closeTestLikePopup(); }">
+    <div class="test-start-overlay test-congratulations-overlay test-like-overlay" id="testLikePopup" role="button" tabindex="0" aria-label="いいですね。クリックして閉じる" onclick="closeTestLikePopup()" onkeydown="if(event.key === 'Enter' || event.key === ' '){ event.preventDefault(); closeTestLikePopup(); }">
       <div class="test-start-panel test-congratulations">
-        <div class="test-congratulations-content">${escapeHtml(name)}さん、いいね！<small class="test-like-message" lang="zh-CN">合格了，不过还可以继续哦。</small></div>
+        <div class="test-congratulations-content">${escapeHtml(name)}さん、いいですね！<small class="test-like-message" lang="zh-CN">合格了，不过还可以继续哦。</small></div>
       </div>
     </div>
   `);
@@ -6601,7 +6601,7 @@ function getTestDurationSeconds(questions) {
   if (usesPieceAnswers()) {
     const extraSeconds = currentSection === "conjugation" ? 30
       : currentSection === "conversation" ? questions.length * 2
-      : 20;
+      : ["聞く", "話す", "つなぐ"].includes(currentTableType) ? 50 : 20;
     const duration = questions.reduce((total, question) => {
       const pieces = (question.dataset.wordAnswer || "").trim().split(/\s+/).filter(Boolean).length;
       const stemPieces = currentSection === "conjugation" && question.dataset.stemPiece ? 1 : 0;
