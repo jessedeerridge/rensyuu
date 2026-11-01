@@ -1824,6 +1824,13 @@
     text-align: right;
   }
 
+  #tableArea table.tara-conjugation-table .tara-hint-line:last-child {
+    text-align: left;
+    position: relative;
+    left: calc(1em - var(--tara-word-offset, 0px));
+    width: calc(100% + var(--tara-word-offset, 0px) - 1em);
+  }
+
 
   /* ===== ？保存メモ：つなぐアイコンを表と同じ見た目で表示 ===== */
   .question-memo-card .tara-hint-line {
@@ -10415,6 +10422,7 @@ function updateTableAlignmentClasses(table) {
 function applyTableModeClasses(table) {
   const isConjugationTable = currentSection === "conjugation" || !nonConjugationQuestionTypes.has(currentTableType);
   table.classList.toggle("conjugation-table", isConjugationTable);
+  table.classList.toggle("tara-conjugation-table", ["Vたら", "たら"].includes(currentTableType));
   table.classList.toggle("non-conjugation-table", !isConjugationTable);
 }
 
@@ -10542,11 +10550,15 @@ function unifyLeftColumnFontSize(table) {
 }
 
 function fitTaraHintLines(table) {
-  if (!table.classList.contains("tara-table")) return;
+  if (!table.classList.contains("tara-table") && !table.classList.contains("tara-conjugation-table")) return;
 
   table.querySelectorAll("td:first-child .word-text").forEach(wordText => {
     const lines = Array.from(wordText.querySelectorAll(".tara-hint-line"));
     if (!lines.length) return;
+    if (table.classList.contains("tara-conjugation-table")) {
+      const offset = wordText.getBoundingClientRect().left - wordText.closest("td").getBoundingClientRect().left;
+      wordText.style.setProperty("--tara-word-offset", `${offset}px`);
+    }
 
     let fontSize = parseFloat(getComputedStyle(wordText).fontSize);
     if (!Number.isFinite(fontSize)) return;
@@ -10754,6 +10766,7 @@ function fitTableTextOneLine() {
   if (table.classList.contains("test-table")) {
     applyTableModeClasses(table);
     fitChallengeColumns(table);
+    fitTaraHintLines(table);
     return;
   }
 
