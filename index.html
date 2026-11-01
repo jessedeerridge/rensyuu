@@ -3235,6 +3235,24 @@ function makeConjugationPieces(row, answerReading) {
       preselectedWord: prefix
     };
   };
+  const requiredFormChoice = (base, stem, ending, past, extension = "") => {
+    const suffix = (past ? "た" : "て") + extension;
+    let full;
+    if (base.endsWith("くる")) full = base.slice(0, -2) + "きっ" + suffix;
+    else if (base.endsWith("みる")) full = base.slice(0, -2) + "みっ" + suffix;
+    else if (base === "み") full = "みっ" + suffix;
+    else {
+      const iRow = { "う":"い", "く":"き", "ぐ":"ぎ", "す":"し", "つ":"ち", "ぬ":"に", "ぶ":"び", "む":"み", "る":"り" };
+      const last = base.slice(-1);
+      if (!iRow[last] || base.endsWith("する") || (last === "る" && ending === suffix)) return "";
+      full = base.slice(0, -1) + iRow[last] + suffix;
+    }
+    return full.startsWith(stem) ? full.slice(stem.length) : "";
+  };
+  const formDistractors = (endings, ending, required) => {
+    const fixed = required && required !== ending ? [required] : [];
+    return [...fixed, ...shuffleArray(endings.filter(piece => piece !== ending && piece !== required)).slice(0, 3 - fixed.length)];
+  };
   const taEndings = ["た", "った", "いた", "いだ", "くた", "んだ", "んた", "した", "きた"];
   const makePastPieces = (base, conjugated, extension = "") => {
     let stem = base.endsWith("くる") ? base.slice(0, -2) : base.replace(/(?:する|[うくぐすつぬぶむるい])$/, "");
@@ -3246,8 +3264,9 @@ function makeConjugationPieces(row, answerReading) {
     const ending = conjugated.slice(stem.length);
     const endings = taEndings.map(piece => piece + extension);
     const words = [stem, ending].filter(Boolean);
-    const distractors = shuffleArray(endings.filter(piece => piece !== ending)).slice(0, 3);
-    return { words, choices: [...words, ...distractors], stem };
+    const required = requiredFormChoice(base, stem, ending, true, extension);
+    const distractors = formDistractors(endings, ending, required);
+    return { words, choices: [...words, ...distractors], stem, required };
   };
   if (["Vたことがあります", "Vたことがありますか"].includes(currentTableType)) {
     const tail = answer.endsWith("ありますか") ? "ありますか" : "あります";
@@ -3263,7 +3282,8 @@ function makeConjugationPieces(row, answerReading) {
       const ending = clause.slice(pieces.stem.length);
       const pastEnding = ending.slice(0, -1);
       const mistakenEndings = { "た": "った", "った": "いた", "いた": "った", "いだ": "いた", "んだ": "んた", "した": "った", "きた": "くた" };
-      const alternative = (mistakenEndings[pastEnding] || "った") + "り";
+      const alternative = pieces.required && pieces.required !== ending
+        ? pieces.required : (mistakenEndings[pastEnding] || "った") + "り";
       words.push(clause);
       choices.push(clause, pieces.stem + alternative);
     });
@@ -3276,7 +3296,7 @@ function makeConjugationPieces(row, answerReading) {
   if (["Vたら", "たら"].includes(currentTableType)) {
     const split = answer.indexOf("、");
     const conditional = split < 0 ? answer : answer.slice(0, split);
-    const tail = split < 0 ? "" : answer.slice(split);
+    const tail = split < 0 ? "" : answer.slice(split + 1);
     const hint = row.cells[0].querySelector(".tara-hint-line")?.cloneNode(true);
     let base = dictionary.split("・")[0];
     let prefix = "";
@@ -3296,6 +3316,14 @@ function makeConjugationPieces(row, answerReading) {
       }
     }
     const pieces = makePastPieces(base, conditional, "ら");
+    if (conditional.endsWith("だったら")) {
+      const noun = conditional.slice(0, -4);
+      return {
+        words: [conditional, ...(tail ? [tail] : [])],
+        choices: [conditional, noun + "たら", noun + "かったら", ...(tail ? [tail] : [])],
+        answer, stem: ""
+      };
+    }
     if (prefix && pieces.stem.startsWith(prefix)) {
       const verbStem = pieces.stem.slice(prefix.length);
       const ending = conditional.slice(pieces.stem.length);
@@ -3323,7 +3351,8 @@ function makeConjugationPieces(row, answerReading) {
     const ending = conjugated.slice(stem.length);
     const baseWords = [stem, ending].filter(Boolean);
     const words = [...baseWords, ...tailPieces];
-    const distractors = shuffleArray(endings.filter(piece => piece !== ending)).slice(0, 3);
+    const required = requiredFormChoice(dictionary, stem, ending, currentTableType === "Vた");
+    const distractors = formDistractors(endings, ending, required);
     if (["Vてもいいですか", "Vてきます"].includes(currentTableType)) {
       const source = row.cells[0].querySelector(".word-text") || row.cells[0];
       const chunks = getCellAnswerReading(source).trim().split(/\s+/);
@@ -3501,6 +3530,15 @@ function fitPieceChoiceRows(choices) {
   choices.style.removeProperty("grid-template-rows");
 }
 
+function selectedPieceNodes(bank, buttons) {
+  return buttons.flatMap((button, index) => [
+    ...(index ? [document.createTextNode(" ")] : []),
+    button,
+    ...(bank.dataset.taraComma === "true" && index === buttons.findIndex(piece => /[ただ]ら$/.test(piece.textContent))
+      ? [document.createTextNode("、")] : [])
+  ]);
+}
+
 function chooseConversationWord(button, draggedSelection = null) {
   if (testSessionEnded || !testParticipantConfirmed) return;
   if (testInputMode !== "keyboard") return;
@@ -3523,9 +3561,7 @@ function chooseConversationWord(button, draggedSelection = null) {
   const selectedArea = bank.querySelector(".conversation-selected-words");
   const choicesArea = bank.querySelector(".conversation-word-choices");
   const answerPrefix = bank.dataset.answerPrefix || "";
-  selectedArea.replaceChildren(...(answerPrefix ? [document.createTextNode(answerPrefix)] : []), ...selected.flatMap((i, position) =>
-    position === 0 ? [choices[i]] : [document.createTextNode(" "), choices[i]]
-  ));
+  selectedArea.replaceChildren(...(answerPrefix ? [document.createTextNode(answerPrefix)] : []), ...selectedPieceNodes(bank, selected.map(i => choices[i])));
   choices.filter((_, i) => !selected.includes(i)).forEach(choice => choicesArea.appendChild(choice));
   fitPieceChoiceRows(choicesArea);
   const transcript = selected.map(i => choices[i].textContent).join(" ");
@@ -3635,7 +3671,7 @@ function finishPieceDrag(event) {
   const selectedArea = drag.bank.querySelector(".conversation-selected-words");
   const selectedOrder = JSON.parse(drag.bank.dataset.selected || "[]");
   const selectedButtons = selectedOrder.map(index => drag.bank.querySelector(`[data-word-index="${index}"]`));
-  selectedArea.replaceChildren(...(drag.bank.dataset.answerPrefix ? [document.createTextNode(drag.bank.dataset.answerPrefix)] : []), ...selectedButtons.flatMap((button, index) => index ? [document.createTextNode(" "), button] : [button]));
+  selectedArea.replaceChildren(...(drag.bank.dataset.answerPrefix ? [document.createTextNode(drag.bank.dataset.answerPrefix)] : []), ...selectedPieceNodes(drag.bank, selectedButtons));
   if (drag.originalStyle === null) drag.button.removeAttribute("style");
   else drag.button.setAttribute("style", drag.originalStyle);
   drag.bank.classList.remove("piece-dragging");
@@ -7753,6 +7789,7 @@ function makeTestTable() {
   const timer = `<button class="test-timer-btn" id="testTimerBtn" type="button" aria-label="タイマー">${formatTestDuration(getTestDurationSeconds(selected.map(({ row }) => row)))}</button>`;
   document.getElementById("tableArea").innerHTML = `<table class="test-table${isConnect ? " connect-piece-table" : ""}"><tr><th>問題</th><th>あなたの答え</th></tr>${body}</table><button class="test-reveal-btn" type="button" onclick="revealTestAnswers()">答え</button>${timer}<div class="scroll-extra-y"></div>`;
   document.querySelectorAll("#tableArea .conversation-word-bank").forEach((bank, index) => {
+    bank.dataset.taraComma = String(["Vたら", "たら"].includes(currentTableType));
     const word = selected[index].preselectedWord;
     if (!word) return;
     const piece = Array.from(bank.querySelectorAll("[data-word-index]")).find(button => button.textContent === word);
