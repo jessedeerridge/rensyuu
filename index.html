@@ -3261,12 +3261,17 @@ function makeConjugationPieces(row, answerReading) {
     clauses.forEach((clause, index) => {
       const pieces = makePastPieces(bases[index] || "", clause, "り");
       const ending = clause.slice(pieces.stem.length);
-      const alternative = shuffleArray(taEndings.map(piece => piece + "り").filter(piece => piece !== ending))[0];
+      const pastEnding = ending.slice(0, -1);
+      const mistakenEndings = { "た": "った", "った": "いた", "いた": "った", "いだ": "いた", "んだ": "んた", "した": "った", "きた": "くた" };
+      const alternative = (mistakenEndings[pastEnding] || "った") + "り";
       words.push(clause);
       choices.push(clause, pieces.stem + alternative);
     });
     if (answer.endsWith("します")) { words.push("し", "ます"); choices.push("し", "ます"); }
-    return { words, choices, answer, stem: "" };
+    const acceptedAnswers = clauses.length === 2
+      ? [[...clauses].reverse().join(" ") + (answer.endsWith("します") ? " し ます" : "")]
+      : [];
+    return { words, choices, answer, stem: "", acceptedAnswers };
   }
   if (["Vたら", "たら"].includes(currentTableType)) {
     const split = answer.indexOf("、");
@@ -7716,6 +7721,9 @@ function makeTestTable() {
       item.row.dataset.wordAnswer = pieces.words.join(" ");
       item.row.dataset.stemPiece = pieces.stem || "";
       item.preselectedWord = pieces.preselectedWord || "";
+      if (pieces.acceptedAnswers) {
+        item.acceptedAnswers = JSON.stringify([...JSON.parse(item.acceptedAnswers), ...pieces.acceptedAnswers]);
+      }
       item.row.dataset.wholeStemChoices = String(Boolean(pieces.wholeStemChoices));
       item.answer = pieces.answer;
       item.answerReading = pieces.answer;
