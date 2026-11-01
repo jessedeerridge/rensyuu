@@ -3531,10 +3531,13 @@ function fitPieceChoiceRows(choices) {
 }
 
 function selectedPieceNodes(bank, buttons) {
+  const commaEnding = bank.dataset.tariComma === "true" ? /[ただ]り$/ : /[ただ]ら$/;
+  const commaIndex = bank.dataset.taraComma === "true" || bank.dataset.tariComma === "true"
+    ? buttons.findIndex(piece => commaEnding.test(piece.textContent)) : -1;
   return buttons.flatMap((button, index) => [
     ...(index ? [document.createTextNode(" ")] : []),
     button,
-    ...(bank.dataset.taraComma === "true" && index === buttons.findIndex(piece => /[ただ]ら$/.test(piece.textContent))
+    ...(index === commaIndex
       ? [document.createTextNode("、")] : [])
   ]);
 }
@@ -7795,6 +7798,7 @@ function makeTestTable() {
   document.getElementById("tableArea").innerHTML = `<table class="test-table${isConnect ? " connect-piece-table" : ""}"><tr><th>問題</th><th>あなたの答え</th></tr>${body}</table><button class="test-reveal-btn" type="button" onclick="revealTestAnswers()">答え</button>${timer}<div class="scroll-extra-y"></div>`;
   document.querySelectorAll("#tableArea .conversation-word-bank").forEach((bank, index) => {
     bank.dataset.taraComma = String(["Vたら", "たら"].includes(currentTableType));
+    bank.dataset.tariComma = String(["Vたり", "たり"].includes(currentTableType));
     const word = selected[index].preselectedWord;
     if (!word) return;
     const piece = Array.from(bank.querySelectorAll("[data-word-index]")).find(button => button.textContent === word);
