@@ -3219,39 +3219,111 @@ function toConjugationHiragana(value) {
 }
 
 function makeConjugationPieces(row, answerReading) {
-  const dictionary = toConjugationHiragana(getCellAnswerReading(row.cells[0]));
+  const dictionary = toConjugationHiragana(getCellAnswerReading(row.cells[0])).replace(/^\?+/, "");
   const answer = toConjugationHiragana(answerReading);
-  if (currentTableType === "Vて" || currentTableType === "Vた") {
+  const taEndings = ["た", "った", "いた", "いだ", "くた", "んだ", "んた", "した", "きた"];
+  const makePastPieces = (base, conjugated, extension = "") => {
+    let stem = base.endsWith("くる") ? base.slice(0, -2) : base.replace(/(?:する|[うくぐすつぬぶむるい])$/, "");
+    if (!conjugated.startsWith(stem)) {
+      let length = 0;
+      while (length < base.length && base[length] === conjugated[length]) length++;
+      stem = conjugated.slice(0, length);
+    }
+    const ending = conjugated.slice(stem.length);
+    const endings = taEndings.map(piece => piece + extension);
+    const words = [stem, ending].filter(Boolean);
+    const distractors = shuffleArray(endings.filter(piece => piece !== ending)).slice(0, 3);
+    return { words, choices: [...words, ...distractors], stem };
+  };
+  if (["Vたことがあります", "Vたことがありますか"].includes(currentTableType)) {
+    const tail = answer.endsWith("ありますか") ? "ありますか" : "あります";
+    const pieces = makePastPieces(dictionary, answer.slice(0, -("ことが" + tail).length));
+    return { words: [...pieces.words, "ことが", tail], choices: [...pieces.choices, "ことが", tail], answer, stem: pieces.stem };
+  }
+  if (["Vたり", "たり"].includes(currentTableType)) {
+    const bases = dictionary.split("・");
+    const clauses = answer.replace(/します$/, "").split("、");
+    const words = [], choices = [];
+    clauses.forEach((clause, index) => {
+      const pieces = makePastPieces(bases[index] || "", clause, "り");
+      if (index) { words.push("、"); choices.push("、"); }
+      words.push(...pieces.words);
+      choices.push(...pieces.choices);
+    });
+    if (answer.endsWith("します")) { words.push("します"); choices.push("します"); }
+    return { words, choices, answer, stem: "" };
+  }
+  if (["Vたら", "たら"].includes(currentTableType)) {
+    const split = answer.indexOf("、");
+    const conditional = split < 0 ? answer : answer.slice(0, split);
+    const tail = split < 0 ? "" : answer.slice(split);
+    const pieces = makePastPieces(dictionary.split("・")[0], conditional, "ら");
+    return { words: [...pieces.words, ...(tail ? [tail] : [])], choices: [...pieces.choices, ...(tail ? [tail] : [])], answer, stem: pieces.stem };
+  }
+  const teTails = {
+    "Vてください": ["ください"],
+    "Vています": ["います"],
+    "Vてきます": ["きます"],
+    "Vてもいいですか": ["も", "いいですか"]
+  };
+  const tailPieces = teTails[currentTableType] || [];
+  if (currentTableType === "Vて" || currentTableType === "Vた" || tailPieces.length) {
     const endings = currentTableType === "Vた"
       ? ["た", "った", "いた", "いだ", "くた", "んだ", "んた", "した", "きた"]
       : ["て", "って", "いて", "いで", "くて", "んで", "んて", "して", "きて"];
-    const stem = dictionary === "くる" || /[てで]くる$/.test(dictionary)
+    const stem = dictionary.endsWith("くる")
       ? dictionary.slice(0, -2) : dictionary.replace(/(?:する|[うくぐすつぬぶむる])$/, "");
-    const ending = answer.slice(stem.length);
-    const words = [stem, ending].filter(Boolean);
+    const tail = tailPieces.join("");
+    const conjugated = tail ? answer.slice(0, -tail.length) : answer;
+    const ending = conjugated.slice(stem.length);
+    const baseWords = [stem, ending].filter(Boolean);
+    const words = [...baseWords, ...tailPieces];
     const distractors = shuffleArray(endings.filter(piece => piece !== ending)).slice(0, 3);
-    return { words, choices: [...words, ...distractors], answer, stem };
+    return { words, choices: [...baseWords, ...distractors, ...tailPieces], answer, stem };
   }
-  if (currentTableType === "Vます" || currentTableType === "Vない") {
+  if (currentTableType === "Vたいです" && answer.endsWith("たいです")) {
+    const stem = answer.slice(0, -4);
+    const base = dictionary.replace(/^\?+/, "");
+    const root = base.slice(0, -1);
+    const last = base.slice(-1);
+    const aRow = { "う":"わ", "く":"か", "ぐ":"が", "す":"さ", "つ":"た", "ぬ":"な", "ぶ":"ば", "む":"ま", "る":"ら" };
+    const eRow = { "う":"え", "く":"け", "ぐ":"げ", "す":"せ", "つ":"て", "ぬ":"ね", "ぶ":"べ", "む":"め", "る":"れ" };
+    let extras;
+    if (base.endsWith("する")) {
+      const prefix = base.slice(0, -2);
+      extras = [prefix + "さ", prefix + "せ"];
+    } else if (base === "くる" || /[てで]くる$/.test(base)) {
+      const prefix = base.slice(0, -2);
+      extras = [prefix + "か", prefix + "け"];
+    } else if (stem === root) {
+      extras = [stem + "ら", stem + "れ"];
+    } else {
+      extras = [root + aRow[last], root + eRow[last]];
+    }
+    return { words: [stem, "たいです"], choices: [stem, ...extras, "たいです"], answer, stem, wholeStemChoices: true };
+  }
+  if (["Vます", "Vない", "Vないでください"].includes(currentTableType)) {
+    const naide = currentTableType === "Vないでください";
+    const negative = currentTableType === "Vない" || naide;
     const reversed = currentTableType === "Vます" && masuSwapped && row.dataset.masuBase === "true";
     const base = reversed ? answer : dictionary;
-    const forward = reversed ? dictionary : answer;
-    const ending = currentTableType === "Vない" ? "ない" : forward.match(/(ましょうか|ませんか|ましょう|ます)$/)?.[1];
+    const forward = reversed ? dictionary : naide ? answer.replace(/でください$/, "") : answer;
+    const ending = negative ? "ない" : forward.match(/(ましょうか|ませんか|ましょう|ます)$/)?.[1];
     if (ending && forward.endsWith(ending)) {
       const correctStem = forward.slice(0, -ending.length);
       const root = base.slice(0, -1);
       const last = base.slice(-1);
       const aRow = { "う":"わ", "く":"か", "ぐ":"が", "す":"さ", "つ":"た", "ぬ":"な", "ぶ":"ば", "む":"ま", "る":"ら" };
       const iRow = { "う":"い", "く":"き", "ぐ":"ぎ", "す":"し", "つ":"ち", "ぬ":"に", "ぶ":"び", "む":"み", "る":"り" };
-      const isIchidan = Array.from(row.classList).some(name => name.includes("ichidan"));
+      const isIchidan = Array.from(row.classList).some(name => name.includes("ichidan")) || (naide && correctStem === root);
       let forms;
       if (isIchidan) {
-        const extra = currentTableType === "Vない" ? (/[いきぎしちにひびぴみり]$/.test(root) ? root + "い" : root + "ら")
+        const extra = negative ? (/[いきぎしちにひびぴみり]$/.test(root) ? root + "い" : root + "ら")
           : (/[いきぎしちにひびぴみり]$/.test(root) ? root + "い" : root + "り");
         forms = [root, base, extra];
       } else if (base.endsWith("する")) {
         const prefix = base.slice(0, -2);
-        forms = [prefix + "する", prefix + "し", prefix + (currentTableType === "Vない" ? "せ" : "さ")];
+        forms = [prefix + "する", prefix + "し", prefix + (negative ? "せ" : "さ")];
       } else if ((base === "くる" || /[てで]くる$/.test(base))) {
         const prefix = base.slice(0, -2);
         forms = [prefix + "くる", prefix + "き", prefix + "こ"];
@@ -3260,6 +3332,9 @@ function makeConjugationPieces(row, answerReading) {
       }
       // The full stem is one piece; keep its correct form first and shuffle the others in the UI.
       const choices = [...new Set([correctStem, ...forms, ending])];
+      if (naide) {
+        return { words: [correctStem, ending, "で", "ください"], choices: [...choices, "で", "ください", "て"], answer, stem: correctStem };
+      }
       return { words: reversed ? [base] : [correctStem, ending], choices, answer, stem: reversed ? "" : correctStem, wholeStemChoices: true };
     }
   }
@@ -3308,15 +3383,18 @@ function makeConjugationPieces(row, answerReading) {
     const extras = iAdjective ? ["い", "く"] : ["かった", "です", "く"];
     return { words, choices: [...words, ...extras], answer, stem };
   }
-  if (["形-ない", "形くない", "形-なかった"].includes(currentTableType)) {
+  if (["形-ない", "形くない", "形-なかった", "形-なる"].includes(currentTableType)) {
     const past = currentTableType === "形-なかった";
-    const suffix = past ? "なかったです" : "ないです";
-    const match = answer.match(new RegExp(`^(.*?)(く|じゃ)${suffix}$`));
+    const naru = currentTableType === "形-なる";
+    const suffix = naru ? "なります" : past ? "なかったです" : "ないです";
+    const connector = naru ? "に" : "じゃ";
+    const match = answer.match(new RegExp(`^(.*?)(く|${connector})${suffix}$`));
     if (match) {
       const stem = match[1] === "かっこよ" ? "かっこ" : match[1];
       const prefix = [stem, ...(match[1] === "かっこよ" ? ["よ"] : [])];
       const words = [...prefix, match[2], suffix];
-      return { words, choices: [...prefix, "く", "い", "じゃ", suffix], answer, stem };
+      const choices = [...prefix, "く", "い", "じゃ", suffix];
+      return { words, choices, answer, stem };
     }
   }
   if (currentTableType === "とき") {
