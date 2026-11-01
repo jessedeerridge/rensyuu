@@ -3279,6 +3279,16 @@ function makeConjugationPieces(row, answerReading) {
     const baseWords = [stem, ending].filter(Boolean);
     const words = [...baseWords, ...tailPieces];
     const distractors = shuffleArray(endings.filter(piece => piece !== ending)).slice(0, 3);
+    if (currentTableType === "Vてもいいですか") {
+      const source = row.cells[0].querySelector(".word-text") || row.cells[0];
+      const chunks = getCellAnswerReading(source).trim().split(/\s+/);
+      const prefix = chunks.length > 1 ? toConjugationHiragana(chunks.slice(0, -1).join("")) : "";
+      if (prefix && stem.startsWith(prefix)) {
+        const verbStem = stem.slice(prefix.length);
+        const splitWords = [prefix, verbStem, ending].filter(Boolean);
+        return { words: [...splitWords, ...tailPieces], choices: [...splitWords, ...distractors, ...tailPieces], answer, stem: prefix, preselectedWord: prefix };
+      }
+    }
     return { words, choices: [...baseWords, ...distractors, ...tailPieces], answer, stem };
   }
   if (currentTableType === "Vたいです" && answer.endsWith("たいです")) {
@@ -7665,6 +7675,7 @@ function makeTestTable() {
       item.row.dataset.wordChoices = JSON.stringify(pieces.choices);
       item.row.dataset.wordAnswer = pieces.words.join(" ");
       item.row.dataset.stemPiece = pieces.stem || "";
+      item.preselectedWord = pieces.preselectedWord || "";
       item.row.dataset.wholeStemChoices = String(Boolean(pieces.wholeStemChoices));
       item.answer = pieces.answer;
       item.answerReading = pieces.answer;
@@ -7693,6 +7704,15 @@ function makeTestTable() {
   }).join("");
   const timer = `<button class="test-timer-btn" id="testTimerBtn" type="button" aria-label="タイマー">${formatTestDuration(getTestDurationSeconds(selected.map(({ row }) => row)))}</button>`;
   document.getElementById("tableArea").innerHTML = `<table class="test-table${isConnect ? " connect-piece-table" : ""}"><tr><th>問題</th><th>あなたの答え</th></tr>${body}</table><button class="test-reveal-btn" type="button" onclick="revealTestAnswers()">答え</button>${timer}<div class="scroll-extra-y"></div>`;
+  document.querySelectorAll("#tableArea .conversation-word-bank").forEach((bank, index) => {
+    const word = selected[index].preselectedWord;
+    if (!word) return;
+    const piece = Array.from(bank.querySelectorAll("[data-word-index]")).find(button => button.textContent === word);
+    if (!piece) return;
+    bank.dataset.selected = JSON.stringify([Number(piece.dataset.wordIndex)]);
+    piece.setAttribute("aria-pressed", "true");
+    bank.querySelector(".conversation-selected-words").appendChild(piece);
+  });
   return true;
 }
 
