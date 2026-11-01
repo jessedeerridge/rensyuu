@@ -3272,7 +3272,32 @@ function makeConjugationPieces(row, answerReading) {
     const split = answer.indexOf("、");
     const conditional = split < 0 ? answer : answer.slice(0, split);
     const tail = split < 0 ? "" : answer.slice(split);
-    const pieces = makePastPieces(dictionary.split("・")[0], conditional, "ら");
+    const hint = row.cells[0].querySelector(".tara-hint-line")?.cloneNode(true);
+    let base = dictionary.split("・")[0];
+    let prefix = "";
+    if (hint) {
+      hint.querySelectorAll(".connect-separator").forEach(node => node.remove());
+      base = toConjugationHiragana(getCellAnswerReading(hint)).replace(/^💭/, "");
+      for (const node of hint.childNodes) {
+        if (node.nodeType !== Node.TEXT_NODE) continue;
+        const particle = node.textContent.match(/[がにをではと]/);
+        if (!particle) continue;
+        const range = document.createRange();
+        range.setStart(hint, 0);
+        range.setEnd(node, particle.index + 1);
+        const cell = document.createElement("td");
+        cell.appendChild(range.cloneContents());
+        prefix = toConjugationHiragana(getCellAnswerReading(cell)).replace(/^💭/, "");
+      }
+    }
+    const pieces = makePastPieces(base, conditional, "ら");
+    if (prefix && pieces.stem.startsWith(prefix)) {
+      const verbStem = pieces.stem.slice(prefix.length);
+      const ending = conditional.slice(pieces.stem.length);
+      const words = [prefix, verbStem, ending, tail].filter(Boolean);
+      const choices = [prefix, ...pieces.choices.map(word => word.startsWith(prefix) ? word.slice(prefix.length) : word).filter(Boolean), ...(tail ? [tail] : [])];
+      return { words, choices, answer, stem: prefix, preselectedWord: prefix };
+    }
     return { words: [...pieces.words, ...(tail ? [tail] : [])], choices: [...pieces.choices, ...(tail ? [tail] : [])], answer, stem: pieces.stem };
   }
   const teTails = {
