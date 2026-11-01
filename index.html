@@ -3221,6 +3221,20 @@ function toConjugationHiragana(value) {
 function makeConjugationPieces(row, answerReading) {
   const dictionary = toConjugationHiragana(getCellAnswerReading(row.cells[0])).replace(/^\?+/, "");
   const answer = toConjugationHiragana(answerReading);
+  const preselectIntro = pieces => {
+    const source = row.cells[0].querySelector(".word-text") || row.cells[0];
+    const chunks = getCellAnswerReading(source).trim().split(/\s+/);
+    const prefix = chunks.length > 1 ? toConjugationHiragana(chunks.slice(0, -1).join("")) : "";
+    if (!prefix || !pieces.stem.startsWith(prefix)) return pieces;
+    const stripPrefix = word => word.startsWith(prefix) ? word.slice(prefix.length) : word;
+    return {
+      ...pieces,
+      words: [prefix, ...pieces.words.map(stripPrefix).filter(Boolean)],
+      choices: [prefix, ...pieces.choices.map(stripPrefix).filter(Boolean)],
+      stem: prefix,
+      preselectedWord: prefix
+    };
+  };
   const taEndings = ["た", "った", "いた", "いだ", "くた", "んだ", "んた", "した", "きた"];
   const makePastPieces = (base, conjugated, extension = "") => {
     let stem = base.endsWith("くる") ? base.slice(0, -2) : base.replace(/(?:する|[うくぐすつぬぶむるい])$/, "");
@@ -3238,7 +3252,7 @@ function makeConjugationPieces(row, answerReading) {
   if (["Vたことがあります", "Vたことがありますか"].includes(currentTableType)) {
     const tail = answer.endsWith("ありますか") ? "ありますか" : "あります";
     const pieces = makePastPieces(dictionary, answer.slice(0, -("ことが" + tail).length));
-    return { words: [...pieces.words, "ことが", tail], choices: [...pieces.choices, "ことが", tail], answer, stem: pieces.stem };
+    return preselectIntro({ words: [...pieces.words, "ことが", tail], choices: [...pieces.choices, "ことが", tail], answer, stem: pieces.stem });
   }
   if (["Vたり", "たり"].includes(currentTableType)) {
     const bases = dictionary.split("・");
@@ -3343,7 +3357,7 @@ function makeConjugationPieces(row, answerReading) {
       // The full stem is one piece; keep its correct form first and shuffle the others in the UI.
       const choices = [...new Set([correctStem, ...forms, ending])];
       if (naide) {
-        return { words: [correctStem, ending, "で", "ください"], choices: [...choices, "で", "ください", "て"], answer, stem: correctStem };
+        return preselectIntro({ words: [correctStem, ending, "で", "ください"], choices: [...choices, "で", "ください", "て"], answer, stem: correctStem });
       }
       return { words: reversed ? [base] : [correctStem, ending], choices, answer, stem: reversed ? "" : correctStem, wholeStemChoices: true };
     }
