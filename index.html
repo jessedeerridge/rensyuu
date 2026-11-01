@@ -3541,7 +3541,7 @@ function selectedPieceNodes(bank, buttons) {
 
 function chooseConversationWord(button, draggedSelection = null) {
   if (testSessionEnded || !testParticipantConfirmed) return;
-  if (testInputMode !== "keyboard") return;
+  if (testInputMode !== "keyboard" || button.dataset.lockedPiece === "true") return;
   const bank = button.closest(".conversation-word-bank");
   const answerButton = bank.parentElement.querySelector(".test-answer-button");
   if (answerButton.dataset.correct === "true" || answerButton.dataset.revealed === "true") return;
@@ -3554,6 +3554,10 @@ function chooseConversationWord(button, draggedSelection = null) {
   if (draggedSelection) selected.splice(0, selected.length, ...draggedSelection);
   else if (previous >= 0) selected.splice(previous, 1);
   else selected.push(index);
+  if (bank.dataset.lockedWordIndex !== undefined) {
+    const locked = Number(bank.dataset.lockedWordIndex);
+    selected.splice(0, selected.length, locked, ...selected.filter(i => i !== locked));
+  }
   bank.dataset.selected = JSON.stringify(selected);
   const choices = Array.from(bank.querySelectorAll("[data-word-index]"))
     .sort((a, b) => Number(a.dataset.wordIndex) - Number(b.dataset.wordIndex));
@@ -3579,7 +3583,7 @@ function chooseConversationWord(button, draggedSelection = null) {
 let pieceDrag = null;
 document.addEventListener("pointerdown", event => {
   const button = event.target.closest(".conversation-word-bank button[data-word-index]");
-  if (!button || event.button !== 0 || testSessionEnded || !testParticipantConfirmed || testInputMode !== "keyboard") return;
+  if (!button || button.dataset.lockedPiece === "true" || event.button !== 0 || testSessionEnded || !testParticipantConfirmed || testInputMode !== "keyboard") return;
   const bank = button.closest(".conversation-word-bank");
   const answer = bank.parentElement.querySelector(".test-answer-button");
   if (answer.dataset.correct === "true" || answer.dataset.revealed === "true") return;
@@ -3628,6 +3632,7 @@ document.addEventListener("pointermove", event => {
       event.clientY >= rect.top - 20 && event.clientY <= rect.bottom + 15) {
     const buttons = Array.from(area.querySelectorAll("button")).filter(button => button !== drag.button);
     const before = buttons.find(button => {
+      if (button.dataset.lockedPiece === "true") return false;
       const box = button.getBoundingClientRect();
       return event.clientX < box.left + box.width / 2;
     });
@@ -7795,7 +7800,10 @@ function makeTestTable() {
     const piece = Array.from(bank.querySelectorAll("[data-word-index]")).find(button => button.textContent === word);
     if (!piece) return;
     bank.dataset.selected = JSON.stringify([Number(piece.dataset.wordIndex)]);
+    bank.dataset.lockedWordIndex = piece.dataset.wordIndex;
+    piece.dataset.lockedPiece = "true";
     piece.setAttribute("aria-pressed", "true");
+    piece.setAttribute("aria-disabled", "true");
     bank.querySelector(".conversation-selected-words").appendChild(piece);
   });
   return true;
