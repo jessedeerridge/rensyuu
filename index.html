@@ -7780,15 +7780,6 @@ function makeTestTable() {
       acceptedAnswers: row.dataset.acceptedAnswers || "[]"
     };
   });
-  if (isConjugation && selected.length > 1) {
-    // 音声で答えるテストなので、漢字の字数ではなく読みの文字数で最長を決める。
-    const answerLength = item => Array.from(normalizeSpeechText(item.answerReading)).length;
-    const longestAnswerIndex = selected.reduce(
-      (longestIndex, item, index, items) => answerLength(item) > answerLength(items[longestIndex]) ? index : longestIndex,
-      0
-    );
-    selected.unshift(...selected.splice(longestAnswerIndex, 1));
-  }
   if (isConjugation) {
     selected.forEach(item => {
       const pieces = makeConjugationPieces(item.row, item.answerReading);
