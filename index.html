@@ -2606,7 +2606,7 @@
     gap: 0; padding: 0;
   }
   .conversation-selected-words:not(:empty) {
-    width: max-content; max-width: 100%; min-height: 0;
+    width: max-content; max-width: 100%; min-height: 0; box-sizing: border-box;
     border: 1px solid #74b6e5; border-radius: 8px;
     background: #d5edff; color: #555; padding: 7px 10px;
   }
@@ -3545,6 +3545,14 @@ function fitSelectedPieceText(bank) {
   if (!area.textContent || !area.clientWidth || !target?.dataset.answerFontSize) return;
   if (area.scrollWidth > area.clientWidth + 1 || area.getBoundingClientRect().right > bank.getBoundingClientRect().right + 1) {
     area.style.fontSize = target.dataset.answerFontSize;
+    const style = getComputedStyle(area);
+    const available = area.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+    const range = document.createRange();
+    range.selectNodeContents(area);
+    const contentWidth = range.getBoundingClientRect().width;
+    if (available > 0 && contentWidth > available) {
+      area.style.fontSize = `${parseFloat(style.fontSize) * available / contentWidth}px`;
+    }
   }
 }
 
@@ -3600,6 +3608,7 @@ function chooseConversationWord(button, draggedSelection = null) {
   if (gradeSpeechAnswer(answerButton, true) && answerButton.dataset.answer.endsWith("。")) {
     selectedArea.appendChild(document.createTextNode("。"));
   }
+  fitSelectedPieceText(bank);
 }
 
 let pieceDrag = null;
@@ -10726,8 +10735,8 @@ function fitChallengeColumns(table) {
     measurement.replaceChildren(clone);
     longest = Math.max(longest, clone.getBoundingClientRect().width + padding);
   });
-  measurement.remove();
   const width = table.getBoundingClientRect().width;
+  const answerSizedChallenge = ["Vたら", "たら", "Vたことがあります", "Vたことがありますか", "Vないでください"].includes(currentTableType);
   const taraChallenge = ["Vたら", "たら"].includes(currentTableType);
   const minimumLeft = Math.min(longest + 2, taraChallenge ? Math.max(0, width - 40) : width * 0.5);
   let neededRight = 0;
@@ -10762,9 +10771,33 @@ function fitChallengeColumns(table) {
     const required = twoRowsWidth <= width - minimumLeft ? twoRowsWidth : requiredWidth(3);
     neededRight = Math.max(neededRight, required);
   });
-  const preferredLeft = ["Vたら", "たら"].includes(currentTableType) ? minimumLeft : Math.max(minimumLeft, width * 0.45);
-  const left = Math.max(minimumLeft, Math.min(preferredLeft, width - neededRight));
+  if (answerSizedChallenge) {
+    table.querySelectorAll(".test-answer-button[data-word-answer]").forEach(target => {
+      const bank = target.parentElement.querySelector(".conversation-word-bank");
+      if (!bank) return;
+      const text = document.createElement("span");
+      const style = getComputedStyle(bank);
+      text.style.cssText = "display:inline-block;width:max-content;white-space:nowrap;";
+      text.style.font = style.font;
+      text.style.fontSize = target.dataset.answerFontSize || style.fontSize;
+      text.textContent = target.dataset.wordAnswer + (taraChallenge ? "、" : "");
+      measurement.replaceChildren(text);
+      const cellStyle = getComputedStyle(target.closest("td"));
+      const padding = parseFloat(cellStyle.paddingLeft) + parseFloat(cellStyle.paddingRight);
+      neededRight = Math.max(neededRight, text.getBoundingClientRect().width + padding + 24);
+    });
+  }
+  measurement.remove();
+  const preferredLeft = taraChallenge ? minimumLeft : Math.max(minimumLeft, width * 0.45);
+  const promptFloor = answerSizedChallenge ? Math.min(64, width * 0.2) : minimumLeft;
+  const left = Math.max(promptFloor, Math.min(preferredLeft, width - neededRight));
   table.style.setProperty("--challenge-prompt-width", `${Math.ceil(left)}px`);
+  if (answerSizedChallenge && !taraChallenge) {
+    table.querySelectorAll("td:first-child .word-text").forEach(text => {
+      text.style.setProperty("white-space", "normal", "important");
+      text.style.overflowWrap = "anywhere";
+    });
+  }
   hintLayouts.forEach(({ original, layout, padding }) => {
     original.classList.add("balanced-challenge-hint");
     original.innerHTML = !layout.forceBreak && layout.single.width <= Math.ceil(left) - padding
