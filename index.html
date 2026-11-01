@@ -3530,6 +3530,17 @@ function fitPieceChoiceRows(choices) {
   choices.style.removeProperty("grid-template-rows");
 }
 
+function fitSelectedPieceText(bank) {
+  const area = bank.querySelector(".conversation-selected-words");
+  const target = bank.parentElement.querySelector(".test-answer-button");
+  if (!area) return;
+  area.style.removeProperty("font-size");
+  if (!area.textContent || !area.clientWidth || !target?.dataset.answerFontSize) return;
+  if (area.scrollWidth > area.clientWidth + 1 || area.getBoundingClientRect().right > bank.getBoundingClientRect().right + 1) {
+    area.style.fontSize = target.dataset.answerFontSize;
+  }
+}
+
 function selectedPieceNodes(bank, buttons) {
   const commaEnding = bank.dataset.tariComma === "true" ? /[ただ]り$/ : /[ただ]ら$/;
   const commaIndex = bank.dataset.taraComma === "true" || bank.dataset.tariComma === "true"
@@ -3571,6 +3582,7 @@ function chooseConversationWord(button, draggedSelection = null) {
   selectedArea.replaceChildren(...(answerPrefix ? [document.createTextNode(answerPrefix)] : []), ...selectedPieceNodes(bank, selected.map(i => choices[i])));
   choices.filter((_, i) => !selected.includes(i)).forEach(choice => choicesArea.appendChild(choice));
   fitPieceChoiceRows(choicesArea);
+  fitSelectedPieceText(bank);
   const transcript = selected.map(i => choices[i].textContent).join(" ");
   answerButton.dataset.answerSource = "words";
   setSpeechButtonMessage(answerButton, transcript);
@@ -7809,6 +7821,7 @@ function makeTestTable() {
     piece.setAttribute("aria-pressed", "true");
     piece.setAttribute("aria-disabled", "true");
     bank.querySelector(".conversation-selected-words").appendChild(piece);
+    fitSelectedPieceText(bank);
   });
   return true;
 }
@@ -10732,6 +10745,7 @@ function fitChallengeColumns(table) {
       : `<span class="balanced-challenge-line">${layout.first.html}</span><span class="balanced-challenge-line">${layout.second.html}</span>`;
   });
   table.querySelectorAll(".conversation-word-choices").forEach(fitPieceChoiceRows);
+  table.querySelectorAll(".conversation-word-bank").forEach(fitSelectedPieceText);
 }
 
 function fitTableTextOneLine() {
