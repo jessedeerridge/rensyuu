@@ -10728,7 +10728,8 @@ function fitChallengeColumns(table) {
   });
   measurement.remove();
   const width = table.getBoundingClientRect().width;
-  const minimumLeft = Math.min(longest + 2, width * 0.5);
+  const taraChallenge = ["Vたら", "たら"].includes(currentTableType);
+  const minimumLeft = Math.min(longest + 2, taraChallenge ? Math.max(0, width - 40) : width * 0.5);
   let neededRight = 0;
   table.querySelectorAll(".conversation-word-choices").forEach(choices => {
     if (choices.closest("td").querySelector('.test-answer-button.correct, .test-answer-button.revealed')) return;
