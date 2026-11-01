@@ -3322,6 +3322,7 @@ function makeConjugationPieces(row, answerReading) {
         prefix = toConjugationHiragana(getCellAnswerReading(cell)).replace(/^💭/, "");
       }
     }
+    if (base.endsWith("できる")) prefix = base.slice(0, -3);
     const pieces = makePastPieces(base, conditional, "ら");
     const intro = prefix && conditional.startsWith(prefix) ? prefix : "";
     const correct = conditional.slice(intro.length);
