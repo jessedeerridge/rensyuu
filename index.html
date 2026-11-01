@@ -3323,22 +3323,24 @@ function makeConjugationPieces(row, answerReading) {
       }
     }
     const pieces = makePastPieces(base, conditional, "ら");
-    if (conditional.endsWith("だったら")) {
-      const noun = conditional.slice(0, -4);
-      return {
-        words: [conditional, ...(tail ? [tail] : [])],
-        choices: [conditional, noun + "たら", noun + "かったら", ...(tail ? [tail] : [])],
-        answer, stem: ""
-      };
+    const intro = prefix && conditional.startsWith(prefix) ? prefix : "";
+    const correct = conditional.slice(intro.length);
+    let forms;
+    if (correct.endsWith("だったら")) {
+      const noun = correct.slice(0, -4);
+      forms = [noun + "たら", correct, noun + "かったら"];
+    } else if (base.endsWith("い") && correct.endsWith("かったら")) {
+      const adjective = correct.slice(0, -4);
+      forms = [adjective + "くたら", adjective + "いたら", correct];
+    } else {
+      const distractors = pieces.choices.slice(pieces.words.length);
+      forms = [correct, ...distractors.map(ending => (pieces.stem + ending).slice(intro.length))];
     }
-    if (prefix && pieces.stem.startsWith(prefix)) {
-      const verbStem = pieces.stem.slice(prefix.length);
-      const ending = conditional.slice(pieces.stem.length);
-      const words = [prefix, verbStem, ending, tail].filter(Boolean);
-      const choices = [prefix, ...pieces.choices.map(word => word.startsWith(prefix) ? word.slice(prefix.length) : word).filter(Boolean), ...(tail ? [tail] : [])];
-      return { words, choices, answer, stem: prefix, preselectedWord: prefix };
-    }
-    return { words: [...pieces.words, ...(tail ? [tail] : [])], choices: [...pieces.choices, ...(tail ? [tail] : [])], answer, stem: pieces.stem };
+    return {
+      words: [intro, correct, tail].filter(Boolean),
+      choices: [intro, ...forms, tail].filter(Boolean),
+      answer, stem: intro, preselectedWord: intro
+    };
   }
   const teTails = {
     "Vてください": ["ください"],
