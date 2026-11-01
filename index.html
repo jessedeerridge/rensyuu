@@ -3279,7 +3279,7 @@ function makeConjugationPieces(row, answerReading) {
     const baseWords = [stem, ending].filter(Boolean);
     const words = [...baseWords, ...tailPieces];
     const distractors = shuffleArray(endings.filter(piece => piece !== ending)).slice(0, 3);
-    if (currentTableType === "Vてもいいですか") {
+    if (["Vてもいいですか", "Vてきます"].includes(currentTableType)) {
       const source = row.cells[0].querySelector(".word-text") || row.cells[0];
       const chunks = getCellAnswerReading(source).trim().split(/\s+/);
       const prefix = chunks.length > 1 ? toConjugationHiragana(chunks.slice(0, -1).join("")) : "";
