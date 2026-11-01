@@ -9461,7 +9461,7 @@ function makeTaraPartialColorTable(title, rightTitle, rows) {
     }
 
     html += `
-      <tr class="${index < 9 ? "tara-after-row" : "tara-if-row"}"${row[0].startsWith("お<ruby>腹") ? ' data-test-excluded="true"' : ""}>
+      <tr class="${index < 9 ? "tara-after-row" : "tara-if-row"}">
         <td>${makeWordCell(makeTwoLineHint(row[0], index >= 9))}</td>
         <td><span class="answer-text">${compactJapanese(row[1])}</span></td>
       </tr>
@@ -10422,7 +10422,7 @@ function updateTableAlignmentClasses(table) {
 function applyTableModeClasses(table) {
   const isConjugationTable = currentSection === "conjugation" || !nonConjugationQuestionTypes.has(currentTableType);
   table.classList.toggle("conjugation-table", isConjugationTable);
-  table.classList.toggle("tara-conjugation-table", ["Vたら", "たら"].includes(currentTableType));
+  table.classList.toggle("tara-conjugation-table", table.classList.contains("test-table") && ["Vたら", "たら"].includes(currentTableType));
   table.classList.toggle("non-conjugation-table", !isConjugationTable);
 }
 
