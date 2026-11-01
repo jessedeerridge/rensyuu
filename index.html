@@ -6814,7 +6814,7 @@ function getTestDurationSeconds(questions) {
       const pieces = (question.dataset.wordAnswer || "").trim().split(/\s+/).filter(Boolean).length;
       const stemPieces = currentSection === "conjugation" && question.dataset.stemPiece ? 1 : 0;
       return total + Math.max(0, pieces - stemPieces);
-    }, 0) * 2.5 + extraSeconds;
+    }, 0) * 3 + extraSeconds;
     return ["聞く", "話す", "つなぐ"].includes(currentTableType) ? Math.max(160, duration) : duration;
   }
   return questions.length * 10 + 20;
