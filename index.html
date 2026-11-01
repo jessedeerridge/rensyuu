@@ -3393,7 +3393,7 @@ function makeConjugationPieces(row, answerReading) {
       const stem = match[1] === "かっこよ" ? "かっこ" : match[1];
       const prefix = [stem, ...(match[1] === "かっこよ" ? ["よ"] : [])];
       const words = [...prefix, match[2], suffix];
-      const choices = [...prefix, "く", "い", "じゃ", suffix];
+      const choices = [...prefix, "く", "い", connector, suffix];
       return { words, choices, answer, stem };
     }
   }
