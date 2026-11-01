@@ -3260,11 +3260,12 @@ function makeConjugationPieces(row, answerReading) {
     const words = [], choices = [];
     clauses.forEach((clause, index) => {
       const pieces = makePastPieces(bases[index] || "", clause, "り");
-      if (index) { words.push("、"); choices.push("、"); }
-      words.push(...pieces.words);
-      choices.push(...pieces.choices);
+      const ending = clause.slice(pieces.stem.length);
+      const alternative = shuffleArray(taEndings.map(piece => piece + "り").filter(piece => piece !== ending))[0];
+      words.push(clause);
+      choices.push(clause, pieces.stem + alternative);
     });
-    if (answer.endsWith("します")) { words.push("します"); choices.push("します"); }
+    if (answer.endsWith("します")) { words.push("し", "ます"); choices.push("し", "ます"); }
     return { words, choices, answer, stem: "" };
   }
   if (["Vたら", "たら"].includes(currentTableType)) {
