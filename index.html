@@ -9461,7 +9461,7 @@ function makeTaraPartialColorTable(title, rightTitle, rows) {
     }
 
     html += `
-      <tr class="${index < 9 ? "tara-after-row" : "tara-if-row"}">
+      <tr class="${index < 9 ? "tara-after-row" : "tara-if-row"}"${row[0].startsWith("お<ruby>腹") ? ' data-test-excluded="true"' : ""}>
         <td>${makeWordCell(makeTwoLineHint(row[0], index >= 9))}</td>
         <td><span class="answer-text">${compactJapanese(row[1])}</span></td>
       </tr>
@@ -10695,6 +10695,20 @@ function fitChallengeColumns(table) {
     const cell = original.closest("td, th");
     const cellStyle = getComputedStyle(cell);
     const padding = parseFloat(cellStyle.paddingLeft) + parseFloat(cellStyle.paddingRight);
+    if (["Vたら", "たら"].includes(currentTableType) && original.classList.contains("word-text")) {
+      const lines = Array.from(original.querySelectorAll(".tara-hint-line"));
+      if (lines.length) {
+        lines.forEach((line, index) => {
+          const clone = line.cloneNode(true);
+          clone.style.cssText = "display:inline-block;position:static;left:auto;width:max-content;max-width:none;white-space:nowrap;text-align:left;";
+          clone.style.font = style.font;
+          measurement.replaceChildren(clone);
+          const indent = index ? parseFloat(style.fontSize) : original.getBoundingClientRect().left - cell.getBoundingClientRect().left;
+          longest = Math.max(longest, clone.getBoundingClientRect().width + indent + parseFloat(cellStyle.paddingRight));
+        });
+        return;
+      }
+    }
     if (textHintChallenge && original.classList.contains("word-text")) {
       const layout = getBalancedChallengeHint(original, measurement);
       hintLayouts.push({ original, layout, padding });
@@ -10747,7 +10761,7 @@ function fitChallengeColumns(table) {
     const required = twoRowsWidth <= width - minimumLeft ? twoRowsWidth : requiredWidth(3);
     neededRight = Math.max(neededRight, required);
   });
-  const preferredLeft = Math.max(minimumLeft, width * 0.45);
+  const preferredLeft = ["Vたら", "たら"].includes(currentTableType) ? minimumLeft : Math.max(minimumLeft, width * 0.45);
   const left = Math.max(minimumLeft, Math.min(preferredLeft, width - neededRight));
   table.style.setProperty("--challenge-prompt-width", `${Math.ceil(left)}px`);
   hintLayouts.forEach(({ original, layout, padding }) => {
